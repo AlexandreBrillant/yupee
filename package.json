@@ -1,0 +1,22 @@
+{
+  "name": "yupee",
+  "version": "1.0.0",
+  "description": "A simple JavaScript library for building modular web application without React",
+  "main": "index.js",
+  "scripts": {
+    "build" : "terser src\\yupee.js -o dist\\yupee.min.js"
+  },
+  "keywords": [
+    "yupee",
+    "html component",
+    "modular application",
+    "modular web",
+    "javascript component",
+    "angularjs",
+    "react",
+    "alternative to react",
+    "javascript"
+  ],
+  "author": "alexandre brillant",
+  "license": "MIT"
+}
