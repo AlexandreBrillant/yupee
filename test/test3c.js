@@ -1,5 +1,5 @@
 /*
-    NoRComponent with a binding to the #part3 html element
+    Yup with a binding to the #part3 html element
     Author : Alexandre Brillant (https://github.com/AlexandreBrillant/)
  */
 
