@@ -179,6 +179,40 @@ Also, it is possible to run a fonction when the Yup component is displayed using
 
 With this Yup component, when the user will click on the black message "Click here for Bold and Red", the message will be rendered in bold with a red color.
 
+## Using Parameters
+
+A Yup component can be started with additional parameters from the **load** method.
+
+In the next example, we have two parameters **message** and **color**
+
+```html
+<html>
+    <head>
+        <script src="../src/yupee.js"></script>
+        <script>$$.load( "test4", { message : "hello world", color : "red" } );</script>
+    </head>
+
+    <body>
+
+    </body>
+</html>
+```
+
+In the Yup component, the **param** method is used for getting each parameter value.
+
+```javascript
+( () => {
+
+    const yup = $$.start();
+    const message = yup.param( "message", "bye bye world..." );
+    const color = yup.param( "color", "black" );
+
+    yup.paint( `<div>${message}</div>` ).style( { "color" : color, "font-weight" : "bold" } );
+
+} )();
+
+```
+
 ## Using DOM node and repainting a Yup component
 
 In this sample, we add a content inside the Yup component using a DOM node and we alter after every 1 second the content with a counter.
