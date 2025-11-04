@@ -243,7 +243,7 @@ In this sample, we add a content inside the Yup component using a DOM node and w
 ```
 ## Building a Calculator application
 
-Here a way for building a Calculator using two Yup components. The first one **buttons**, will manage all the buttons of the calculator, the second one **screen** will display the result.
+Here’s a way to build a Calculator using two Yup components. The first one **buttons**, will manage all the buttons of the calculator, the second one **screen** will display the result.
 
 Yup components can communicate with each other using events. Thus the **buttons** will send event and the **screen** will catch this event.
 
@@ -416,6 +416,65 @@ Using a standard DOM listener, we handle each button of the HTML page and we sen
 ### Catching custom events
 
 This Yup component will catch all the event of the **Buttons** component using **$$.listen**. The fist argument is the event type **btn**, and the second one if a fonction for catching the data of the event (here the button label with **btnId**).
+
+## Creating MVC applications
+
+You can share data between your Yup components. In this example, we build a simple notebook application. All
+the notes are stored inside a shared model called **notes**, managed by a Yup component named **actions** (acting both The Model and The Controller). Another Yup component **notes** listens (The View) for model updates and repaints each note in the HTML template.
+
+### The Model part
+
+Here the **actions** component
+
+```javascript
+( () => {
+
+    const yup = $$.start();
+
+    yup.into( "#actions" );
+
+    // Share a model for the notes
+    $$.data( "notes", [] );
+
+    yup.event( "click",
+            () => {
+                let note = prompt( "Your note" );
+                if ( note ) {
+                    $$.data( "notes" ).push( note );
+                    $$.fire( "repaint" );
+                }
+    } );
+
+    yup.paint( "<input type='button' value='Add a note' id='add'>" );
+
+} )();
+```
+
+### The View part
+
+Here the **notes"** component
+
+```javascript
+( () => {
+
+    const yup = $$.start();
+
+    yup.into( "#notes" );
+
+    function repaint( notes ) {
+        let htmlNotes = "";
+        notes.forEach( note => {
+            htmlNotes += ( "<div>" + note + "</div>" );
+        });
+        yup.paint( htmlNotes );
+    }
+
+    $$.listen( "repaint", () => {
+        repaint( $$.data( "notes" ) );
+    } );
+
+} )();
+```
 
 ## Conclusion
 
