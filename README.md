@@ -51,7 +51,7 @@ The end user will see only "Hello World" when loading the **helloworld.html** pa
 
 ## Loading a Yup component Anywhere in the HTML page
 
-In this example, we load 3 yup components (**test3a**, **test3b** and **test3c**$). Each component will renderer in a different part of the HTML page.
+In this example, we load 3 yup components (**test3a**, **test3b** and **test3c**). Each component will renderer in a different part of the HTML page.
 
 ```html
 <html>
@@ -341,7 +341,7 @@ Here the template of the HTML calculator page
 </html>
 ```
 
-For managing the buttons, we will create a Yup component (**buttons***) getting all the buttons with the ***div.btn*** selector.
+For managing the buttons, we will create a Yup component (**buttons**) getting all the buttons with the **div.btn** selector.
 
 ```javascript
 ( () => {
@@ -452,7 +452,7 @@ Here the **actions** component
 
 ### The View part
 
-Here the **notes"** component
+Here the **notes** component
 
 ```javascript
 ( () => {
@@ -479,6 +479,5 @@ Here the **notes"** component
 ## Conclusion
 
 Yupee is a lightweight library for creating modular web applications with ease. It is designed to be simple, flexible, and easy to use.
-
 
 (c) 2025 - Alexandre Brillant
