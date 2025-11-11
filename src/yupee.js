@@ -1,5 +1,5 @@
 /**
- * Yupee, for avoiding React when building modular web applications.
+ * Yupee is a simple way for building complex web application without a server
  * 
  * It works with external Yup component files. A Yup component is a standard JavaScript file that calls the $$.start function.
  * Each Yup component can generate a piece of HTML and manage actions and events.
@@ -40,6 +40,8 @@
  */
 
 const $$ = ( ( $$ ) =>  {    
+
+    // --------------------------------------------------------------------------------------------------------------------
 
     /**
      * This class is the main part; it manages all the Yup components for loading and storing them.
@@ -128,12 +130,21 @@ const $$ = ( ( $$ ) =>  {
         }
 
         #currentParams = null;
+        #currentYupId = null;
+
+        #yupid( location ) {
+            const pathSep = location.lastIndexOf( "/" );
+            if ( pathSep > -1 )
+                return location.substring( pathSep + 1 );
+            return location;
+        }
 
         // Internal usage : do not use
         loadNextComponent() {
             const component = this.#yupeesStack.shift();
             if ( typeof component != "undefined" ) {
                 let { location, params } = component;
+                this.#currentYupId = this.#yupid( location );
                 if ( !location.includes( "." ) )
                     location += ".js";
                 const scriptNode = document.createElement( "script" );
@@ -151,20 +162,27 @@ const $$ = ( ( $$ ) =>  {
          * @returns The current running component
          */
         start() {
-            const currentComponent = new Yup(this.#currentParams);
+            const currentComponent = new Yup(this.#currentYupId, this.#currentParams);
             return currentComponent;
         }
     }
 
+    // --------------------------------------------------------------------------------------------------------------------
+
     /**
-     * A Yup component is an external file with this content :
+     * A Yup component is an external file with this kind of content :
      * @example
      *  ( () => {
      *      const yup = $$.start();
      *      yup.paint( "<div>Content 1 !</div>", "#part1" );
      *  } )() );
      * 
-     * A yup component must begin with the $$.start method, it will provide a reference to the current yup component
+     * A yup component must begin with the $$.start method, it will provide a reference to the current yup component.
+     * A yup component is rendered inside a visual container, generally an HTML node.
+     * 
+     * A yup component can have a model for pushingData and paint it using the renderer delegate method.
+     * A yup component can have children, a child is a sub part of the container. It is added using addChild with
+     * a name and a CSS Selector.
      * 
      * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
      */
@@ -173,12 +191,50 @@ const $$ = ( ( $$ ) =>  {
         #eventStack
         #actionStack 
         #params
+        #yupid
+        #model = [];
 
-        constructor(params) {
-            this.#params = params;
+        constructor(yupid,params) {
+            this.#yupid = yupid;
+
+            // Updating the default container
+            if ( params instanceof Node ) {
+                this.#view = params;
+            } else
+                this.#params = params;
+
             this.#eventStack = [];
             this.#actionStack = [];
-            this.#view = document.body;
+
+            // Default container
+            if ( !this.#view )
+                this.#view = document.body;
+        }
+
+        #children = {};
+
+        /**
+         * Add a child for this Yup component. A child will become another Yup component
+         * @param {*} childName A name of the child, use the method child for getting it
+         * @param {*} selector A CSS Selector for the child relativly the current container
+         */
+        addChild( childName, selector ) {
+            const node = this.#view.querySelector( selector );
+            if ( node == null ) {
+                log( "Unknown child [" + selectir + "]" );
+            } else {
+                this.#children[ childName ] = new Yup( childName, node );
+                return this.#children[ childName ];
+            }
+        }
+
+        /**
+         * Return a yup child by a name. This yup child has been added using the addChild method
+         * @param {*} childName A Yup child
+         * @returns A yup component
+         */
+        child( childName ) {
+            return this.#children[ childName ];
         }
 
         #binder( func ) {
@@ -187,6 +243,24 @@ const $$ = ( ( $$ ) =>  {
                 args.push( that );
                 func.apply( that, args );
             };
+        }
+
+        pushData( data, repaintMode ) {
+            this.#model.push( data );
+            if ( typeof repaintMode == "undefined" )
+                repaintMode = true;
+            if ( repaintMode ) {
+                this.paint();
+            }
+        }
+
+        #itemRenderer = null;
+
+        /**
+         * @param {*} renderFunction A function delegate for rendering each part of the model
+         */
+        renderer( itemRenderer ) {
+            this.#itemRenderer = itemRenderer;
         }
 
         /**
@@ -202,35 +276,40 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /**
-         * Paint this component adding a content to the current view.
-         * 
-         * @param html HTML string or HTML node
-         * @param into Optionnal part for updating the component view
+         * Paint this component adding a content to the current container.
+         * When calling a pushData, this method is automatically called
+         * @param html optional HTML string or HTML node if you didn't use the model
          */
         paint( html ) {
 
-            this.clean();
-
-            // Put the content
-
-            if ( html instanceof Node ) {    
-                this.#view.appendChild( html );
-            } else
-                this.#view.innerHTML = html;
-
-            // Store listeners and actions
-
-            this.#eventStack.forEach( ( handler ) => { handler(); } );
-            this.#eventStack.splice(0,this.#eventStack.length);
+            // Active the actions before painting
 
             this.#actionStack.forEach( ( action ) => { action(); } );
             this.#actionStack.splice( 0,this.#actionStack.length );
+
+            this.clean();
+
+            if ( typeof html == "undefined" ) {                
+                // Paint the model using the itemRenderer
+                if ( this.#itemRenderer != null ) {
+                    this.#model.forEach( ( item ) => this.#itemRenderer( this.#view, item ) );
+                } else {
+                    // Default painting
+                    this.#view.innerHTML = `Default renderer for YUP {${this.#yupid}} with this model [${this.#model}]`;
+                }
+            } else {
+                // Paint a content without using a model
+                if ( html instanceof Node ) {    
+                    this.#view.appendChild( html );
+                } else
+                    this.#view.innerHTML = html;
+            }
 
             return this;
         }
 
         /**
-         * Apply a CSS style to the current paint
+         * Apply a CSS style to the current container
          * @param {*} values object with the css properties and values
          */
         style( values ) {
@@ -241,15 +320,12 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /**
-         * Add a new DOM event listener to the current view
+         * Add a new DOM event listener to the current container
          * @param evt HTML event
          * @param handler HTML handler
          */
         event( evt, handler ) {
-            this.#eventStack.push(
-                () => {
-                    this.#view.addEventListener( evt, this.#binder( handler ) );
-                } );
+            this.#view.addEventListener( evt, this.#binder( handler ) );
             return this;
         }
 
@@ -322,7 +398,7 @@ const $$ = ( ( $$ ) =>  {
         }
     }
 
-    // #######################################################################
+    // --------------------------------------------------------------------------------------------------------------------
 
     function _startingAll() {
         if ( starting ) {
@@ -339,8 +415,7 @@ const $$ = ( ( $$ ) =>  {
      * It is called both for loading Yup components and for managing each one
      */
     const rooter = (...args) => {
-        if ( document.body )
-            ready = true;
+        ready = document.body ? true : false;
 
         init = () => {
                 let usage = null;
@@ -366,6 +441,24 @@ const $$ = ( ( $$ ) =>  {
         }
 
     }
+
+    // Check for data-yup attribute inside the current page
+
+    function init_data_yup() {
+        const nodes = document.querySelectorAll( "*" );
+        for ( node of nodes ) {
+            if ( node.hasAttribute( "data-yup" ) && node.id ) {
+                $$.load( "yups/" + node.id, node );
+            }
+        }
+    }
+
+    ( () => {
+        document.addEventListener( "DOMContentLoaded", () => {
+            init_data_yup();
+        } );
+    } )();
+
 
     // shortcuts
 
