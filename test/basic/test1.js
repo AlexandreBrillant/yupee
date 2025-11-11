@@ -27,7 +27,7 @@
 
     yup.action( function() {
         // We display the current component
-        console.log( yup );
+        yup.log( "My first yup component !" );
     });
 
     // Paint the yup component

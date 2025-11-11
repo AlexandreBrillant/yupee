@@ -1,14 +1,15 @@
 /**
  * Yupee is a simple way for building complex web application without a server
- * 
+ *
  * It works with external Yup component files. A Yup component is a standard JavaScript file that calls the $$.start function.
- * Each Yup component can generate a piece of HTML and manage actions and events.
+ * Each Yup component can renderer a piece of HTML and manage actions and events. A Yup container has a container for
+ * renderering.
  * 
  * @example
  * ```html
  * <html>
  *   <head>
- *       <script src="../src/yupee.js"></script>
+ *       <script src="yupee.js"></script>
  *       <script>$$.load( "test1" );</script>
  *   </head>
  
@@ -19,7 +20,7 @@
  * </html>
  * ```
  * 
- * In this sample, we load a Yup Component file named "test1.js". Here a minimal yup component
+ * In this sample, we load a Yup Component file named "test1.js". Here now a minimal yup component
  * 
  * @example
  * ( () => {
@@ -35,6 +36,7 @@
  * - Yupee does not need a server
  * - Yupee works locally
  * - Yupee is very simple and uses only standard JavaScript
+ * - Yupee can be used for very complex MVC applications
  * 
  * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
  */
@@ -221,7 +223,7 @@ const $$ = ( ( $$ ) =>  {
         addChild( childName, selector ) {
             const node = this.#view.querySelector( selector );
             if ( node == null ) {
-                log( "Unknown child [" + selectir + "]" );
+                log( "Unknown child [" + selector + "]" );
             } else {
                 this.#children[ childName ] = new Yup( childName, node );
                 return this.#children[ childName ];
@@ -235,6 +237,10 @@ const $$ = ( ( $$ ) =>  {
          */
         child( childName ) {
             return this.#children[ childName ];
+        }
+
+        log( message ) {
+            console.log( `Yup[${this.#yupid}] => (${message})` );
         }
 
         #binder( func ) {
