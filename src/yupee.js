@@ -43,6 +43,15 @@
 
 const $$ = ( ( $$ ) =>  {    
 
+    let debugMode = false;
+
+    function trace( actionId, ...params ) {
+        if ( debugMode ) {
+            const paramstr = params.join( "," );
+            console.log( `** [${actionId}] ** ${paramstr}` );
+        }
+    }
+
     // --------------------------------------------------------------------------------------------------------------------
 
     /**
@@ -73,9 +82,18 @@ const $$ = ( ( $$ ) =>  {
 
         #yupeesStack = [];
         #startLoading = false;
-
+        #yupsModel = {};
         #listeners = {};
         #data = {};
+
+        /**
+         * Access to any Yup component by a name
+         * @param {*} yupid A yup component name
+         * @returns a Yup component
+         */
+        yup( yupid ) {
+            return this.#yupsModel[ yupid ];
+        }
 
         /**
          * Listens for an event. This is not a DOM event but a free user event for communicating between components
@@ -87,6 +105,7 @@ const $$ = ( ( $$ ) =>  {
                 this.#listeners[ eventId ] = [];
             }
             this.#listeners[ eventId ].push( { "handler" : handler } );
+            trace( "listen", eventId, handler );
         }
 
         /**
@@ -99,10 +118,11 @@ const $$ = ( ( $$ ) =>  {
                 this.#listeners[ eventId ].forEach(
                     ( obj ) => {
                         const handler = obj.handler;
-                        handler( obj.source, ...args );
+                        handler( ...args );
                     }
                 );
             }
+            trace( "fire", eventId, args );
         }
 
         /**
@@ -120,6 +140,7 @@ const $$ = ( ( $$ ) =>  {
             } else {
                 this.#data[ key ] = args[ 0 ];
             }
+            trace( "data", key, args );
         }
 
         // Internal usage : do not use
@@ -165,6 +186,8 @@ const $$ = ( ( $$ ) =>  {
          */
         start() {
             const currentComponent = new Yup(this.#currentYupId, this.#currentParams);
+            this.#yupsModel[ this.#currentYupId ] = currentComponent;
+            trace( "start", this.#currentYupId );
             return currentComponent;
         }
     }
@@ -239,6 +262,10 @@ const $$ = ( ( $$ ) =>  {
             return this.#children[ childName ];
         }
 
+        /**
+         * Message for the console including the current Yup id
+         * @param {*} message Message for the console
+         */
         log( message ) {
             console.log( `Yup[${this.#yupid}] => (${message})` );
         }
@@ -251,6 +278,12 @@ const $$ = ( ( $$ ) =>  {
             };
         }
 
+        /**
+         * Add a data value to the current model. if the repaint mode is true
+         * then the paint method is automatically called after.
+         * @param {*} data 
+         * @param {*} repaintMode optional, by default is true
+         */
         pushData( data, repaintMode ) {
             this.#model.push( data );
             if ( typeof repaintMode == "undefined" )
@@ -258,6 +291,28 @@ const $$ = ( ( $$ ) =>  {
             if ( repaintMode ) {
                 this.paint();
             }
+        }
+
+        /**
+         * When a yup component produces a data, this data
+         * can be sent to other yup components using this
+         * method. 
+         * component produce a data and any one can catch it
+         * @param {*} name a data name
+         * @param {*} value a data value
+         */
+        produce( name, value ) {
+            Yupees.instance().fire( "data:" + name, value );
+        }
+
+        /**
+         * When another yup component produces a data, this one
+         * can be catched with this method.
+         * @param {*} name a data name
+         * @param {*} Handler a function for processing the value
+         */
+        consume( name, handler ) {
+            Yupees.instance().listen( "data:" + name, handler );
         }
 
         #itemRenderer = null;
@@ -283,7 +338,8 @@ const $$ = ( ( $$ ) =>  {
 
         /**
          * Paint this component adding a content to the current container.
-         * When calling a pushData, this method is automatically called
+         * When calling a pushData, this method is automatically called. The
+         * renderer can be used for deciding how to paint the component.
          * @param html optional HTML string or HTML node if you didn't use the model
          */
         paint( html ) {
@@ -347,8 +403,9 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /** 
-         *  Change the view of this component. This is the view used when calling the paint method.
-         *  @param selector a CSS selector
+         *  Change the container of this component. 
+         *  This is the container used when calling the paint method.
+         *  @param selector a CSS selector for choosing another container
          */
         into( cssselector ) {
             try {
@@ -363,8 +420,9 @@ const $$ = ( ( $$ ) =>  {
             return this;
         }
 
-        /** Modify the view to another part of the document with an HTML id value
-         *  @param id unique identifier bound to the HTML id attribute
+        /** 
+         *  Update the container using an element id
+         *  @param id unique identifier of the current html page as a new container
          */
         intoid( id ) {
             return this.into( "@" + id );
@@ -466,6 +524,7 @@ const $$ = ( ( $$ ) =>  {
     } )();
 
 
+
     // shortcuts
 
     $$.rooter = rooter;
@@ -485,6 +544,7 @@ const $$ = ( ( $$ ) =>  {
      */
     $$.load = ( yupcomponent, params ) => {
         rooter( { "load" : yupcomponent, "params" : params } );
+        trace( "load", yupcomponent, params );
         return $$;
     };
 
@@ -496,6 +556,7 @@ const $$ = ( ( $$ ) =>  {
      */
     $$.listen = ( actionId, ...actions ) => {
         actions.forEach( (action) => Yupees.instance().listen( actionId, action ) );
+        trace( actionId, actions );
         return $$;
     };
 
@@ -507,6 +568,7 @@ const $$ = ( ( $$ ) =>  {
      */
     $$.fire = ( actionId, ...params ) => {
         Yupees.instance().fire( actionId, params )
+        trace( "fire", actionId, params );
         return $$;
     };
 
@@ -520,7 +582,12 @@ const $$ = ( ( $$ ) =>  {
         if ( params.length == 0 )
             return Yupees.instance().data(key,...params );    // read
         Yupees.instance().data(key,...params );   // write
+        trace( "data", key, params );
         return $$;
+    }
+
+    $$.debugMode = () => {
+        debugMode = !debugMode;
     }
 
     return $$;

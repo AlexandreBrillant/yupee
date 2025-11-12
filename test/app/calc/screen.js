@@ -11,7 +11,7 @@
 
     // Process event from the button
 
-    const handleEvent = function( target, btnId ) {
+    const handleEvent = function( btnId ) {
         const screen = yup.getView();
         if ( "C" == btnId ) {
             screen.value = "0";
