@@ -1,8 +1,14 @@
 {
   "name": "yupee",
+  "productName" : "Yupee",
   "version": "1.0.0",
-  "description": "A simple JavaScript library for building modular web application without React",
-  "main": "index.js",
+  "description": "A simple JavaScript library for building complex and modular web application without React",
+  "main": "yupee.js",
+  "author": {
+    "name" : "Alexandre Brillant",
+    "url" : "https://www.alexandrebrillant.com"
+  },
+  "homepage": "https://github.com/AlexandreBrillant/yupee",
   "scripts": {
     "build" : "terser src\\yupee.js -o dist\\yupee.min.js"
   },
@@ -17,6 +23,5 @@
     "alternative to react",
     "javascript"
   ],
-  "author": "alexandre brillant",
   "license": "MIT"
 }

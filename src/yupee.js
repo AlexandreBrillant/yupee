@@ -82,7 +82,7 @@ const $$ = ( ( $$ ) =>  {
 
         #yupeesStack = [];
         #startLoading = false;
-        #yupsModel = {};
+        #yupRoot = null;
         #listeners = {};
         #data = {};
 
@@ -92,7 +92,14 @@ const $$ = ( ( $$ ) =>  {
          * @returns a Yup component
          */
         yup( yupid ) {
-            return this.#yupsModel[ yupid ];
+            return this.#yupRoot.childName( yupid );
+        }
+
+        /**
+         * @returns The root yup component
+         */
+        root() {
+            return this.#yupRoot;
         }
 
         /**
@@ -186,7 +193,10 @@ const $$ = ( ( $$ ) =>  {
          */
         start() {
             const currentComponent = new Yup(this.#currentYupId, this.#currentParams);
-            this.#yupsModel[ this.#currentYupId ] = currentComponent;
+            if ( this.#yupRoot == null ) {
+                this.#yupRoot = new Yup( "root", document.body );
+            }                 
+            this.#yupRoot.addChild( currentComponent );
             trace( "start", this.#currentYupId );
             return currentComponent;
         }
@@ -206,51 +216,86 @@ const $$ = ( ( $$ ) =>  {
      * A yup component is rendered inside a visual container, generally an HTML node.
      * 
      * A yup component can have a model for pushingData and paint it using the renderer delegate method.
+     * 
      * A yup component can have children, a child is a sub part of the container. It is added using addChild with
      * a name and a CSS Selector.
      * 
      * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
      */
     class Yup {
-        #view
-        #eventStack
+        #container
         #actionStack 
         #params
         #yupid
         #model = [];
+        #childid = 1;
+        #parent = null;
 
         constructor(yupid,params) {
             this.#yupid = yupid;
 
             // Updating the default container
             if ( params instanceof Node ) {
-                this.#view = params;
+                this.#container = params;
             } else
                 this.#params = params;
 
-            this.#eventStack = [];
             this.#actionStack = [];
 
             // Default container
-            if ( !this.#view )
-                this.#view = document.body;
+            if ( !this.#container )
+                this.#container = document.body;
         }
 
         #children = {};
 
         /**
-         * Add a child for this Yup component. A child will become another Yup component
+         * Add a child for this Yup component from a sub part of the current container. A child will become another Yup component
          * @param {*} childName A name of the child, use the method child for getting it
          * @param {*} selector A CSS Selector for the child relativly the current container
          */
         addChild( childName, selector ) {
-            const node = this.#view.querySelector( selector );
+            const node = this.#container.querySelector( selector );
             if ( node == null ) {
                 log( "Unknown child [" + selector + "]" );
             } else {
-                this.#children[ childName ] = new Yup( childName, node );
+                this.#setchild( childName, new Yup( childName, node ) );
                 return this.#children[ childName ];
             }
+        }
+
+        #setchild( name, yup ) {
+            yup.#parent = this;
+            this.#children[ name ] = yup;
+            return yup;
+        }
+
+        /**
+         * Add a new child inside this Yup component
+         * The container of the new child will be added to the container of the current yup component
+         * @param {*} content can be a yup component, html content or a DOM node
+         * @return a new Yup component or null if the operation is not possible
+         */
+        addChild( content ) {
+            if ( content instanceof Yup ) {
+                return this.#setchild( content.yupid(), content );
+            }
+
+            const yupname = "yup" + ( this.#childid++ );
+            let newNode = content;
+
+            if ( typeof content == "string" ) {
+                this.container().innerHTML += content;
+                newNode = this.container().lastChild;
+            }
+
+            if ( newNode instanceof Node ) {
+                const yup = new Yup( "yup" + ( this.#childid++ ), newNode );
+                this.container().appendChild( yup.container() );
+                this.#setchild( yupname, yup );
+                return yup;
+            }
+            return null;
         }
 
         /**
@@ -354,17 +399,17 @@ const $$ = ( ( $$ ) =>  {
             if ( typeof html == "undefined" ) {                
                 // Paint the model using the itemRenderer
                 if ( this.#itemRenderer != null ) {
-                    this.#model.forEach( ( item ) => this.#itemRenderer( this.#view, item ) );
+                    this.#model.forEach( ( item ) => this.#itemRenderer( this.#container, item ) );
                 } else {
                     // Default painting
-                    this.#view.innerHTML = `Default renderer for YUP {${this.#yupid}} with this model [${this.#model}]`;
+                    this.#container.innerHTML = `Default renderer for YUP {${this.#yupid}} with this model [${this.#model}]`;
                 }
             } else {
                 // Paint a content without using a model
                 if ( html instanceof Node ) {    
-                    this.#view.appendChild( html );
+                    this.#container.appendChild( html );
                 } else
-                    this.#view.innerHTML = html;
+                    this.#container.innerHTML = html;
             }
 
             return this;
@@ -376,7 +421,7 @@ const $$ = ( ( $$ ) =>  {
          */
         style( values ) {
             for ( let property in values ) {
-                this.#view.style[ property ] = values[ property ];
+                this.#container.style[ property ] = values[ property ];
             }
             return this;
         }
@@ -387,7 +432,7 @@ const $$ = ( ( $$ ) =>  {
          * @param handler HTML handler
          */
         event( evt, handler ) {
-            this.#view.addEventListener( evt, this.#binder( handler ) );
+            this.#container.addEventListener( evt, this.#binder( handler ) );
             return this;
         }
 
@@ -403,7 +448,7 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /** 
-         *  Change the container of this component. 
+         *  Change the container of this component relativly to the whole document
          *  This is the container used when calling the paint method.
          *  @param selector a CSS selector for choosing another container
          */
@@ -411,11 +456,11 @@ const $$ = ( ( $$ ) =>  {
             try {
                 const node = document.querySelector( cssselector );
                 if ( node != null ) {
-                    this.#view = node;
+                    this.#container = node;
                 }
             } catch( error ) {
                 console.log( `Invalid selector [${cssselector} / ${error.message}] ? using document.body` );
-                this.#view = document.body;
+                this.#container = document.body;
             }
             return this;
         }
@@ -429,17 +474,22 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /**
-            @return The HTML view for this component
-        */
+         *  @deprecated use container()
+         *   @return The HTML view for this component
+         */
         getView() {
-            return this.#view;
+            return this.#container;
+        }
+
+        container() {
+            return this.#container;
         }
 
         /**
-         * Remove all the content of the view
+         * Remove all the content of the container
          */
         clean() {
-            const parentNode = this.#view;
+            const parentNode = this.#container;
             while ( parentNode.firstChild )
                 parentNode.removeChild( parentNode.firstChild );
             return this;
@@ -450,7 +500,7 @@ const $$ = ( ( $$ ) =>  {
          * @return an array with all the HTML nodes depending on the CSSS selector
          */
         selectAll( cssSelector ) {
-            return this.getView().querySelectorAll( cssSelector );
+            return this.container().querySelectorAll( cssSelector );
         }
 
         /**
@@ -458,7 +508,11 @@ const $$ = ( ( $$ ) =>  {
          * @return a node depending on the cssSelector
          */
         select( cssSelector ) {
-            return this.getView().querySelector( cssSelector );
+            return this.container().querySelector( cssSelector );
+        }
+
+        yupid() {
+            return this.#yupid;
         }
     }
 
