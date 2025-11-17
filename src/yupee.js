@@ -254,7 +254,7 @@ const $$ = ( ( $$ ) =>  {
          * @param {*} childName A name of the child, use the method child for getting it
          * @param {*} selector A CSS Selector for the child relativly the current container
          */
-        addChild( childName, selector ) {
+        addChildBySelector( childName, selector ) {
             const node = this.#container.querySelector( selector );
             if ( node == null ) {
                 log( "Unknown child [" + selector + "]" );
@@ -281,6 +281,7 @@ const $$ = ( ( $$ ) =>  {
                 return this.#setchild( content.yupid(), content );
             }
 
+            // Generate a innner id
             const yupname = "yup" + ( this.#childid++ );
             let newNode = content;
 

@@ -1,6 +1,6 @@
 # Yupee
 
-Yupee is an open-source JavaScript library for building modular web applications. 
+Yupee is an open-source JavaScript library for building complex and modular web applications. 
 
 [View Yupee on Github](https://github.com/AlexandreBrillant/yupee)
 
