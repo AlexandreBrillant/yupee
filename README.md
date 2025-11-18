@@ -46,7 +46,8 @@ Here now the content of the Yup component
   } )();
 ```
 
-The first instruction gets access to the current Yup component by calling **$$.start()**. To render the Yup component, simply call the **paint** method. By default, the **paint** method works inside the body of the HTML page. 
+The first instruction gets access to the current Yup component by calling **$$.start()**. To render the Yup component, simply call the **paint** method. The **paint** method works inside the container of the
+Yup component, by default the container is the element body.
 
 The end user will see only "Hello World" when loading the **helloworld.html** page.
 
@@ -124,9 +125,11 @@ Here is the content of the test3c.js component:
 } )();
 ```
 
-When loading the htm page, the end user will see ***Content 1***, ***Content 2*** and ***Content 3**. Each Yup component paints a content in a part of the HTML page.
+When loading the html page, the end user will see ***Content 1***, ***Content 2*** and ***Content 3**. Each Yup component paints a content in a part of the HTML page.
 
-The other way which is better is using a "data-yup" attribute, then it will use the attribute id for loading automatically the yup component inside a yups subdirectory.
+The other way which is better is using a "data-yup" attribute, then it will use the html attribute id for loading automatically the yup component inside a "yups" subdirectory. So you needn't to use the "load" method or the "into" method.
+
+Example
 
 ```html
 <html>
@@ -182,7 +185,7 @@ Also, it is possible to run a fonction when the Yup component is displayed using
         "click",
         () => { 
             // We use nor here
-            yup.getView().style.color = "red";
+            yup.container().style.color = "red";
         }        
     );
 
@@ -190,7 +193,7 @@ Also, it is possible to run a fonction when the Yup component is displayed using
     yup.event(
         "click",
         function() { 
-            yup.getView().style.fontWeight = "bold";
+            yup.container().style.fontWeight = "bold";
         } 
     );
 

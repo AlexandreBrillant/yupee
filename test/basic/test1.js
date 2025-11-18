@@ -13,7 +13,7 @@
         "click",
         () => { 
             // We use nor here
-            yup.getView().style.color = "red";
+            yup.container().style.color = "red";
         }        
     );
 
@@ -21,7 +21,7 @@
     yup.event(
         "click",
         function() { 
-            yup.getView().style.fontWeight = "bold";
+            yup.container().style.fontWeight = "bold";
         } 
     );
 
