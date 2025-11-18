@@ -44,11 +44,18 @@
 const $$ = ( ( $$ ) =>  {    
 
     let debugMode = false;
+    let deepTrace = false;
 
     function trace( actionId, ...params ) {
         if ( debugMode ) {
             const paramstr = params.join( "," );
             console.log( `** [${actionId}] ** ${paramstr}` );
+            if ( deepTrace ) {
+                params.forEach( ( element ) => {
+                    if ( typeof element == "object" )
+                        console.log( element );
+                } );
+            }
         }
     }
 
@@ -92,9 +99,11 @@ const $$ = ( ( $$ ) =>  {
          * @returns a Yup component
          */
         yup( yupid ) {
-            return this.#yupRoot.childName( yupid );
+            trace( "yup", yupid, this.root() );
+            return this.root().child( yupid );
         }
 
+    
         /**
          * @returns The root yup component
          */
@@ -512,8 +521,25 @@ const $$ = ( ( $$ ) =>  {
             return this.container().querySelector( cssSelector );
         }
 
+        /**
+         * @return the unique id for this yup component
+         */
         yupid() {
             return this.#yupid;
+        }
+
+        /**
+         * Show the current yup component by setting a display style to block
+         */
+        show() {
+            this.style( { display : "block" } );
+        }
+
+        /**
+         * Hide the current yup component by setting a display style to none
+         */
+        hide() {
+            this.style( { display : "none" } );
         }
     }
 
@@ -640,6 +666,12 @@ const $$ = ( ( $$ ) =>  {
         trace( "data", key, params );
         return $$;
     }
+
+    /**
+     * Find a yup component by a name
+     * @return a yup component or null
+     */
+    $$.yup = ( name ) => Yupees.instance().yup( name );
 
     $$.debugMode = () => {
         debugMode = !debugMode;

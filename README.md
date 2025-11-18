@@ -11,6 +11,7 @@ It works with external **Yup component** files. A Yup component is a standard Ja
 - No server required.
 - Works locally.
 - Very simple and uses only standard JavaScript.
+- MVC architecture support
 - Released under the MIT License for any usage.
 
 ## Hello World
@@ -124,6 +125,33 @@ Here is the content of the test3c.js component:
 ```
 
 When loading the htm page, the end user will see ***Content 1***, ***Content 2*** and ***Content 3**. Each Yup component paints a content in a part of the HTML page.
+
+The other way which is better is using a "data-yup" attribute, then it will use the attribute id for loading automatically the yup component inside a yups subdirectory.
+
+```html
+<html>
+    <head>
+        <script src="../../src/yupee.js"></script>
+    </head>
+
+    <body>
+
+        <div>Starting zones</div>
+
+        <div id="part1" data-yup></div>
+
+        <div id="part2" data-yup></div>
+
+        <div id="part3" data-yup></div>
+
+        <div>Stopping zones</div>
+
+    </body>
+
+</html>
+```
+
+In this example, it will load 3 yup components yups/part1.js, yups/part2.js and yups/part3.js. Each one will have a specific container.
 
 ## Using Events
 
