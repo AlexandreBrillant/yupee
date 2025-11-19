@@ -55,6 +55,8 @@ The end user will see only "Hello World" when loading the **helloworld.html** pa
 
 In this example, we load 3 yup components (**test3a**, **test3b** and **test3c**). Each component will renderer in a different part of the HTML page.
 
+### Explicit loading
+
 ```html
 <html>
     <head>
@@ -85,8 +87,6 @@ In each Yup component, we will define first the part of the HTML that will be re
 
 Here is the content of the test3a.js component:
 
-### test3a
-
 ```javascript
 ( () => {
 
@@ -97,35 +97,9 @@ Here is the content of the test3a.js component:
 } )();
 ```
 
-Here is the content of the test3b.js component:
-
-### test3b
-
-```javascript
-( () => {
-
-    const yup = $$.start();
-    yup.into( "#part2" );
-    yup.paint( "<div>Content 2 !</div>" );
-
-} )();
-```
-
-Here is the content of the test3c.js component:
-
-### test3c
-
-```javascript
-( () => {
-
-    const yup = $$.start();
-    yup.into( "#part3" );
-    yup.paint( "<div>Content 3 !</div>" );
-
-} )();
-```
-
 When loading the html page, the end user will see ***Content 1***, ***Content 2*** and ***Content 3**. Each Yup component paints a content in a part of the HTML page.
+
+### Implicit loading
 
 The other way which is better is using a "data-yup" attribute, then it will use the html attribute id for loading automatically the yup component inside a "yups" subdirectory. So you needn't to use the "load" method or the "into" method.
 
@@ -212,7 +186,7 @@ With this Yup component, when the user will click on the black message "Click he
 
 ## Using Parameters
 
-A Yup component can be started with additional parameters from the **load** method.
+A Yup component can be loaded with additional parameters from the **load** method.
 
 In the next example, we have two parameters **message** and **color**
 
@@ -316,11 +290,7 @@ Here the template of the HTML calculator page
                 width:200px;
             }
         </style>
-        <script src="../../src/yupee.js"></script>
-        <script>
-            $$.load( "screen" );
-            $$.load( "buttons" );
-        </script>
+        <script src="../../../src/yupee.js"></script>
     </head>
     <body>
 
@@ -331,10 +301,10 @@ Here the template of the HTML calculator page
         <hr>
 
         <div id="calc">
-            <div id="screen">
+            <div id="screen" data-yup>
                 <input type="textfield" id="screenfield">
             </div>
-            <div id="buttons">
+            <div id="buttons" data-yup>
                 <div class="row">
                     <div class="btn">C</div>
                     <div class="btn">1/x</div>
@@ -379,12 +349,10 @@ For managing the buttons, we will create a Yup component (**buttons**) getting a
 
     const yup = $$.start();
 
-    yup.into( "#buttons" );
-
     // Generate event when clicking on a button with the button label for the screeen component
     const handleBtn = function( event ) {
         const action = event.target.textContent;
-        $$.fire( "btn", action );
+        yup.produce( "btn", action );
     }
 
     yup.selectAll( "div.btn").forEach( btn => {
@@ -394,59 +362,59 @@ For managing the buttons, we will create a Yup component (**buttons**) getting a
 } )();
 ```
 
-### Selecting parts of the Yup component
+### Creating a child Yup component
 
-The **selectAll** method, will get all the HTML nodes from the provided CSS selector (starting from the Yup container). 
+The **addChildBySelector** method for a Yup component will search from the container a new container using a CSS selector. This new container will be used for building a new Yup component.
 
-### Using custom events
+### Produce/Consume custom events
 
-Using a standard DOM listener, we handle each button of the HTML page and we send the button label to all the Yup components with **$$.fire**. The fist argument is the name of the event (**btn**) and the second argument is the label of the button.
+A yup component can produce data with the **produce**" method with a name and a value. A yup component
+can consume data with the **consume** method with a name.
+
+Here the final screen component for our calculator.
+
+We get a sub component with the **screen** constant. For getting each button value, we use the **consume** method with a **btn** name. Then we process it inside the **handleEvent** function.
 
 ```javascript
 ( () => {
 
     const yup = $$.start();
-    yup.into( "#screenfield" );
+    const screen = yup.addChildBySelector( "textfield", "input[id=screenfield]" );
 
     console.log( "Loading screen" );
 
     // Process event from the button
 
-    const handleEvent = function( target, btnId ) {
-        const screen = yup.getView();
+    const handleEvent = function( btnId ) {
         if ( "C" == btnId ) {
-            screen.value = "0";
+            screen.value( "0" );
         } else {
             if ( btnId == "1/x" ) {
-                screen.value = 1 / screen.value;
+                screen.value( 1 / screen.value() );
             } else
             if ( btnId == "x^2" ) {
-                screen.value *= screen.value;
+                textfield.value( screen.value() * screen.value() );
             } else
             if ( btnId == "=" ) {
                 try {
-                    screen.value = eval( screen.value );
+                    screen.value( eval( screen.value() ) );
                 } catch( error ) {
-                    screen.value = "Error";
+                    screen.value( "Error" );
                 }
             } else {
-                if ( screen.value == "0" )
-                    screen.value = "";
-                screen.value += btnId;
+                if ( screen.value() == "0" )
+                    screen.value( "" );
+                screen.value( screen.value() + btnId );
             }                
         }
 
     }
 
     // Listen for event from the buttons
-    $$.listen( "btn", handleEvent );
+    yup.consume( "btn", handleEvent );
 
 } )();
 ```
-
-### Catching custom events
-
-This Yup component will catch all the event of the **Buttons** component using **$$.listen**. The fist argument is the event type **btn**, and the second one if a fonction for catching the data of the event (here the button label with **btnId**).
 
 ## Creating MVC applications
 
@@ -461,8 +429,6 @@ Here the **actions** component
 ( () => {
 
     const yup = $$.start();
-
-    yup.into( "#actions" );
 
     // Share a model for the notes
     $$.data( "notes", [] );
@@ -479,6 +445,7 @@ Here the **actions** component
     yup.paint( "<input type='button' value='Add a note' id='add'>" );
 
 } )();
+
 ```
 
 ### The View part
@@ -489,8 +456,6 @@ Here the **notes** component
 ( () => {
 
     const yup = $$.start();
-
-    yup.into( "#notes" );
 
     function repaint( notes ) {
         let htmlNotes = "";
@@ -509,6 +474,6 @@ Here the **notes** component
 
 ## Conclusion
 
-Yupee is a lightweight library for creating modular web applications with ease. It is designed to be simple, flexible, and easy to use.
+Yupee is a lightweight library for creating complex and modular web applications with ease. It is designed to be simple, flexible, and easy to use.
 
 (c) 2025 - Alexandre Brillant

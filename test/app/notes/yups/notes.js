@@ -6,8 +6,6 @@
 
     const yup = $$.start();
 
-    yup.into( "#notes" );
-
     function repaint( notes ) {
         let htmlNotes = "";
         notes.forEach( note => {

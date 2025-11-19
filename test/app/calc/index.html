@@ -34,10 +34,6 @@
             }
         </style>
         <script src="../../../src/yupee.js"></script>
-        <script>
-            $$.load( "screen" );
-            $$.load( "buttons" );
-        </script>
     </head>
     <body>
 
@@ -48,10 +44,10 @@
         <hr>
 
         <div id="calc">
-            <div id="screen">
+            <div id="screen" data-yup>
                 <input type="textfield" id="screenfield">
             </div>
-            <div id="buttons">
+            <div id="buttons" data-yup>
                 <div class="row">
                     <div class="btn">C</div>
                     <div class="btn">1/x</div>

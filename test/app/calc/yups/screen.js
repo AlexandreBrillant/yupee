@@ -5,39 +5,38 @@
 ( () => {
 
     const yup = $$.start();
-    yup.into( "#screenfield" );
+    const screen = yup.addChildBySelector( "textfield", "input[id=screenfield]" );
 
     console.log( "Loading screen" );
 
     // Process event from the button
 
     const handleEvent = function( btnId ) {
-        const screen = yup.container();
         if ( "C" == btnId ) {
-            screen.value = "0";
+            screen.value( "0" );
         } else {
             if ( btnId == "1/x" ) {
-                screen.value = 1 / screen.value;
+                screen.value( 1 / screen.value() );
             } else
             if ( btnId == "x^2" ) {
-                screen.value *= screen.value;
+                textfield.value( screen.value() * screen.value() );
             } else
             if ( btnId == "=" ) {
                 try {
-                    screen.value = eval( screen.value );
+                    screen.value( eval( screen.value() ) );
                 } catch( error ) {
-                    screen.value = "Error";
+                    screen.value( "Error" );
                 }
             } else {
-                if ( screen.value == "0" )
-                    screen.value = "";
-                screen.value += btnId;
+                if ( screen.value() == "0" )
+                    screen.value( "" );
+                screen.value( screen.value() + btnId );
             }                
         }
 
     }
 
     // Listen for event from the buttons
-    $$.listen( "btn", handleEvent );
+    yup.consume( "btn", handleEvent );
 
 } )();

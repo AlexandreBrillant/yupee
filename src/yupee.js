@@ -264,7 +264,7 @@ const $$ = ( ( $$ ) =>  {
          * @param {*} selector A CSS Selector for the child relativly the current container
          */
         addChildBySelector( childName, selector ) {
-            const node = this.#container.querySelector( selector );
+            const node = this.container().querySelector( selector );
             if ( node == null ) {
                 log( "Unknown child [" + selector + "]" );
             } else {
@@ -540,6 +540,13 @@ const $$ = ( ( $$ ) =>  {
          */
         hide() {
             this.style( { display : "none" } );
+        }
+
+        value(content) {
+            if ( typeof content == "undefined" )
+                return this.container().value;
+            else
+                this.container().value = content;
         }
     }
 

@@ -6,8 +6,6 @@
 
     const yup = $$.start();
 
-    yup.into( "#actions" );
-
     // Share a model for the notes
     $$.data( "notes", [] );
 
