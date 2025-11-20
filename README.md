@@ -22,7 +22,7 @@ This page loads the **yupee.js** library. You can use also the **yupee.min.js** 
 
 ### Implicit loading
 
-When a data-yup attribute is found, yupee will load a Yup component related to the id attribute inside a sub directory "yups".
+When a **data-yup** attribute is found, yupee will load a Yup component related to the **id** attribute inside a sub directory **yups**.
 
 ```html
 <!DOCTYPE html>
@@ -35,11 +35,11 @@ When a data-yup attribute is found, yupee will load a Yup component related to t
 </html>
 ```
 
-In this example, a yup component will be loaded inside the "yups/test1.js" file.
+In this example, a yup component will be loaded inside the **yups/test1.js** file.
 
 ### Explicit loading
 
-If you want to skeep the data-yup attribute, the **$$.load** method is available for loading a Yup component
+If you want to skip the data-yup attribute, the **$$.load** method is available for loading a Yup component
 
 ```html
  <!DOCTYPE html>
@@ -53,7 +53,7 @@ If you want to skeep the data-yup attribute, the **$$.load** method is available
   </html>
 ```
 
-In this example, a yup component "test1.js" will be loaded relativly to the html page.
+In this example, a yup component **test1.js** will be loaded relativly to the html page.
 
 ### Yup component content
 
@@ -69,17 +69,17 @@ Here now the content of the Yup component
 ```
 
 The first instruction gets access to the current Yup component by calling **$$.start()**. To render here the Yup component, simply call the **paint** method. The **paint** method works inside the container of the
-Yup component, by default the container is the element body.
+Yup component, by default the container is the element **body**.
 
 The end user will see only "Hello World" when loading the **helloworld.html** page.
 
 ## Loading a Yup component Anywhere in the HTML page
 
-In this example, we load 3 yup components (**test3a**, **test3b** and **test3c**). Each component will renderer in a different part of the HTML page.
+In this example, we load 3 yup components (**test3a**, **test3b** and **test3c**). Each component will renderer a content in a different part of the HTML page.
 
 ### Implicit loading
 
-You can load multiple component for the same page using using a "data-yup" attribute, then it will use the html attribute id for loading automatically the yup component inside a "yups" subdirectory. Each Yup component will have a specific container depending the location of the data-yup attribute.
+You can load multiple component for the same page using using a **data-yup** attribute, then it will use the html attribute **id** for loading automatically the yup component inside a **yups** subdirectory. Each Yup component will have a specific container depending the location of the data-yup attribute.
 
 Example
 
@@ -106,19 +106,19 @@ Example
 </html>
 ```
 
-In this example, it will load 3 yup components yups/part1.js, yups/part2.js and yups/part3.js. 
+In this example, it will load 3 yup components **yups/part1.js**, **yups/part2.js** and **yups/part3.js**. 
 
 ### Explicit loading
 
-If you want to skip the data-yup attribute, you can use explicit loading here
+If you want to skip the **data-yup** attribute, you can use explicit loading here
 
 ```html
 <html>
     <head>
         <script src="../src/yupee.js"></script>
-        <script>$$.load( "test3c" );</script>
-        <script>$$.load( "test3b" );</script>
-        <script>$$.load( "test3a" );</script>        
+        <script>$$.load( "part1" );</script>
+        <script>$$.load( "part2" );</script>
+        <script>$$.load( "part3" );</script>        
     </head>
 
     <body>
@@ -138,13 +138,13 @@ If you want to skip the data-yup attribute, you can use explicit loading here
 </html>
 ```
 
-Here is the content of the test3a.js component for an explicit loading, we need to define the location of the container using into.
+Here is the content of the **part1.js** component for an explicit loading, we need to define the location of the container using **into**. For implicit loading, this is not required.
 
 ```javascript
 ( () => {
 
     const yup = $$.start();
-    yup.into( "#part1" );   // Only for explicit loading
+    yup.into( "#part1" );   // Only for explicit loading !
     yup.paint( "<div>Content 1 !</div>" );
 
 } )();
