@@ -18,6 +18,29 @@ It works with external **Yup component** files. A Yup component is a standard Ja
 
 Here a very simple example (**helloworld.html**)
 
+This page loads the **yupee.js** library. You can use also the **yupee.min.js** for better loading performance. The following instruction loads a simple Yup component located in the current directory (relative to the html page) from the **test1.js** file.
+
+### Implicit loading
+
+When a data-yup attribute is found, yupee will load a Yup component related to the id attribute inside a sub directory "yups".
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="../../src/yupee.js"></script>
+    </head>
+    <body id="test1" data-yup>
+    </body>
+</html>
+```
+
+In this example, a yup component will be loaded inside the "yups/test1.js" file.
+
+### Explicit loading
+
+If you want to skeep the data-yup attribute, the **$$.load** method is available for loading a Yup component
+
 ```html
  <!DOCTYPE html>
  <html>
@@ -29,11 +52,10 @@ Here a very simple example (**helloworld.html**)
    </body>
   </html>
 ```
-This page loads the **yupee.js** library. You can use also the **yupee.min.js** for better loading performance. The following instruction loads a simple Yup component located in the current directory (relative to the html page) from the **test1.js** file.
 
-```javascript
-$$.load( "test1" )
-```
+In this example, a yup component "test1.js" will be loaded relativly to the html page.
+
+### Yup component content
 
 Here now the content of the Yup component
 
@@ -46,7 +68,7 @@ Here now the content of the Yup component
   } )();
 ```
 
-The first instruction gets access to the current Yup component by calling **$$.start()**. To render the Yup component, simply call the **paint** method. The **paint** method works inside the container of the
+The first instruction gets access to the current Yup component by calling **$$.start()**. To render here the Yup component, simply call the **paint** method. The **paint** method works inside the container of the
 Yup component, by default the container is the element body.
 
 The end user will see only "Hello World" when loading the **helloworld.html** page.
@@ -55,7 +77,40 @@ The end user will see only "Hello World" when loading the **helloworld.html** pa
 
 In this example, we load 3 yup components (**test3a**, **test3b** and **test3c**). Each component will renderer in a different part of the HTML page.
 
+### Implicit loading
+
+You can load multiple component for the same page using using a "data-yup" attribute, then it will use the html attribute id for loading automatically the yup component inside a "yups" subdirectory. Each Yup component will have a specific container depending the location of the data-yup attribute.
+
+Example
+
+```html
+<html>
+    <head>
+        <script src="../../src/yupee.js"></script>
+    </head>
+
+    <body>
+
+        <div>Starting zones</div>
+
+        <div id="part1" data-yup></div>
+
+        <div id="part2" data-yup></div>
+
+        <div id="part3" data-yup></div>
+
+        <div>Stopping zones</div>
+
+    </body>
+
+</html>
+```
+
+In this example, it will load 3 yup components yups/part1.js, yups/part2.js and yups/part3.js. 
+
 ### Explicit loading
+
+If you want to skip the data-yup attribute, you can use explicit loading here
 
 ```html
 <html>
@@ -83,15 +138,13 @@ In this example, we load 3 yup components (**test3a**, **test3b** and **test3c**
 </html>
 ```
 
-In each Yup component, we will define first the part of the HTML that will be rendered. The **into** method gets a CSS selector for choosing the container location of the Yup component.
-
-Here is the content of the test3a.js component:
+Here is the content of the test3a.js component for an explicit loading, we need to define the location of the container using into.
 
 ```javascript
 ( () => {
 
     const yup = $$.start();
-    yup.into( "#part1" );
+    yup.into( "#part1" );   // Only for explicit loading
     yup.paint( "<div>Content 1 !</div>" );
 
 } )();
@@ -99,36 +152,6 @@ Here is the content of the test3a.js component:
 
 When loading the html page, the end user will see ***Content 1***, ***Content 2*** and ***Content 3**. Each Yup component paints a content in a part of the HTML page.
 
-### Implicit loading
-
-The other way which is better is using a "data-yup" attribute, then it will use the html attribute id for loading automatically the yup component inside a "yups" subdirectory. So you needn't to use the "load" method or the "into" method.
-
-Example
-
-```html
-<html>
-    <head>
-        <script src="../../src/yupee.js"></script>
-    </head>
-
-    <body>
-
-        <div>Starting zones</div>
-
-        <div id="part1" data-yup></div>
-
-        <div id="part2" data-yup></div>
-
-        <div id="part3" data-yup></div>
-
-        <div>Stopping zones</div>
-
-    </body>
-
-</html>
-```
-
-In this example, it will load 3 yup components yups/part1.js, yups/part2.js and yups/part3.js. Each one will have a specific container.
 
 ## Using Events
 
