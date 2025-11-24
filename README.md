@@ -156,7 +156,7 @@ When loading the html page, the end user will see ***Content 1***, ***Content 2*
 
 Any attribute for a Yup container become a parameter for the Yup component.
 
-```javascript
+```html
 <html>
     <head>
         <script src="../../src/yupee.js"></script>
