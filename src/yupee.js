@@ -243,11 +243,29 @@ const $$ = ( ( $$ ) =>  {
         constructor(yupid,params) {
             this.#yupid = yupid;
 
-            // Updating the default container
-            if ( params instanceof Node ) {
-                this.#container = params;
-            } else
-                this.#params = params;
+            if ( params ) {
+                // Updating the default container
+                if ( params instanceof Node ) {
+                    this.#container = params;
+                } else {
+                    // Simple way to update container with a specific key _into
+                    if ( params._into ) {
+                        this.#container = params._into;
+                        delete params._into;
+                    }
+                    this.#params = params;
+                }
+            }
+
+            // Add attributes of the container as parameter
+            if ( this.#container ) {
+                if ( this.#container.attributes ) {
+                    this.#params = this.#params || {};
+                    for ( let attribute of this.#container.attributes ) {
+                        params[ attribute.name ] = attribute.value;
+                    }
+                }
+            }
 
             this.#actionStack = [];
 
@@ -315,6 +333,13 @@ const $$ = ( ( $$ ) =>  {
          */
         child( childName ) {
             return this.#children[ childName ];
+        }
+
+        /**
+         * @returns A Yup parent or null for the root node
+         */
+        parent() {
+            return this.#parent;
         }
 
         /**
@@ -484,13 +509,8 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /**
-         *  @deprecated use container()
-         *   @return The HTML view for this component
+         * @returns The visual container of this component, it can be a HTML part
          */
-        getView() {
-            return this.#container;
-        }
-
         container() {
             return this.#container;
         }
@@ -600,7 +620,7 @@ const $$ = ( ( $$ ) =>  {
         const nodes = document.querySelectorAll( "*" );
         for ( node of nodes ) {
             if ( node.hasAttribute( "data-yup" ) && node.id ) {
-                $$.load( "yups/" + node.id, node );
+                $$.load( "yups/" + node.id, { "_into" : node } );
             }
         }
     }

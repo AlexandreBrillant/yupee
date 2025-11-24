@@ -152,7 +152,6 @@ Here is the content of the **part1.js** component for an explicit loading, we ne
 
 When loading the html page, the end user will see ***Content 1***, ***Content 2*** and ***Content 3**. Each Yup component paints a content in a part of the HTML page.
 
-
 ## Using Events
 
 Yup components can catch DOM events using the **event** method.
