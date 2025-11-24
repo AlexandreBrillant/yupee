@@ -25,7 +25,6 @@ This page loads the **yupee.js** library. You can use also the **yupee.min.js** 
 When a **data-yup** attribute is found, yupee will load a Yup component related to the **id** attribute inside a sub directory **yups**.
 
 ```html
-<!DOCTYPE html>
 <html>
     <head>
         <script src="../../src/yupee.js"></script>
@@ -35,14 +34,13 @@ When a **data-yup** attribute is found, yupee will load a Yup component related 
 </html>
 ```
 
-In this example, a yup component will be loaded inside the **yups/test1.js** file.
+In this example, a yup component will be loaded inside the **yups/test1.js** file. The HTML part containing the **data-yup** attribute is a container for the Yup component.
 
 ### Explicit loading
 
 If you want to skip the data-yup attribute, the **$$.load** method is available for loading a Yup component
 
 ```html
- <!DOCTYPE html>
  <html>
    <head>
        <script src="../src/yupee.js"></script>
@@ -152,6 +150,77 @@ Here is the content of the **part1.js** component for an explicit loading, we ne
 
 When loading the html page, the end user will see ***Content 1***, ***Content 2*** and ***Content 3**. Each Yup component paints a content in a part of the HTML page.
 
+## Using Parameters
+
+### Implicit loading
+
+Any attribute for a Yup container become a parameter for the Yup component.
+
+```javascript
+<html>
+    <head>
+        <script src="../../src/yupee.js"></script>
+    </head>
+
+    <body>
+
+        <div>Starting zones</div>
+
+        <div id="part1" color="red" data-yup></div>
+
+        <div>Stopping zones</div>
+
+    </body>
+
+</html>
+```
+
+In this example, we added a **color** attribute. Then we can use it inside our Yup component like this :
+
+```javascript
+( () => {
+
+    const yup = $$.start();
+    const color = yup.param( "color", "black" );
+    yup.paint( "<div>Content 1 !</div>" ).style( { "color" : color } );
+
+} )();
+```
+
+### Explit loading
+
+A Yup component can be loaded with additional parameters from the **load** method.
+
+In the next example, we have two parameters **message** and **color**
+
+```html
+<html>
+    <head>
+        <script src="../src/yupee.js"></script>
+        <script>$$.load( "test4", { message : "hello world", color : "red" } );</script>
+    </head>
+
+    <body>
+
+    </body>
+</html>
+```
+
+In the Yup component, the **param** method is used for getting each parameter value.
+
+```javascript
+( () => {
+
+    const yup = $$.start();
+    const message = yup.param( "message", "bye bye world..." );
+    const color = yup.param( "color", "black" );
+
+    yup.paint( `<div>${message}</div>` ).style( { "color" : color, "font-weight" : "bold" } );
+
+} )();
+
+```
+
 ## Using Events
 
 Yup components can catch DOM events using the **event** method.
@@ -206,39 +275,7 @@ Also, it is possible to run a fonction when the Yup component is displayed using
 
 With this Yup component, when the user will click on the black message "Click here for Bold and Red", the message will be rendered in bold with a red color.
 
-## Using Parameters
 
-A Yup component can be loaded with additional parameters from the **load** method.
-
-In the next example, we have two parameters **message** and **color**
-
-```html
-<html>
-    <head>
-        <script src="../src/yupee.js"></script>
-        <script>$$.load( "test4", { message : "hello world", color : "red" } );</script>
-    </head>
-
-    <body>
-
-    </body>
-</html>
-```
-
-In the Yup component, the **param** method is used for getting each parameter value.
-
-```javascript
-( () => {
-
-    const yup = $$.start();
-    const message = yup.param( "message", "bye bye world..." );
-    const color = yup.param( "color", "black" );
-
-    yup.paint( `<div>${message}</div>` ).style( { "color" : color, "font-weight" : "bold" } );
-
-} )();
-
-```
 
 ## Using DOM node and repainting a Yup component
 
