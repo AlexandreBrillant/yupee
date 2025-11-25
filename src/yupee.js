@@ -291,6 +291,7 @@ const $$ = ( ( $$ ) =>  {
             }
         }
 
+        // Inner usage
         #setchild( name, yup ) {
             yup.#parent = this;
             this.#children[ name ] = yup;
@@ -550,9 +551,10 @@ const $$ = ( ( $$ ) =>  {
 
         /**
          * Show the current yup component by setting a display style to block
+         * @param displayMode is an optional parameter, the default value is "block"
          */
-        show() {
-            this.style( { display : "block" } );
+        show( displayMode ) {
+            this.style( { display : displayMode ?? "block" } );
         }
 
         /**
@@ -614,24 +616,38 @@ const $$ = ( ( $$ ) =>  {
 
     }
 
-    // Check for data-yup attribute inside the current page
-
-    function init_data_yup() {
-        const nodes = document.querySelectorAll( "*" );
-        for ( node of nodes ) {
-            if ( node.hasAttribute( "data-yup" ) && node.id ) {
-                $$.load( "yups/" + node.id, { "_into" : node } );
-            }
-        }
-    }
+    // Resolve the data-yup attributes when the document is ready
 
     ( () => {
+
+        // Check for data-yup attribute inside the current page
+
+        function resolve_yup_path( node ) {
+            const t = [];
+            while ( node ) {
+                if ( node.nodeType == Node.ELEMENT_NODE && node.hasAttribute( "data-yup" ) ) {
+                    if ( node.id ) {
+                        t.unshift( node.id );
+                    }
+                }
+                node = node.parentNode;
+            }
+            return t.join( "/" );
+        }
+
+        function process_data_yup() {
+            const nodes = document.querySelectorAll( "*" );
+            for ( node of nodes ) {
+                if ( node.hasAttribute( "data-yup" ) && node.id ) {
+                    $$.load( "yups/" + resolve_yup_path( node ), { "_into" : node } );
+                }
+            }
+        }
+
         document.addEventListener( "DOMContentLoaded", () => {
-            init_data_yup();
+            process_data_yup();
         } );
     } )();
-
-
 
     // shortcuts
 
