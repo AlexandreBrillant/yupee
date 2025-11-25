@@ -77,10 +77,9 @@ In this example, we load 3 yup components (**test3a**, **test3b** and **test3c**
 
 ### Implicit loading
 
-You can load multiple components for the same page using using a **data-yup** attribute, then it will use the html attribute **id** for loading automatically the yup component inside a **yups** subdirectory. If a yup component
-is inside another yup component then it will change the loading path, the parent component become a folder for this yup child.
+You can load multiple components for the same page using using a **data-yup** attribute, then it will use the html attribute **id** for loading automatically the yup component inside a **yups** subdirectory. If a yup component is inside another yup component then it will change the loading path, the parent yup component become a folder for this yup child.
 
-Each Yup component will have a specific container depending the location of the data-yup attribute.
+Each Yup component will have a specific container depending the location of the **data-yup** attribute.
 
 Example
 
@@ -107,9 +106,9 @@ Example
 </html>
 ```
 
-In this example, we have a main "mytest" yup component. It will be loaded from the path **yups/mytest.js**.
+In this example, we have a main **mytest** yup component. It will be loaded using the path **yups/mytest.js**.
 
-However, the 3 yup components inside will be loaded from **yups/mytest/part1.js**, **yups/mytest/part2.js** and **yups/mytest/part3.js**.
+However, the 3 yup components inside will be loaded from these paths **yups/mytest/part1.js**, **yups/mytest/part2.js** and **yups/mytest/part3.js**.
 
 ### Explicit loading
 
@@ -141,15 +140,14 @@ If you want to skip the **data-yup** attribute, you can use explicit loading her
 </html>
 ```
 
-Here is the content of the **part1.js** component for an explicit loading, we need to define the location of the container using **into**. For implicit loading, this is not required.
+When using the **$$.load** method, the container for the Yup component is unknown. This allows the Yup component
+to choose its own container using the **into** method.
 
 ```javascript
 ( () => {
-
     const yup = $$.start();
     yup.into( "#part1" );   // Only for explicit loading !
     yup.paint( "<div>Content 1 !</div>" );
-
 } )();
 ```
 
