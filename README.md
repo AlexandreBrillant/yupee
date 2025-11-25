@@ -77,7 +77,10 @@ In this example, we load 3 yup components (**test3a**, **test3b** and **test3c**
 
 ### Implicit loading
 
-You can load multiple component for the same page using using a **data-yup** attribute, then it will use the html attribute **id** for loading automatically the yup component inside a **yups** subdirectory. Each Yup component will have a specific container depending the location of the data-yup attribute.
+You can load multiple components for the same page using using a **data-yup** attribute, then it will use the html attribute **id** for loading automatically the yup component inside a **yups** subdirectory. If a yup component
+is inside another yup component then it will change the loading path, the parent component become a folder for this yup child.
+
+Each Yup component will have a specific container depending the location of the data-yup attribute.
 
 Example
 
@@ -87,7 +90,7 @@ Example
         <script src="../../src/yupee.js"></script>
     </head>
 
-    <body>
+    <body id="mytest" data-yup>
 
         <div>Starting zones</div>
 
@@ -104,7 +107,9 @@ Example
 </html>
 ```
 
-In this example, it will load 3 yup components **yups/part1.js**, **yups/part2.js** and **yups/part3.js**. 
+In this example, we have a main "mytest" yup component. It will be loaded from the path **yups/mytest.js**.
+
+However, the 3 yup components inside will be loaded from **yups/mytest/part1.js**, **yups/mytest/part2.js** and **yups/mytest/part3.js**.
 
 ### Explicit loading
 
