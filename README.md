@@ -288,6 +288,32 @@ In this sample, we add a content inside the Yup component using a DOM node and w
 
 } )();
 ```
+
+## Debugging
+
+Each yup component can use a **trace** method to send application output messages. Every
+yup operation such as loading a component, handling an event... is traced.
+
+By default, traces are disabled. To display all traces, you must use the **$$.debugMode** method. By default, traces are output to the console. However, you can use a parameter to redirect to the
+HTML page instead.
+
+```html
+<html>
+    <head>
+        <script src="../../src/yupee.js"></script>
+        <script>
+            $$.debugMode( $$.DEBUG_BODY );
+        </script>
+    </head>
+
+    <body id="myerror" data-yup>
+    </body>
+
+</html>
+```
+
+In this example, we enable traces inside the HTML body using the **$$.DEBUG_BODY** parameter. The HTML page loads a Yup component named 'myerror', which is unknown. As a result, the error trace appears at the end of the HTML page.
+
 ## Building a Calculator application
 
 Here’s a way to build a Calculator using two Yup components. The first one **buttons**, will manage all the buttons of the calculator, the second one **screen** will display the result.

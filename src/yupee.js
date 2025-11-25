@@ -45,15 +45,24 @@ const $$ = ( ( $$ ) =>  {
 
     let debugMode = false;
     let deepTrace = false;
+    let traceMode = 0;
 
-    function trace( actionId, ...params ) {
+    function _trace( actionId, ...params ) {
         if ( debugMode ) {
             const paramstr = params.join( "," );
-            console.log( `** [${actionId}] ** ${paramstr}` );
+            const log = `** [${actionId}] ** ${paramstr}`
+            if ( traceMode == 0 )
+                console.log( log );
+            else
+                document.body.innerHTML += `<div>${log}</div>`;
             if ( deepTrace ) {
                 params.forEach( ( element ) => {
-                    if ( typeof element == "object" )
-                        console.log( element );
+                    if ( typeof element == "object" ) {
+                        if ( traceMode == 0 )
+                            console.log( element );
+                        else
+                            document.body.innerHTML += `<div>${log}</div>`;
+                    }
                 } );
             }
         }
@@ -99,7 +108,7 @@ const $$ = ( ( $$ ) =>  {
          * @returns a Yup component
          */
         yup( yupid ) {
-            trace( "yup", yupid, this.root() );
+            _trace( "yup", yupid, this.root() );
             return this.root().child( yupid );
         }
 
@@ -121,7 +130,7 @@ const $$ = ( ( $$ ) =>  {
                 this.#listeners[ eventId ] = [];
             }
             this.#listeners[ eventId ].push( { "handler" : handler } );
-            trace( "listen", eventId, handler );
+            _trace( "listen", eventId, handler );
         }
 
         /**
@@ -138,7 +147,7 @@ const $$ = ( ( $$ ) =>  {
                     }
                 );
             }
-            trace( "fire", eventId, args );
+            _trace( "fire", eventId, args );
         }
 
         /**
@@ -156,7 +165,7 @@ const $$ = ( ( $$ ) =>  {
             } else {
                 this.#data[ key ] = args[ 0 ];
             }
-            trace( "data", key, args );
+            _trace( "data", key, args );
         }
 
         // Internal usage : do not use
@@ -190,6 +199,9 @@ const $$ = ( ( $$ ) =>  {
                 scriptNode.addEventListener( "load", () => {
                     Yupees.#singleton.loadNextComponent();
                 } );
+                scriptNode.addEventListener( "error", () => {
+                    _trace( "load", "Can't load " + location + " ?" );
+                } );
                 scriptNode.src = location;
                 this.#currentParams = params;
                 document.head.appendChild( scriptNode );
@@ -206,7 +218,7 @@ const $$ = ( ( $$ ) =>  {
                 this.#yupRoot = new Yup( "root", document.body );
             }                 
             this.#yupRoot.addChild( currentComponent );
-            trace( "start", this.#currentYupId );
+            _trace( "start", this.#currentYupId );
             return currentComponent;
         }
     }
@@ -347,8 +359,8 @@ const $$ = ( ( $$ ) =>  {
          * Message for the console including the current Yup id
          * @param {*} message Message for the console
          */
-        log( message ) {
-            console.log( `Yup[${this.#yupid}] => (${message})` );
+        trace( message ) {
+            _trace( `Yup[${this.#yupid}] => (${message})` );
         }
 
         #binder( func ) {
@@ -510,7 +522,7 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /**
-         * @returns The visual container of this component, it can be a HTML part
+         * @returns The visual container of this component, it can be an HTML part
          */
         container() {
             return this.#container;
@@ -550,7 +562,7 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /**
-         * Show the current yup component by setting a display style to block
+         * Show the current yup component by setting a display style to "block" to the container
          * @param displayMode is an optional parameter, the default value is "block"
          */
         show( displayMode ) {
@@ -558,7 +570,7 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /**
-         * Hide the current yup component by setting a display style to none
+         * Hide the current yup component by setting a display style to none to the container
          */
         hide() {
             this.style( { display : "none" } );
@@ -668,7 +680,7 @@ const $$ = ( ( $$ ) =>  {
      */
     $$.load = ( yupcomponent, params ) => {
         rooter( { "load" : yupcomponent, "params" : params } );
-        trace( "load", yupcomponent, params );
+        _trace( "load", yupcomponent, params );
         return $$;
     };
 
@@ -680,7 +692,7 @@ const $$ = ( ( $$ ) =>  {
      */
     $$.listen = ( actionId, ...actions ) => {
         actions.forEach( (action) => Yupees.instance().listen( actionId, action ) );
-        trace( actionId, actions );
+        _trace( actionId, actions );
         return $$;
     };
 
@@ -692,7 +704,7 @@ const $$ = ( ( $$ ) =>  {
      */
     $$.fire = ( actionId, ...params ) => {
         Yupees.instance().fire( actionId, params )
-        trace( "fire", actionId, params );
+        _trace( "fire", actionId, params );
         return $$;
     };
 
@@ -706,7 +718,7 @@ const $$ = ( ( $$ ) =>  {
         if ( params.length == 0 )
             return Yupees.instance().data(key,...params );    // read
         Yupees.instance().data(key,...params );   // write
-        trace( "data", key, params );
+        _trace( "data", key, params );
         return $$;
     }
 
@@ -716,7 +728,13 @@ const $$ = ( ( $$ ) =>  {
      */
     $$.yup = ( name ) => Yupees.instance().yup( name );
 
-    $$.debugMode = () => {
+    // Trace the message inside the console
+    $$.DEBUG_CONSOLE = 0;
+    // Trace the message inside the document body
+    $$.DEBUG_BODY = 1;
+
+    $$.debugMode = ( mode ) => {
+        traceMode = mode ?? 0;
         debugMode = !debugMode;
     }
 
