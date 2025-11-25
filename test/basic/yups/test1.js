@@ -12,23 +12,17 @@
     yup.event(
         "click",
         () => { 
-            // We use nor here
-            yup.container().style.color = "red";
+            yup.style( { color : "red" } );
         }        
     );
 
-    // With standard functions
+    // Or with standard functions
     yup.event(
         "click",
         function() { 
-            yup.container().style.fontWeight = "bold";
+            yup.style( { fontWeight : "bold" } );
         } 
     );
-
-    yup.action( function() {
-        // We display the current component
-        yup.log( "My first yup component !" );
-    });
 
     // Paint the yup component
     yup.paint( "<div>Click here for Bold and Red</div>" );

@@ -224,23 +224,11 @@ In the Yup component, the **param** method is used for getting each parameter va
 
 ```
 
-## Using Events
+## Using DOM Events
 
 Yup components can catch DOM events using the **event** method.
 
-```html
-<html>
-    <head>
-        <script src="../src/yupee.js"></script>
-        <script>$$.load( "test1" );</script>
-    </head>
-    <body>
-    </body>
-</html>
-```
-The Yup component **test1** will catch the click event from the Yup component rendering (the view) using the **event** method. For accessing to the view of the Yup component, calling **getView()** is required.
-
-Also, it is possible to run a fonction when the Yup component is displayed using **action**.
+This Yup component will catch the **click** event using the **event** method. For accessing to the container of the Yup component, calling **container()** is required. Otherwise you may use specific functions like **style** for applying a style to your container.
 
 ```javascript
 ( () => {
@@ -252,23 +240,17 @@ Also, it is possible to run a fonction when the Yup component is displayed using
     yup.event(
         "click",
         () => { 
-            // We use nor here
-            yup.container().style.color = "red";
+            yup.style( { color : "red" } );
         }        
     );
 
-    // With standard functions
+    // Or with standard functions
     yup.event(
         "click",
         function() { 
-            yup.container().style.fontWeight = "bold";
+            yup.style( { fontWeight : "bold" } );
         } 
     );
-
-    yup.action( function() {
-        // We display the current component
-        console.log( yup );
-    });
 
     // Paint the yup component
     yup.paint( "<div>Click here for Bold and Red</div>" );
@@ -276,9 +258,7 @@ Also, it is possible to run a fonction when the Yup component is displayed using
 } )();
 ```
 
-With this Yup component, when the user will click on the black message "Click here for Bold and Red", the message will be rendered in bold with a red color.
-
-
+With this Yup component, when the user will click on the black message "Click here for Bold and Red", the message will be rendered in **bold** with a **red** color.
 
 ## Using DOM node and repainting a Yup component
 
