@@ -296,7 +296,7 @@ const $$ = ( ( $$ ) =>  {
         addChildBySelector( childName, selector ) {
             const node = this.container().querySelector( selector );
             if ( node == null ) {
-                log( "Unknown child [" + selector + "]" );
+                this.trace( "Unknown child [" + selector + "]" );
             } else {
                 this.#setchild( childName, new Yup( childName, node ) );
                 return this.#children[ childName ];
@@ -313,30 +313,35 @@ const $$ = ( ( $$ ) =>  {
         /**
          * Add a new child inside this Yup component
          * The container of the new child will be added to the container of the current yup component
-         * @param {*} content can be a yup component, html content or a DOM node
+         * @param content can be a yup component, html content or a DOM node
          * @return a new Yup component or null if the operation is not possible
          */
         addChild( content ) {
+            let yupid;
+            let yup;
+
             if ( content instanceof Yup ) {
-                return this.#setchild( content.yupid(), content );
-            }
+                yupid = content.yupid;
+                yup = content;
+            } else {
 
-            // Generate a innner id
-            const yupname = "yup" + ( this.#childid++ );
-            let newNode = content;
+                if ( typeof content == "string" ) {
+                    this.container().innerHTML += content;
+                    content = this.container().lastChild;
+                }
 
-            if ( typeof content == "string" ) {
-                this.container().innerHTML += content;
-                newNode = this.container().lastChild;
+                if ( content instanceof Node ) {
+                    // Automatic id
+                    yupid = "yup" + ( this.#childid++ );
+                    yup = new Yup( yupid, content );
+                    this.container().appendChild( yup.container() );                    
+                } else {
+                    this.trace( "Invalid addChild parameter ?" );
+                    this.trace( content );
+                    return null;
+                }
             }
-
-            if ( newNode instanceof Node ) {
-                const yup = new Yup( "yup" + ( this.#childid++ ), newNode );
-                this.container().appendChild( yup.container() );
-                this.#setchild( yupname, yup );
-                return yup;
-            }
-            return null;
+            return this.#setchild( yupid, yup );
         }
 
         /**
@@ -349,7 +354,7 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /**
-         * @returns A Yup parent or null for the root node
+         * @returns A Yup parent or null for the root yup component
          */
         parent() {
             return this.#parent;
@@ -431,6 +436,7 @@ const $$ = ( ( $$ ) =>  {
 
         /**
          * Paint this component adding a content to the current container.
+         * The container is automatically cleaned before adding a content.
          * When calling a pushData, this method is automatically called. The
          * renderer can be used for deciding how to paint the component.
          * @param html optional HTML string or HTML node if you didn't use the model
@@ -733,8 +739,13 @@ const $$ = ( ( $$ ) =>  {
     // Trace the message inside the document body
     $$.DEBUG_BODY = 1;
 
+    /**
+     * Enable/Disable the debug mode. By default the
+     * trace are for the console output.
+     * @param {*} mode Change the trace output $$.DEBUG_CONSOLE or $$.DEBUG_BODY
+     */
     $$.debugMode = ( mode ) => {
-        traceMode = mode ?? 0;
+        traceMode = mode ?? $$.DEBUG_CONSOLE;
         debugMode = !debugMode;
     }
 
