@@ -53,15 +53,17 @@ const $$ = ( ( $$ ) =>  {
             const log = `** [${actionId}] ** ${paramstr}`
             if ( traceMode == 0 )
                 console.log( log );
-            else
-                document.body.innerHTML += `<div>${log}</div>`;
+            else {
+                document.body.insertAdjacentHTML( "beforeend", `<div class='yuptrace'>${log}</div>` );
+            }
             if ( deepTrace ) {
                 params.forEach( ( element ) => {
                     if ( typeof element == "object" ) {
                         if ( traceMode == 0 )
                             console.log( element );
-                        else
-                            document.body.innerHTML += `<div>${log}</div>`;
+                        else {
+                            document.body.insertAdjacentHTML( "beforeend", `<div class='yuptrace'>${log}</div>` );
+                        }
                     }
                 } );
             }
@@ -326,7 +328,7 @@ const $$ = ( ( $$ ) =>  {
             } else {
 
                 if ( typeof content == "string" ) {
-                    this.container().innerHTML += content;
+                    this.container().insertAdjacentHTML( "beforeend", content );
                     content = this.container().lastChild;
                 }
 
