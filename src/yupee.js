@@ -315,7 +315,7 @@ const $$ = ( ( $$ ) =>  {
         /**
          * Add a new child inside this Yup component
          * The container of the new child will be added to the container of the current yup component
-         * @param content can be a yup component, html content or a DOM node
+         * @param content can be a yup component, HTML content, a DOM node, an Object { yupid:..., yupcontent:... }
          * @return a new Yup component or null if the operation is not possible
          */
         addChild( content ) {
@@ -327,6 +327,13 @@ const $$ = ( ( $$ ) =>  {
                 yup = content;
             } else {
 
+                if ( typeof content == "object" ) {
+                    if ( content.yupid && content.yupcontent ) {
+                        yupid = content.yupid;
+                        content = content.yupcontent;
+                    }
+                }
+
                 if ( typeof content == "string" ) {
                     this.container().insertAdjacentHTML( "beforeend", content );
                     content = this.container().lastChild;
@@ -334,7 +341,7 @@ const $$ = ( ( $$ ) =>  {
 
                 if ( content instanceof Node ) {
                     // Automatic id
-                    yupid = "yup" + ( this.#childid++ );
+                    yupid = yupid ?? ( "yup" + ( this.#childid++ ) );
                     yup = new Yup( yupid, content );
                     this.container().appendChild( yup.container() );                    
                 } else {
@@ -493,6 +500,36 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /**
+         * Manage a click for this yup component or a click for a yup child. It avoids to use the event method.
+         * @param {*} childname Optional for applying this click event only on a child by this name
+         * @param {*} handler Function for managing a click or "auto" for producing a data with the yupid value
+         */
+        click( childname, handler ) {
+            if ( typeof childname == "function" ) {
+                this.event( "click", childname );
+            } else {
+                if ( typeof childname == "string" ) {
+                    let child = this.child( childname );
+                    if ( child == null ) {
+                        if ( childname == "auto" ) {
+                            child = this;
+                            handler = "auto";
+                        } else {
+                            this.trace( "click : Unknown child " + childname );
+                            return;
+                        }
+                    }
+                    if ( handler == "auto" ) {
+                        child.event( "click", () => {
+                            child.produce( child.yupid() );
+                        } );
+                    } else
+                        child.event( "click", handler );
+                }
+            }
+        }
+
+        /**
          * Running an action with the component can be added inside the HTML page
          * @param handler Store this handler and run it after the component is painted
          */ 
@@ -515,7 +552,7 @@ const $$ = ( ( $$ ) =>  {
                     this.#container = node;
                 }
             } catch( error ) {
-                console.log( `Invalid selector [${cssselector} / ${error.message}] ? using document.body` );
+                this.trace( `Invalid selector [${cssselector} / ${error.message}] ? using document.body` );
                 this.#container = document.body;
             }
             return this;
