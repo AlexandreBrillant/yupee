@@ -325,24 +325,13 @@ Yup components can communicate with each other using events. Thus the **buttons*
 Here the template of the HTML calculator page
 
 ```html
-<!-- Author : Alexandre Brillant -->
-<!-- A Simple Calculator using Yupee -->
-
-<!DOCTYPE html>
-
 <html>
     <head>
         <title>Simple Calculator using Yupee</title>
         <script src="yupee.js"></script>
     </head>
     <body>
-
         <h1>Simple calculator using Yupee</h1>
-
-		<a href="https://github.com/AlexandreBrillant/yupee">Yupee on GitHub</a>
-
-        <hr>
-
         <div id="calc">
             <div id="screen" data-yup>
                 <input type="textfield" id="screenfield">
@@ -378,14 +367,12 @@ Here the template of the HTML calculator page
                     <div  class="btn">=</div>
                 </div>                
             </div>
-
         </div>
-
     </body>
 </html>
 ```
 
-For managing the buttons, we will create a Yup component (**buttons**) getting all the buttons with the **div.btn** selector.
+To manage the buttons, we will create a Yup component (**buttons**) getting all the buttons with the **div.btn** selector.
 
 ```javascript
 ( () => {
@@ -464,7 +451,7 @@ We get a sub component with the **screen** constant. For getting each button val
 Each Yup component can have a data model. A data model can be shared among multiple Yup components. You can 
 update a data model with any values, each time it will automatically repaint all Yup components using it. 
 
-For render a data model, a Yup component requires a renderer. A renderer is a delegate function that takes
+To render a data model, a Yup component requires a renderer. A renderer is a delegate function that takes
 a model parameter and a container parameter. Its role is to display the model inside the Yup
 component. A renderer can be shared among multiple Yup components.
 
