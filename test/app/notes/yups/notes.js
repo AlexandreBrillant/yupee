@@ -1,4 +1,4 @@
-/* Yup component for painting all the node
+/* Yup component for painting all the notes produced by the actions component
    Author : Alexandre Brillant (https://github.com/AlexandreBrillant/)
 */
 
@@ -6,7 +6,7 @@
 
     const yup = $$.start();
 
-    // Set the renderer for the model of notes
+    // Set a renderer for the model of notes
     yup.renderer(
         ( model, container ) => {
             const notes = model.data( "notes" );

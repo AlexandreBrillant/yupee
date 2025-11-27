@@ -1,13 +1,11 @@
-/* Yup component for managing actions on the note application
-   Author : Alexandre Brillant (https://github.com/AlexandreBrillant/)
+/* 
+    Yup component for producing new notes. The notes component will display it
+    Author : Alexandre Brillant (https://github.com/AlexandreBrillant/)
 */
 
 ( () => {
 
     const yup = $$.start();
-
-    // Share a model for the notes
-    $$.data( "notes", [] );
 
     yup.event( "click",
             () => {

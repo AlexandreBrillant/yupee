@@ -27,7 +27,7 @@ When a **data-yup** attribute is found, yupee will load a Yup component related 
 ```html
 <html>
     <head>
-        <script src="../../src/yupee.js"></script>
+        <script src="yupee.js"></script>
     </head>
     <body id="test1" data-yup>
     </body>
@@ -43,7 +43,7 @@ If you want to skip the data-yup attribute, the **$$.load** method is available 
 ```html
  <html>
    <head>
-       <script src="../src/yupee.js"></script>
+       <script src="yupee.js"></script>
        <script>$$.load( "test1" );</script>
    </head>
    <body>
@@ -86,7 +86,7 @@ Example
 ```html
 <html>
     <head>
-        <script src="../../src/yupee.js"></script>
+        <script src="yupee.js"></script>
     </head>
 
     <body id="mytest" data-yup>
@@ -117,7 +117,7 @@ If you want to skip the **data-yup** attribute, you can use explicit loading her
 ```html
 <html>
     <head>
-        <script src="../src/yupee.js"></script>
+        <script src="yupee.js"></script>
         <script>$$.load( "part1" );</script>
         <script>$$.load( "part2" );</script>
         <script>$$.load( "part3" );</script>        
@@ -162,7 +162,7 @@ Any attribute for a Yup container become a parameter for the Yup component.
 ```html
 <html>
     <head>
-        <script src="../../src/yupee.js"></script>
+        <script src="yupee.js"></script>
     </head>
 
     <body>
@@ -199,7 +199,7 @@ In the next example, we have two parameters **message** and **color**
 ```html
 <html>
     <head>
-        <script src="../src/yupee.js"></script>
+        <script src="yupee.js"></script>
         <script>$$.load( "test4", { message : "hello world", color : "red" } );</script>
     </head>
 
@@ -289,6 +289,8 @@ In this sample, we add a content inside the Yup component using a DOM node and w
 } )();
 ```
 
+When painting a component, the content is automatically cleared.
+
 ## Debugging
 
 Each yup component can use a **trace** method to send application output messages. Every
@@ -300,7 +302,7 @@ HTML page instead.
 ```html
 <html>
     <head>
-        <script src="../../src/yupee.js"></script>
+        <script src="yupee.js"></script>
         <script>
             $$.debugMode( $$.DEBUG_BODY );
         </script>
@@ -331,34 +333,7 @@ Here the template of the HTML calculator page
 <html>
     <head>
         <title>Simple Calculator using Yupee</title>
-        <style>
-            .row {
-                display:block;
-            }
-            .btn {
-                display:inline-block;
-                width:30px;
-                background-color:black;
-                color:white;
-                border:1px solid black;
-                cursor: pointer;
-                text-align:center;
-                padding:4px;
-                margin:2px;
-            }
-            #screenfield {
-                margin:2px;
-                background-color:black;
-                color:white;
-                text-align:right;
-                width : 178px;
-            }
-            #calc {
-                text-align:right;
-                width:200px;
-            }
-        </style>
-        <script src="../../../src/yupee.js"></script>
+        <script src="yupee.js"></script>
     </head>
     <body>
 
@@ -486,59 +461,66 @@ We get a sub component with the **screen** constant. For getting each button val
 
 ## Creating MVC applications
 
-You can share data between your Yup components. In this example, we build a simple notebook application. All
-the notes are stored inside a shared model called **notes**, managed by a Yup component named **actions** (acting both The Model and The Controller). Another Yup component **notes** listens (The View) for model updates and repaints each note in the HTML template.
+Each Yup component can have a data model. A data model can be shared among multiple Yup components. You can 
+update a data model with any values, each time it will automatically repaint all Yup components using it. 
+
+For render a data model, a Yup component requires a renderer. A renderer is a delegate function that takes
+a model parameter and a container parameter. Its role is to display the model inside the Yup
+component. A renderer can be shared among multiple Yup components.
+
+In this example, we start with a very simple Notes application. A user can add new notes, and all the
+notes will be displayed in a section of the HTML page.
 
 ### The Model part
 
-Here the **actions** component
+Here the **actions** component. This component will prompt the user for a note. It will then "produce" a **note** value. Producing a note mean, generating a note to all Yup components that consume it.
 
 ```javascript
 ( () => {
 
     const yup = $$.start();
 
-    // Share a model for the notes
-    $$.data( "notes", [] );
-
     yup.event( "click",
             () => {
                 let note = prompt( "Your note" );
                 if ( note ) {
-                    $$.data( "notes" ).push( note );
-                    $$.fire( "repaint" );
+                    yup.produce( "note", note );
                 }
     } );
 
     yup.paint( "<input type='button' value='Add a note' id='add'>" );
 
 } )();
-
 ```
 
 ### The View part
 
-Here the **notes** component
+Here the **notes** component. It needs to consume a **note** value and render it. Therefore, we need a model to store
+all notes and a renderer function to display them. 
 
 ```javascript
 ( () => {
 
     const yup = $$.start();
 
-    function repaint( notes ) {
-        let htmlNotes = "";
-        notes.forEach( note => {
-            htmlNotes += ( "<div>" + note + "</div>" );
-        });
-        yup.paint( htmlNotes );
-    }
-
-    $$.listen( "repaint", () => {
-        repaint( $$.data( "notes" ) );
+    // Set a renderer for the model of notes
+    yup.renderer(
+        ( model, container ) => {
+            const notes = model.data( "notes" );
+            notes.forEach( note => {
+                const div = document.createElement( "DIV" );
+                div.textContent = note;
+                container.appendChild( div );
+            });
     } );
+
+    // Push a note inside the current model
+    yup.consume( "note", ( note ) => yup.model().pushData( "notes", note ) );
 
 } )();
 ```
+
+Note that when using **yup.model()**, it automatically creates an empty model.
 
 ## Conclusion
 
