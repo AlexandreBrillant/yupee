@@ -13,8 +13,7 @@
             () => {
                 let note = prompt( "Your note" );
                 if ( note ) {
-                    $$.data( "notes" ).push( note );
-                    $$.fire( "repaint" );
+                    yup.produce( "note", note );
                 }
     } );
 

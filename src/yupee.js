@@ -228,6 +228,63 @@ const $$ = ( ( $$ ) =>  {
     // --------------------------------------------------------------------------------------------------------------------
 
     /**
+     * A Yup model manages data for a Yup component. A Yup component can only have one Yup model, but a 
+     * yup model can be for multiple Yup component
+     */
+    class YupModel {
+        #content = {};
+        #yups = [];
+
+        // For inner usage
+        _addYup( yupcomponent ) {
+            this.#yups.push( yupcomponent );
+        }
+
+        // For inner usage
+        _removeYup( yupcomponent ) {
+            this.#yups.filter( yup => yup != yupcomponent );
+        }
+
+        /**
+         * Add data for an array of the current model. A key is required
+         * @param {*} key The key for the datamodel
+         * @param {*} data The data to be pushed
+         * @param {*} repaintMode "true" by default for asking each Yup component to repaint if required
+         */
+        pushData( key, data, repaintMode = true ) {
+            this.#content[key] = this.#content[key] ?? [];
+            this.#content[key].push( data );
+            if ( repaintMode ) {
+                this._repaint();
+            }
+        }
+
+        /**
+         * Read or Write a data inside this current model. By default it will ask to all the concerned yup components to repaint
+         * @param {*} key A key for this data
+         * @param {*} value Optional value to write
+         * @param {*} repaintMode By default true for repainting all the Yup component
+         * @returns a data value
+         */
+        data( key, value, repaintMode = true ) {
+            if ( !value ) {
+                return this.#content[ key ];
+            }
+            this.#content[ key ] = value;
+            if ( repaintMode )
+                this._repaint();
+            return value;
+        }
+
+        // For inner usage
+        _repaint() {
+            this.#yups.forEach(  yup => yup.paint() );
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------------------------------
+
+    /**
      * A Yup component is an external file with this kind of content :
      * @example
      *  ( () => {
@@ -250,7 +307,7 @@ const $$ = ( ( $$ ) =>  {
         #actionStack 
         #params
         #yupid
-        #model = [];
+        #model;
         #childid = 1;
         #parent = null;
 
@@ -386,18 +443,34 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /**
+         * Return the current model or create a new one
+         * @param newmodel Optional value for setting a new model for this Yup component
+         * @returns The current model of this Yup component
+         */
+        model( newmodel ) {
+            if ( newmodel ) {
+                // Remove the previous one
+                if ( this.#model ) {
+                    this.#model._removeYup( this );
+                }
+                newmodel._addYup( this );
+                this.#model = newmodel;
+            }
+            if ( !this.#model ) {
+                return this.model( new YupModel() );
+            }
+            return this.#model;
+        }
+
+        /**
          * Add a data value to the current model. if the repaint mode is true
-         * then the paint method is automatically called after.
+         * then the paint method is automatically called after. Note that it will
+         * automatically add a items key inside the current model
          * @param {*} data 
-         * @param {*} repaintMode optional, by default is true
+         * @param {*} repaintMode optional if you don't want to run a repaint of the Yup component
          */
         pushData( data, repaintMode ) {
-            this.#model.push( data );
-            if ( typeof repaintMode == "undefined" )
-                repaintMode = true;
-            if ( repaintMode ) {
-                this.paint();
-            }
+            this.model().pushData( "items", data, repaintMode );
         }
 
         /**
@@ -422,13 +495,17 @@ const $$ = ( ( $$ ) =>  {
             Yupees.instance().listen( "data:" + name, handler );
         }
 
-        #itemRenderer = null;
+        #modelRenderer = null;
 
         /**
-         * @param {*} renderFunction A function delegate for rendering each part of the model
+         * Read or Write a renderer for this model
+         * @param modelRenderer A optional delegate function for rendering the current model
+         * @returns The current model
          */
-        renderer( itemRenderer ) {
-            this.#itemRenderer = itemRenderer;
+        renderer( modelRenderer ) {
+            if ( !this.#modelRenderer )
+                this.#modelRenderer = modelRenderer;
+            return this.#modelRenderer;
         }
 
         /**
@@ -460,9 +537,9 @@ const $$ = ( ( $$ ) =>  {
             this.clean();
 
             if ( typeof html == "undefined" ) {                
-                // Paint the model using the itemRenderer
-                if ( this.#itemRenderer != null ) {
-                    this.#model.forEach( ( item ) => this.#itemRenderer( this.#container, item ) );
+                // Paint the model using the modelRenderer
+                if ( this.#modelRenderer ) {
+                    this.#modelRenderer( this.model(), this.container() );
                 } else {
                     // Default painting
                     this.#container.innerHTML = `Default renderer for YUP {${this.#yupid}} with this model [${this.#model}]`;
@@ -754,7 +831,7 @@ const $$ = ( ( $$ ) =>  {
     };
 
     /**
-     * Read/Write date between the Yup components
+     * Read/Write data between the Yup components
      * @param {*} key A free key name
      * @param  {...any} params Optional parameters when writing a value
      * @returns $$ or a value

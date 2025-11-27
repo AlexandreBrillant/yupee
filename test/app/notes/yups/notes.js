@@ -6,16 +6,18 @@
 
     const yup = $$.start();
 
-    function repaint( notes ) {
-        let htmlNotes = "";
-        notes.forEach( note => {
-            htmlNotes += ( "<div>" + note + "</div>" );
-        });
-        yup.paint( htmlNotes );
-    }
-
-    $$.listen( "repaint", () => {
-        repaint( $$.data( "notes" ) );
+    // Set the renderer for the model of notes
+    yup.renderer(
+        ( model, container ) => {
+            const notes = model.data( "notes" );
+            notes.forEach( note => {
+                const div = document.createElement( "DIV" );
+                div.textContent = note;
+                container.appendChild( div );
+            });
     } );
+
+    // Push a note inside the current model
+    yup.consume( "note", ( note ) => yup.model().pushData( "notes", note ) );
 
 } )();
