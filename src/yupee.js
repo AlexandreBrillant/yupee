@@ -103,6 +103,7 @@ const $$ = ( ( $$ ) =>  {
         #yupRoot = null;
         #listeners = {};
         #data = {};
+        #applicationModel = null;
 
         /**
          * Access to any Yup component by a name
@@ -114,7 +115,15 @@ const $$ = ( ( $$ ) =>  {
             return this.root().child( yupid );
         }
 
-    
+        /**
+         * Typically, user could use a global model for the current application containing all the data
+         * @returns a shared model
+         */
+        applicationModel() {
+            this.#applicationModel = this.#applicationModel ?? new YupModel();
+            return this.#applicationModel;
+        }
+
         /**
          * @returns The root yup component
          */
@@ -212,13 +221,14 @@ const $$ = ( ( $$ ) =>  {
 
         /**
          * Start a new component and return a reference to it
+         * @param config Optional configuration object (including model/renderer)
          * @returns The current running component
          */
-        start() {
-            const currentComponent = new Yup(this.#currentYupId, this.#currentParams);
+        start( config ) {
+            const currentComponent = new Yup(this.#currentYupId, this.#currentParams, config );
             if ( this.#yupRoot == null ) {
                 this.#yupRoot = new Yup( "root", document.body );
-            }                 
+            }
             this.#yupRoot.addChild( currentComponent );
             _trace( "start", this.#currentYupId );
             return currentComponent;
@@ -311,7 +321,7 @@ const $$ = ( ( $$ ) =>  {
         #childid = 1;
         #parent = null;
 
-        constructor(yupid,params) {
+        constructor(yupid,params = null, config) {
             this.#yupid = yupid;
 
             if ( params ) {
@@ -343,6 +353,12 @@ const $$ = ( ( $$ ) =>  {
             // Default container
             if ( !this.#container )
                 this.#container = document.body;
+
+            if ( config ) {
+                const { model, renderer } = config;
+                model && this.model( model );
+                renderer && this.renderer( renderer );
+            }
         }
 
         #children = {};
@@ -541,8 +557,7 @@ const $$ = ( ( $$ ) =>  {
                 if ( this.#modelRenderer ) {
                     this.#modelRenderer( this.model(), this.container() );
                 } else {
-                    // Default painting
-                    this.#container.innerHTML = `Default renderer for YUP {${this.#yupid}} with this model [${this.#model}]`;
+                    $$.defaultRenderer && $$.defaultRenderer( this.model(), this.container() );
                 }
             } else {
                 // Paint a content without using a model
@@ -789,10 +804,14 @@ const $$ = ( ( $$ ) =>  {
 
     /**
      * This required when starting a Yup component.
+     * You can call it with a configuration like that
+     * $$.start( { model:..., renderer:...} ); or
+     * $$.start();
+     * @param config Optional object configuration (model/renderer)
      * @return A reference to the current Yup component
      */
-    $$.start = () => {
-        return Yupees.instance().start();
+    $$.start = ( config ) => {
+        return Yupees.instance().start( config );
     }
 
     /**
@@ -843,6 +862,13 @@ const $$ = ( ( $$ ) =>  {
         _trace( "data", key, params );
         return $$;
     }
+
+    /**
+     * You can start your Yup component with this model, thus
+     * several Yup components can share the same model.
+     * @returns a shared model for the whole application
+     */
+    $$.applicationModel = () => Yupees.instance().applicationModel();
 
     /**
      * Find a yup component by a name
