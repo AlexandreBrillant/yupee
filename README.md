@@ -11,7 +11,8 @@ It works with external **Yup component** files. A Yup component is a standard Ja
 - No server required.
 - Works locally.
 - Very simple and uses only standard JavaScript.
-- MVC architecture support
+- No external librairies.
+- MVC architecture support.
 - Released under the MIT License for any usage.
 
 ## Hello World
