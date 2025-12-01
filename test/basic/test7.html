@@ -1,0 +1,54 @@
+<!--    Author : Alexandre Brillant
+        Checking adding/removing a child 
+        Create a sub model for each child and write random value
+-->
+
+<html>
+    <head>
+        <script src="../../src/yupee.js"></script>
+        <script>
+            function init() {
+                const model = $$.applicationModel();
+
+                const yup1 = $$.start( { model : model });
+                yup1.into( "#container" );
+
+                for ( let i =0; i < 10; i++ ) {
+                    const yup2 = $$.start( { model: model.subModel( "child" + ( i + 1 ) ) } );
+                    yup2.model().data( "key" + i, "value" + i );
+                    yup2.model().dump();
+                    yup2.paint( "child " + ( i + 1 ) );
+                    yup1.addChild( yup2 );
+                }
+
+                function removeChild() {
+                    setTimeout( () => {
+                        const child = yup1.childAt( 0 );
+                        console.log( child.container() );
+                        console.log( child.container().parentNode );
+                        child.remove();
+                        yup1.childCount() && removeChild();
+                        !yup1.childCount() && end();
+                    }, 1000 );
+                }
+
+                function end() {
+                    model.dump();
+                    console.log( "END" );
+                }
+
+                removeChild();
+            }
+        </script>
+    </head>
+
+    <body onload="init()">
+
+        Test add/remove children using local Yup components
+
+        <div id="container">
+
+        </div>
+    </body>
+
+</html>

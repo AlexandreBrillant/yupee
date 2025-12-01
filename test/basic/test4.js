@@ -6,6 +6,7 @@
 ( () => {
 
     const yup = $$.start();
+	yup.into( "body" );
     const message = yup.param( "message", "bye bye world..." );
     const color = yup.param( "color", "black" );
 

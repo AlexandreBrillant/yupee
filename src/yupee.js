@@ -226,10 +226,6 @@ const $$ = ( ( $$ ) =>  {
          */
         start( config ) {
             const currentComponent = new Yup(this.#currentYupId, this.#currentParams, config );
-            if ( this.#yupRoot == null ) {
-                this.#yupRoot = new Yup( "root", document.body );
-            }
-            this.#yupRoot.addChild( currentComponent );
             _trace( "start", this.#currentYupId );
             return currentComponent;
         }
@@ -245,6 +241,28 @@ const $$ = ( ( $$ ) =>  {
         #content = {};
         #yups = [];
 
+        constructor( content ) {
+            content && ( this.#content = content );
+        }
+
+        #submodels = {};
+
+        /**
+         * Create a sub model for this model. It means with the majorkey argument, all the
+         * sub model will work only with this majorkey sub object. This is useful for avoiding
+         * to share all the model, by only a subset to a Yup component.
+         * @param {*} majorKey 
+         */
+        subModel( majorKey ) {
+            if ( this.#submodels[ majorKey ] ) {
+                return this.#submodels[ majorKey ];
+            }
+            !this.#content[majorKey] && ( this.#content[majorKey] = {} );
+            const submodel = new YupModel( this.#content[majorKey] );
+            this.#submodels[ majorKey ] = submodel;
+            return submodel;
+        }
+
         // For inner usage
         _addYup( yupcomponent ) {
             this.#yups.push( yupcomponent );
@@ -252,7 +270,8 @@ const $$ = ( ( $$ ) =>  {
 
         // For inner usage
         _removeYup( yupcomponent ) {
-            this.#yups.filter( yup => yup != yupcomponent );
+            const index = this.#yups.indexOf( yupcomponent );
+            index > -1 && this.#yups.splice( index, 1 );
         }
 
         /**
@@ -290,6 +309,15 @@ const $$ = ( ( $$ ) =>  {
         _repaint() {
             this.#yups.forEach(  yup => yup.paint() );
         }
+
+        dump() {
+            console.log( "*** Start Dump Model ***")
+            console.log( this.#content );
+            this.#yups.forEach(
+                yup => console.log( "-> Yup user [" + yup.yupid() + "]" ) );
+            
+            console.log( "*** End Dump Model ***")
+        }
     }
 
     // --------------------------------------------------------------------------------------------------------------------
@@ -314,7 +342,6 @@ const $$ = ( ( $$ ) =>  {
      */
     class Yup {
         #container
-        #actionStack 
         #params
         #yupid
         #model;
@@ -348,11 +375,8 @@ const $$ = ( ( $$ ) =>  {
                 }
             }
 
-            this.#actionStack = [];
-
-            // Default container
-            if ( !this.#container )
-                this.#container = document.body;
+            // Force an empty container
+            !this.#container && ( this.#container = document.createElement( "DIV" ) );
 
             if ( config ) {
                 const { model, renderer } = config;
@@ -361,7 +385,10 @@ const $$ = ( ( $$ ) =>  {
             }
         }
 
+        // Children by name
         #children = {};
+        // Children list
+        #childrenLst = [];
 
         /**
          * Add a child for this Yup component from a sub part of the current container. A child will become another Yup component
@@ -382,6 +409,9 @@ const $$ = ( ( $$ ) =>  {
         #setchild( name, yup ) {
             yup.#parent = this;
             this.#children[ name ] = yup;
+            this.#childrenLst.push( yup );
+            // Connect the DOM here for no parent
+            !yup.container().parentNode && this.container().appendChild( yup.container() );  
             return yup;
         }
 
@@ -396,7 +426,7 @@ const $$ = ( ( $$ ) =>  {
             let yup;
 
             if ( content instanceof Yup ) {
-                yupid = content.yupid;
+                yupid = content.yupid();
                 yup = content;
             } else {
 
@@ -416,7 +446,7 @@ const $$ = ( ( $$ ) =>  {
                     // Automatic id
                     yupid = yupid ?? ( "yup" + ( this.#childid++ ) );
                     yup = new Yup( yupid, content );
-                    this.container().appendChild( yup.container() );                    
+                                      
                 } else {
                     this.trace( "Invalid addChild parameter ?" );
                     this.trace( content );
@@ -426,6 +456,29 @@ const $$ = ( ( $$ ) =>  {
             return this.#setchild( yupid, yup );
         }
 
+        #removeChildReference( child ) {
+            const id = this.yupid();
+            id && delete this.#children[ id ];
+            const index = this.#childrenLst.indexOf( child );
+            index > -1 && this.#childrenLst.splice( index, 1 );
+        }
+
+        remove() {
+            // Remove all the references
+            this.#model && ( this.#model._removeYup( this ) );
+            const parent = this.parent();
+            parent.#removeChildReference( this );
+
+            // DOM update
+            if ( this.container() instanceof DocumentFragment ) {
+                const fragment = this.container();
+                while ( fragment.firstChild ) {
+                    parent.container().removeChild( fragment.firstChild );
+                }
+            } else
+                parent.container().removeChild( this.container() );
+        }
+
         /**
          * Return a yup child by a name. This yup child has been added using the addChild method
          * @param {*} childName A Yup child
@@ -433,6 +486,21 @@ const $$ = ( ( $$ ) =>  {
          */
         child( childName ) {
             return this.#children[ childName ];
+        }
+
+        /**
+         * @returns The number of children
+         */
+        childCount() {
+            return this.#childrenLst.length;
+        }
+
+        /* 
+         * @param index The index of the children
+         * @returns A yup component child
+         */
+        childAt( index ) {
+            return this.#childrenLst[ index ];
         }
 
         /**
@@ -536,6 +604,8 @@ const $$ = ( ( $$ ) =>  {
             return defaultValue;
         }
 
+        #buffer = null;
+
         /**
          * Paint this component adding a content to the current container.
          * The container is automatically cleaned before adding a content.
@@ -545,10 +615,7 @@ const $$ = ( ( $$ ) =>  {
          */
         paint( html ) {
 
-            // Active the actions before painting
-
-            this.#actionStack.forEach( ( action ) => { action(); } );
-            this.#actionStack.splice( 0,this.#actionStack.length );
+            // No Yup children, then clean and repaint all
 
             this.clean();
 
@@ -563,8 +630,18 @@ const $$ = ( ( $$ ) =>  {
                 // Paint a content without using a model
                 if ( html instanceof Node ) {    
                     this.#container.appendChild( html );
-                } else
-                    this.#container.innerHTML = html;
+                } else {
+                    if ( typeof html == "string" ) {
+                        // Use a buffer for the document fragment usage
+                        ( !this.#buffer && ( this.#buffer = document.createElement( "DIV" ) ) );
+                        this.#buffer.innerHTML = html;
+                        while ( this.#buffer.firstChild ) {
+                            this.#container.appendChild( this.#buffer.firstChild );
+                        }
+                    } else {
+                        this.trace( "Unkown paint argument [" + html + "]" );
+                    }
+                }
             }
 
             return this;
@@ -621,17 +698,6 @@ const $$ = ( ( $$ ) =>  {
             }
         }
 
-        /**
-         * Running an action with the component can be added inside the HTML page
-         * @param handler Store this handler and run it after the component is painted
-         */ 
-        action( handler ) {
-            this.#actionStack.push(
-                this.#binder( handler )
-            );
-            return this;
-        }
-
         /** 
          *  Change the container of this component relativly to the whole document
          *  This is the container used when calling the paint method.
@@ -669,9 +735,16 @@ const $$ = ( ( $$ ) =>  {
          * Remove all the content of the container
          */
         clean() {
-            const parentNode = this.#container;
-            while ( parentNode.firstChild )
-                parentNode.removeChild( parentNode.firstChild );
+            // No Yup child, only remove DOM nodes
+            if ( !this.childCount() ) {
+                const parentNode = this.container();
+                while ( parentNode.firstChild )
+                    parentNode.removeChild( parentNode.firstChild );
+            } else {
+                while ( this.childCount() ) {
+                    this.childAt( 0 ).remove();
+                }
+            }
             return this;
         }
 
