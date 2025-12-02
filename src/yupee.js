@@ -100,20 +100,10 @@ const $$ = ( ( $$ ) =>  {
 
         #yupeesStack = [];
         #startLoading = false;
-        #yupRoot = null;
+
         #listeners = {};
         #data = {};
         #applicationModel = null;
-
-        /**
-         * Access to any Yup component by a name
-         * @param {*} yupid A yup component name
-         * @returns a Yup component
-         */
-        yup( yupid ) {
-            _trace( "yup", yupid, this.root() );
-            return this.root().child( yupid );
-        }
 
         /**
          * Typically, user could use a global model for the current application containing all the data
@@ -122,13 +112,6 @@ const $$ = ( ( $$ ) =>  {
         applicationModel() {
             this.#applicationModel = this.#applicationModel ?? new YupModel();
             return this.#applicationModel;
-        }
-
-        /**
-         * @returns The root yup component
-         */
-        root() {
-            return this.#yupRoot;
         }
 
         /**
@@ -810,7 +793,7 @@ const $$ = ( ( $$ ) =>  {
      * This is the main function of Yupee
      * It is called both for loading Yup components and for managing each one
      */
-    const rooter = (...args) => {
+    const starter = (...args) => {
         ready = document.body ? true : false;
 
         init = () => {
@@ -873,7 +856,7 @@ const $$ = ( ( $$ ) =>  {
 
     // shortcuts
 
-    $$.rooter = rooter;
+    $$.starter = starter;
 
     /**
      * This required when starting a Yup component.
@@ -893,7 +876,7 @@ const $$ = ( ( $$ ) =>  {
      * @returns $$
      */
     $$.load = ( yupcomponent, params ) => {
-        rooter( { "load" : yupcomponent, "params" : params } );
+        starter( { "load" : yupcomponent, "params" : params } );
         _trace( "load", yupcomponent, params );
         return $$;
     };
