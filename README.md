@@ -305,7 +305,7 @@ HTML page instead.
     <head>
         <script src="yupee.js"></script>
         <script>
-            $$.debugMode( $$.DEBUG_BODY );
+            $$.debugMode( $$.KEYS.DEBUG_BODY );
         </script>
     </head>
 
@@ -315,7 +315,7 @@ HTML page instead.
 </html>
 ```
 
-In this example, we enable traces inside the HTML body using the **$$.DEBUG_BODY** parameter. The HTML page loads a Yup component named 'myerror', which is unknown. As a result, the error trace appears at the end of the HTML page.
+In this example, we enable traces inside the HTML body using the **$$.KEYS.DEBUG_BODY** parameter. The HTML page loads a Yup component named 'myerror', which is unknown. As a result, the error trace appears at the end of the HTML page.
 
 ## Building a Calculator application
 
