@@ -51,7 +51,7 @@ const $$ = ( ( $$ ) =>  {
         if ( debugMode ) {
             const paramstr = params.join( "," );
             const log = `** [${actionId}] ** ${paramstr}`
-            if ( traceMode == 0 )
+            if ( traceMode == $$.KEYS.DEBUG_CONSOLE )
                 console.log( log );
             else {
                 document.body.insertAdjacentHTML( "beforeend", `<div class='yuptrace'>${log}</div>` );
@@ -59,7 +59,7 @@ const $$ = ( ( $$ ) =>  {
             if ( deepTrace ) {
                 params.forEach( ( element ) => {
                     if ( typeof element == "object" ) {
-                        if ( traceMode == 0 )
+                        if ( traceMode == $$.KEYS.DEBUG_CONSOLE )
                             console.log( element );
                         else {
                             document.body.insertAdjacentHTML( "beforeend", `<div class='yuptrace'>${log}</div>` );
@@ -358,8 +358,11 @@ const $$ = ( ( $$ ) =>  {
                 }
             }
 
-            // Force an empty container
-            !this.#container && ( this.#container = document.createElement( "DIV" ) );
+            // Force an empty container with an id
+            if ( !this.#container ) {
+                this.#container = document.createElement( "DIV" );
+                yupid && ( this.#container.id = yupid );
+            }
 
             if ( config ) {
                 const { model, renderer } = config;
@@ -402,9 +405,10 @@ const $$ = ( ( $$ ) =>  {
          * Add a new child inside this Yup component
          * The container of the new child will be added to the container of the current yup component
          * @param content can be a yup component, HTML content, a DOM node, an Object { yupid:..., yupcontent:... }
+         * @param config Optional parameter for specifying a model, renderer or yupid
          * @return a new Yup component or null if the operation is not possible
          */
-        addChild( content ) {
+        addChild( content, config ) {
             let yupid;
             let yup;
 
@@ -426,12 +430,12 @@ const $$ = ( ( $$ ) =>  {
                 }
 
                 if ( content instanceof Node ) {
-                    // Automatic id
-                    yupid = yupid ?? ( "yup" + ( this.#childid++ ) );
-                    yup = new Yup( yupid, content );
+                    !yupid && config && ( yupid = config.yupid );
+                    !yupid && ( yupid = yupid ?? ( "yup" + ( this.#childid++ ) ) );
+                    yup = new Yup( yupid, content, config );
                                       
                 } else {
-                    this.trace( "Invalid addChild parameter ?" );
+                    this.trace( "Invalid addChild parameter (Yup object,string or Node) ?" );
                     this.trace( content );
                     return null;
                 }
@@ -673,7 +677,7 @@ const $$ = ( ( $$ ) =>  {
                     }
                     if ( handler == "auto" ) {
                         child.event( "click", () => {
-                            child.produce( child.yupid() );
+                            child.produce( $$.KEYS.YUPID, child.yupid() );
                         } );
                     } else
                         child.event( "click", handler );
@@ -926,24 +930,20 @@ const $$ = ( ( $$ ) =>  {
      */
     $$.applicationModel = () => Yupees.instance().applicationModel();
 
-    /**
-     * Find a yup component by a name
-     * @return a yup component or null
-     */
-    $$.yup = ( name ) => Yupees.instance().yup( name );
-
-    // Trace the message inside the console
-    $$.DEBUG_CONSOLE = 0;
-    // Trace the message inside the document body
-    $$.DEBUG_BODY = 1;
+    // Specific key usage
+    $$.KEYS = Object.freeze( {
+        DEBUG_CONSOLE : 0,  // console trace output
+        DEBUG_BODY : 1,     // page body trace output
+        YUPID : "yupid" // key for producing a yup id value
+    } );
 
     /**
      * Enable/Disable the debug mode. By default the
      * trace are for the console output.
-     * @param {*} mode Change the trace output $$.DEBUG_CONSOLE or $$.DEBUG_BODY
+     * @param {*} mode Change the trace output $$.KEYS.DEBUG_CONSOLE or $$.KEYS.DEBUG_BODY
      */
     $$.debugMode = ( mode ) => {
-        traceMode = mode ?? $$.DEBUG_CONSOLE;
+        traceMode = mode ?? $$.KEYS.DEBUG_CONSOLE;
         debugMode = !debugMode;
     }
 
