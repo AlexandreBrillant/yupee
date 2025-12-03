@@ -109,8 +109,8 @@ const $$ = ( ( $$ ) =>  {
          * Typically, user could use a global model for the current application containing all the data
          * @returns a shared model
          */
-        applicationModel() {
-            this.#applicationModel = this.#applicationModel ?? new YupModel();
+        applicationModel( content ) {
+            this.#applicationModel = this.#applicationModel ?? new YupModel( content );
             return this.#applicationModel;
         }
 
@@ -267,8 +267,13 @@ const $$ = ( ( $$ ) =>  {
             this.#content[key] = this.#content[key] ?? [];
             this.#content[key].push( data );
             if ( repaintMode ) {
-                this._repaint();
+                this.update();
             }
+        }
+
+        /** Notify to all the Yup component using this model to repaint */
+        update() {
+            this.#yups.forEach( yup => yup.paint() );
         }
 
         /**
@@ -284,13 +289,8 @@ const $$ = ( ( $$ ) =>  {
             }
             this.#content[ key ] = value;
             if ( repaintMode )
-                this._repaint();
+                this.update();
             return value;
-        }
-
-        // For inner usage
-        _repaint() {
-            this.#yups.forEach(  yup => yup.paint() );
         }
 
         dump() {
@@ -443,6 +443,7 @@ const $$ = ( ( $$ ) =>  {
             return this.#setchild( yupid, yup );
         }
 
+        // Clean all the reference to this child
         #removeChildReference( child ) {
             const id = this.yupid();
             id && delete this.#children[ id ];
@@ -450,6 +451,8 @@ const $$ = ( ( $$ ) =>  {
             index > -1 && this.#childrenLst.splice( index, 1 );
         }
 
+        /** 
+         * Remove this Yup component. It updates if requires the parent and the DOM content */
         remove() {
             // Remove all the references
             this.#model && ( this.#model._removeYup( this ) );
@@ -548,7 +551,7 @@ const $$ = ( ( $$ ) =>  {
          * When a yup component produces a data, this data
          * can be sent to other yup components using this
          * method. 
-         * component produce a data and any one can catch it
+         * A component "produce" a data and any one can catch it using "consume"
          * @param {*} name a data name
          * @param {*} value a data value
          */
@@ -598,7 +601,7 @@ const $$ = ( ( $$ ) =>  {
          * The container is automatically cleaned before adding a content.
          * When calling a pushData, this method is automatically called. The
          * renderer can be used for deciding how to paint the component.
-         * @param html optional HTML string or HTML node if you didn't use the model
+         * @param html optional HTML string or HTML DOM node if you didn't use a model/renderer
          */
         paint( html ) {
 
@@ -677,7 +680,7 @@ const $$ = ( ( $$ ) =>  {
                     }
                     if ( handler == "auto" ) {
                         child.event( "click", () => {
-                            child.produce( $$.KEYS.YUPID, child.yupid() );
+                            child.produce( $$.KEYS.EVENT_YUPID, child.yupid() );
                         } );
                     } else
                         child.event( "click", handler );
@@ -762,8 +765,8 @@ const $$ = ( ( $$ ) =>  {
          * Show the current yup component by setting a display style to "block" to the container
          * @param displayMode is an optional parameter, the default value is "block"
          */
-        show( displayMode ) {
-            this.style( { display : displayMode ?? "block" } );
+        show( displayMode = "block" ) {
+            this.style( { display : displayMode } );
         }
 
         /**
@@ -887,25 +890,25 @@ const $$ = ( ( $$ ) =>  {
 
     /**
      * Listen for a Yup component event, this is for the user application usage
-     * @param {*} actionId Free event name
-     * @param  {...any} actions Handlers for this actionId event
+     * @param {*} eventid Free event name
+     * @param  {...any} actions functions to call for this eventid event
      * @returns $$
      */
-    $$.listen = ( actionId, ...actions ) => {
-        actions.forEach( (action) => Yupees.instance().listen( actionId, action ) );
-        _trace( actionId, actions );
+    $$.listen = ( eventid, ...actions ) => {
+        actions.forEach( (action) => Yupees.instance().listen( eventid, action ) );
+        _trace( eventid, actions );
         return $$;
     };
 
     /**
      * A Yup component can fire an event to another Yup component, this is for user application usage
-     * @param {*} actionId  Free event name
+     * @param {*} eventid  Free event name
      * @param  {...any} params  Free additional parameters
      * @returns 
      */
-    $$.fire = ( actionId, ...params ) => {
-        Yupees.instance().fire( actionId, params )
-        _trace( "fire", actionId, params );
+    $$.fire = ( eventid, ...params ) => {
+        Yupees.instance().fire( eventid, params )
+        _trace( "fire", eventid, params );
         return $$;
     };
 
@@ -926,15 +929,16 @@ const $$ = ( ( $$ ) =>  {
     /**
      * You can start your Yup component with this model, thus
      * several Yup components can share the same model.
+     * @param content Optional initial content for the data model
      * @returns a shared model for the whole application
      */
-    $$.applicationModel = () => Yupees.instance().applicationModel();
+    $$.applicationModel = ( content ) => Yupees.instance().applicationModel( content );
 
     // Specific key usage
     $$.KEYS = Object.freeze( {
         DEBUG_CONSOLE : 0,  // console trace output
         DEBUG_BODY : 1,     // page body trace output
-        YUPID : "yupid" // key for producing a yup id value
+        EVENT_YUPID : "yupid" // key for producing a yup id value
     } );
 
     /**
