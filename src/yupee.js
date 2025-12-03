@@ -199,6 +199,8 @@ const $$ = ( ( $$ ) =>  {
                 scriptNode.src = location;
                 this.#currentParams = params;
                 document.head.appendChild( scriptNode );
+            } else {
+                this.fire( $$.KEYS.EVENT_READY );   // Ready event
             }
         }
 
@@ -901,6 +903,14 @@ const $$ = ( ( $$ ) =>  {
     };
 
     /**
+     * Event for all the Yup component has been loaded
+     * @param  {...any} actions functions for processing the event
+     */
+    $$.ready = ( ...actions ) => {
+        $$.listen( $$.KEYS.EVENT_READY, ...actions );
+    }
+
+    /**
      * A Yup component can fire an event to another Yup component, this is for user application usage
      * @param {*} eventid  Free event name
      * @param  {...any} params  Free additional parameters
@@ -938,7 +948,8 @@ const $$ = ( ( $$ ) =>  {
     $$.KEYS = Object.freeze( {
         DEBUG_CONSOLE : 0,  // console trace output
         DEBUG_BODY : 1,     // page body trace output
-        EVENT_YUPID : "yupid" // key for producing a yup id value
+        EVENT_YUPID : "yupid", // key for producing a yup id value
+        EVENT_READY : "ready" // event for all the Yup components are loaded  
     } );
 
     /**
