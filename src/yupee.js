@@ -327,7 +327,6 @@ const $$ = ( ( $$ ) =>  {
      */
     class Yup {
         #container
-        #params
         #yupid
         #model;
         #childid = 1;
@@ -336,34 +335,26 @@ const $$ = ( ( $$ ) =>  {
         constructor(yupid,params = null, config) {
             this.#yupid = yupid;
 
-            if ( params ) {
-                // Updating the default container
-                if ( params instanceof Node ) {
-                    this.#container = params;
-                } else {
-                    // Simple way to update container with a specific key _into
-                    if ( params._into ) {
-                        this.#container = params._into;
-                        delete params._into;
-                    }
-                    this.#params = params;
-                }
-            }
-
-            // Add attributes of the container as parameter
-            if ( this.#container ) {
-                if ( this.#container.attributes ) {
-                    this.#params = this.#params || {};
-                    for ( let attribute of this.#container.attributes ) {
-                        params[ attribute.name ] = attribute.value;
-                    }
-                }
+            // Set a new container
+            if ( params instanceof Node ) {
+                this.#container = params;
+            } else 
+            if ( params && params._into ) {
+                this.#container = params._into;
+                delete params._into;
             }
 
             // Force an empty container with an id
             if ( !this.#container ) {
                 this.#container = document.createElement( "DIV" );
                 yupid && ( this.#container.id = yupid );
+            }
+
+            if ( params ) {
+                for ( const key in params ) {
+                    if ( typeof params[ key ] == "string" ) 
+                        this.#container.setAttribute( key, params[ key ] );
+                } 
             }
 
             if ( config ) {
@@ -594,15 +585,25 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /**
-         * Read the a parameter provided when using the $$.load method
-         * @param {*} paramIndex Parameter index starting from 0
+         * Read/Write a parameter when using the $$.load method
+         * @param {*} paramKey a key name for reading or a litteral object { name, value } for writing
          * @param {*} defaultValue Default value if the parameter is unknown
          * @return the parameter value or the default value
          */
-        param( paramkey, defaultValue ) {
-            if ( this.#params && this.#params[paramkey] )
-                return this.#params[ paramkey ];
-            return defaultValue;
+        param( paramKey, defaultValue ) {
+            if ( typeof paramKey == "string" ) {
+                if ( this.container().hasAttribute( paramKey ) )
+                    return this.container().getAttribute( paramKey );
+                return defaultValue;
+            } else {
+                const { name, value } = paramKey;
+                if ( name && value ) {
+                    if ( !this.container().hasAttribute( name ) ) {
+                        this.container().setAttribute( name, value );
+                    }
+                }
+                return this;
+            }
         }
 
         #buffer = null;
@@ -704,11 +705,20 @@ const $$ = ( ( $$ ) =>  {
          *  This is the container used when calling the paint method.
          *  @param selector a CSS selector for choosing another container
          */
-        into( cssselector ) {
+        into( cssselector, keepparams = false ) {
             try {
                 const node = document.querySelector( cssselector );
                 if ( node != null ) {
+                    let oldattributes = null;
+                    if ( keepparams ) {
+                        oldattributes = this.container().attributes;
+                    }
                     this.#container = node;
+                    if ( oldattributes ) {
+                        for ( const att of oldattributes ) {
+                            this.param( att );
+                        }
+                    }
                 }
             } catch( error ) {
                 this.trace( `Invalid selector [${cssselector} / ${error.message}] ? using document.body` );
