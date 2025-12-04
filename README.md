@@ -395,7 +395,18 @@ To manage the buttons, we will create a Yup component (**buttons**) getting all 
 
 ### Creating a child Yup component
 
+#### Using an existing child component
+
 The **addChildBySelector** method for a Yup component will search from the container a new container using a CSS selector. This new container will be used for building a new Yup component.
+
+The parameter is a litteral object with two keys :
+
+- selector : A required key with the CSS selector for the child
+- yupid : An optional key for setting an id for this child, else the attribute id is used from the DOM node.
+
+#### Adding a new child
+
+The **addChild** method will add a new Yup component to the current one. The content is a parameter with an HTML string or a DOM node.
 
 ### Produce/Consume custom events
 
@@ -410,7 +421,7 @@ We get a sub component with the **screen** constant. For getting each button val
 ( () => {
 
     const yup = $$.start();
-    const screen = yup.addChildBySelector( "textfield", "input[id=screenfield]" );
+    const screen = yup.addChildBySelector( { selector : "input[id=screenfield]" } );
 
     console.log( "Loading screen" );
 

@@ -5,7 +5,7 @@
 ( () => {
 
     const yup = $$.start();
-    const screen = yup.addChildBySelector( "textfield", "input[id=screenfield]" );
+    const screen = yup.addChildBySelector( { selector : "input[id=screenfield]" } );
 
     console.log( "Loading screen" );
 

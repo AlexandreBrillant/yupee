@@ -378,18 +378,24 @@ const $$ = ( ( $$ ) =>  {
         // Children list
         #childrenLst = [];
 
+        #generate_newid() {
+            return "yup" + ( this.#childid++ );
+        }
+
         /**
-         * Add a child for this Yup component from a sub part of the current container. A child will become another Yup component
-         * @param {*} childName A name of the child, use the method child for getting it
-         * @param {*} selector A CSS Selector for the child relativly the current container
+         * Add a child for this Yup component from a sub part of the current container. A child will become another Yup component.
+         * If no yupid for the Yup component is specified, then the yupid is automatically the attribute id from the DOM node.
+         * @param {*} a litteral containing a required attribute "selector" and an optional "id"
          */
-        addChildBySelector( childName, selector ) {
+        addChildBySelector( { yupid, selector } ) {    
             const node = this.container().querySelector( selector );
             if ( node == null ) {
-                this.trace( "Unknown child [" + selector + "]" );
+                this.trace( "Unknown child for the selector [" + selector + "] ?" );
             } else {
-                this.#setchild( childName, new Yup( childName, node ) );
-                return this.#children[ childName ];
+                yupid = yupid ?? node.id;
+                yupid = yupid ?? this.#generate_newid();
+                this.#setchild( yupid, new Yup( yupid, node ) );
+                return this.#children[ yupid ];
             }
         }
 
@@ -398,7 +404,7 @@ const $$ = ( ( $$ ) =>  {
             yup.#parent = this;
             this.#children[ name ] = yup;
             this.#childrenLst.push( yup );
-            // Connect the DOM here for no parent
+            // Connect the DOM here for no parent only
             !yup.container().parentNode && this.container().appendChild( yup.container() );  
             return yup;
         }
@@ -433,7 +439,7 @@ const $$ = ( ( $$ ) =>  {
 
                 if ( content instanceof Node ) {
                     !yupid && config && ( yupid = config.yupid );
-                    !yupid && ( yupid = yupid ?? ( "yup" + ( this.#childid++ ) ) );
+                    !yupid && ( yupid = yupid ?? this.#generate_newid() );
                     yup = new Yup( yupid, content, config );
                                       
                 } else {
@@ -948,8 +954,8 @@ const $$ = ( ( $$ ) =>  {
     $$.KEYS = Object.freeze( {
         DEBUG_CONSOLE : 0,  // console trace output
         DEBUG_BODY : 1,     // page body trace output
-        EVENT_YUPID : "yupid", // key for producing a yup id value
-        EVENT_READY : "ready" // event for all the Yup components are loaded  
+        EVENT_YUPID : "event/yupid", // key for producing a yup id value
+        EVENT_READY : "event/ready" // event for all the Yup components are loaded  
     } );
 
     /**
