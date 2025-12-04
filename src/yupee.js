@@ -473,8 +473,11 @@ const $$ = ( ( $$ ) =>  {
                 while ( fragment.firstChild ) {
                     parent.container().removeChild( fragment.firstChild );
                 }
-            } else
-                parent.container().removeChild( this.container() );
+            } else {
+                // Check for a valid parent
+                if ( this.container().parentNode == parent.container() )
+                    parent.container().removeChild( this.container() );
+            }
         }
 
         /**
