@@ -11,7 +11,7 @@
                 const model = $$.applicationModel();
 
                 const yup1 = $$.start( { model : model });
-                yup1.into( "#container" );
+                yup1.newContainer( "#container" );
 
                 for ( let i =0; i < 10; i++ ) {
                     const yup2 = $$.start( { model: model.subModel( "child" + ( i + 1 ) ) } );

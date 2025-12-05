@@ -6,7 +6,7 @@
 ( () => {
 
     const yup = $$.start();
-    yup.into( "#part2" );
+    yup.newContainer( "#part2" );
     yup.paint( "<div>Content 2 !</div>" );
 
 } )();

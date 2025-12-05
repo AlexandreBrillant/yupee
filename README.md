@@ -6,7 +6,11 @@ Yupee is an open-source JavaScript library for building complex and modular web 
 
 It works with external **Yup component** files. A Yup component is a standard JavaScript file that starts by calling the **$$.start** function.
 
- ### Benefits of Using Yupee :
+## Current Version
+
+**v0.9.0** – Pre-release (under active development).
+
+ ## Benefits of Using Yupee :
 
 - No server required.
 - Works locally.
@@ -142,12 +146,12 @@ If you want to skip the **data-yup** attribute, you can use explicit loading her
 ```
 
 When using the **$$.load** method, the container for the Yup component is unknown. This allows the Yup component
-to choose its own container using the **into** method.
+to choose its own container using the **newContainer** method.
 
 ```javascript
 ( () => {
     const yup = $$.start();
-    yup.into( "#part1" );   // Only for explicit loading !
+    yup.newContainer( "#part1" );   // Only for explicit loading !
     yup.paint( "<div>Content 1 !</div>" );
 } )();
 ```

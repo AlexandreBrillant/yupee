@@ -684,13 +684,13 @@ const $$ = ( ( $$ ) =>  {
                     if ( child == null ) {
                         if ( childname == "auto" ) {
                             child = this;
-                            handler = "auto";
+                            handler = $$.KEYS.AUTO_HANDLER;
                         } else {
                             this.trace( "click : Unknown child " + childname );
                             return;
                         }
                     }
-                    if ( handler == "auto" ) {
+                    if ( handler == $$.KEYS.AUTO_HANDLER ) {
                         child.event( "click", () => {
                             child.produce( $$.KEYS.EVENT_YUPID, child.yupid() );
                         } );
@@ -701,11 +701,12 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /** 
-         *  Change the container of this component relativly to the whole document
+         *  Update the container of this component relativly to the whole document
          *  This is the container used when calling the paint method.
          *  @param selector a CSS selector for choosing another container
+         *  @param keepparams False by default, duplicate the previous attributes to the new container
          */
-        into( cssselector, keepparams = false ) {
+        newContainer( cssselector, keepparams = false ) {
             try {
                 const node = document.querySelector( cssselector );
                 if ( node != null ) {
@@ -725,14 +726,6 @@ const $$ = ( ( $$ ) =>  {
                 this.#container = document.body;
             }
             return this;
-        }
-
-        /** 
-         *  Update the container using an element id
-         *  @param id unique identifier of the current html page as a new container
-         */
-        intoid( id ) {
-            return this.into( "@" + id );
         }
 
         /**
@@ -968,7 +961,8 @@ const $$ = ( ( $$ ) =>  {
         DEBUG_CONSOLE : 0,  // console trace output
         DEBUG_BODY : 1,     // page body trace output
         EVENT_YUPID : "event/yupid", // key for producing a yup id value
-        EVENT_READY : "event/ready" // event for all the Yup components are loaded  
+        EVENT_READY : "event/ready", // event for all the Yup components are loaded
+        AUTO_HANDLER : "handler/auto" // Manager for a click firing an event
     } );
 
     /**
