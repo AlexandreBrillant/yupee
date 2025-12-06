@@ -373,23 +373,6 @@ const $$ = ( ( $$ ) =>  {
             return "yup" + ( this.#childid++ );
         }
 
-        /**
-         * Add a child for this Yup component from a sub part of the current container. A child will become another Yup component.
-         * If no yupid for the Yup component is specified, then the yupid is automatically the attribute id from the DOM node.
-         * @param {*} a litteral containing a required attribute "selector" and an optional "id"
-         */
-        addChildBySelector( { yupid, selector } ) {    
-            const node = this.container().querySelector( selector );
-            if ( node == null ) {
-                this.trace( "Unknown child for the selector [" + selector + "] ?" );
-            } else {
-                yupid = yupid ?? node.id;
-                yupid = yupid ?? this.#generate_newid();
-                this.#setchild( yupid, new Yup( yupid, node ) );
-                return this.#children[ yupid ];
-            }
-        }
-
         // Inner usage
         #setchild( name, yup ) {
             yup.#parent = this;
@@ -401,44 +384,49 @@ const $$ = ( ( $$ ) =>  {
         }
 
         /**
-         * Add a new child inside this Yup component
-         * The container of the new child will be added to the container of the current yup component
-         * @param content can be a yup component, HTML content, a DOM node, an Object { yupid:..., yupcontent:... }
-         * @param config Optional parameter for specifying a model, renderer or yupid
-         * @return a new Yup component or null if the operation is not possible
+         * Add a new child inside this Yup component.The container of the new child will be added to the container of the current yup component.
+         * Example :
+         * addChild( "<div>...</div>" );
+         * addChild( mynode );
+         * addChild( { yupid:..., html: "<div></div>" });
+         * addChild( { yupid:..., node: mynode });
+         * addChild( { yupid:..., selector : "div.button#v1" });
+         * 
+         * If no yupid is present, then the id of the child container is used, if no present a counter is used
+         * 
+         * @param content can be a yup component, HTML content, a DOM node, an Object { yupid:..., html:..., node:..., selector:... }
+         * @return a new Yup component or null if the operation is not possible (look at the trace for the reason)
          */
-        addChild( content, config ) {
+        addChild( content ) {
             let yupid;
-            let yup;
+            let yupcontainer;
 
             if ( content instanceof Yup ) {
                 yupid = content.yupid();
-                yup = content;
+                return this.#setchild( yupid, content );
+            } else            
+            if ( typeof content == "string" || content.html ) {
+                this.container().insertAdjacentHTML( "beforeend", content  || content.html );
+                yupcontainer = this.container().lastChild;
+            } else
+            if ( content instanceof Node || content.node ) {
+                yupcontainer = content || content.node;
             } else {
-
-                if ( typeof content == "object" ) {
-                    if ( content.yupid && content.yupcontent ) {
-                        yupid = content.yupid;
-                        content = content.yupcontent;
-                    }
-                }
-
-                if ( typeof content == "string" ) {
-                    this.container().insertAdjacentHTML( "beforeend", content );
-                    content = this.container().lastChild;
-                }
-
-                if ( content instanceof Node ) {
-                    !yupid && config && ( yupid = config.yupid );
-                    !yupid && ( yupid = yupid ?? this.#generate_newid() );
-                    yup = new Yup( yupid, content, config );
-                                      
-                } else {
-                    this.trace( "Invalid addChild parameter (Yup object,string or Node) ?" );
-                    this.trace( content );
-                    return null;
-                }
+                const { selector } = content;
+                yupcontainer = this.container().querySelector( selector );
             }
+
+            if (!yupcontainer) {
+                this.trace( "Invalid addChild parameter no container ?" );
+                this.trace( content );
+                return null;
+            }
+
+            !yupid && ( yupid = content.yupid );    // Specific id provided by the content
+            !yupid && ( yupid = yupcontainer.id );   // Use the id per default
+            !yupid && ( yupid = this.#generate_newid() );
+
+            const yup = new Yup( yupid, yupcontainer );
             return this.#setchild( yupid, yup );
         }
 

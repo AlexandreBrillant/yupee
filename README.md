@@ -411,6 +411,8 @@ The parameter is a litteral object with two keys :
 #### Adding a new child
 
 The **addChild** method will add a new Yup component to the current one. The content is a parameter with an HTML string or a DOM node.
+You may have also an object with the yupid,html,node,selector attributes. A CSS selector is a way to used an existing node without adding a new one
+inside the HTML page.
 
 ### Produce/Consume custom events
 
@@ -425,7 +427,7 @@ We get a sub component with the **screen** constant. For getting each button val
 ( () => {
 
     const yup = $$.start();
-    const screen = yup.addChildBySelector( { selector : "input[id=screenfield]" } );
+    const screen = yup.addChild( { selector : "input[id=screenfield]" } );
 
     console.log( "Loading screen" );
 
