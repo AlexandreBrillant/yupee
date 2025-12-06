@@ -406,11 +406,11 @@ const $$ = ( ( $$ ) =>  {
                 return this.#setchild( yupid, content );
             } else            
             if ( typeof content == "string" || content.html ) {
-                this.container().insertAdjacentHTML( "beforeend", content  || content.html );
+                this.container().insertAdjacentHTML( "beforeend", content.html || content );
                 yupcontainer = this.container().lastChild;
             } else
-            if ( content instanceof Node || content.node ) {
-                yupcontainer = content || content.node;
+            if ( content.node || content instanceof Node ) {
+                yupcontainer = content.node || content;
             } else {
                 const { selector } = content;
                 yupcontainer = this.container().querySelector( selector );
