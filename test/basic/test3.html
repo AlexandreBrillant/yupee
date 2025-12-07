@@ -1,12 +1,12 @@
 <!-- Author : Alexandre Brillant -->
 <!-- Usage of three external components for part1,part2,part3 -->
-<!-- Explicit loading -->
+<!-- Explicit component loading for the testa and test3c -->
+<!-- Implicit commonent loading for the testb -->
 
 <html>
     <head>
         <script src="../../src/yupee.js"></script>
         <script>$$.load( "test3c" );</script>
-        <script>$$.load( "test3b" );</script>
         <script>$$.load( "test3a" );</script>        
     </head>
 
@@ -16,7 +16,7 @@
 
         <div id="part1"></div>
 
-        <div id="part2"></div>
+        <div id="part2" data-yup="test3b"></div>
 
         <div id="part3"></div>
 

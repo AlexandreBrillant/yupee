@@ -115,6 +115,30 @@ In this example, we have a main **mytest** yup component. It will be loaded usin
 
 However, the 3 yup components inside will be loaded from these paths **yups/mytest/part1.js**, **yups/mytest/part2.js** and **yups/mytest/part3.js**.
 
+You can choose your own path giving a value to the **data-yup** attribute.
+
+Example
+
+```html
+<div id="part2" data-yup="test3b"></div>
+```
+
+In this case, the Yup component will be loaded from the test3b path.
+
+You may also choose another rule for loading a Yup component from a DOM node using the $$.pathResolver attribute with a delegate function.
+
+Example
+
+```javascript
+$$.pathResolver = ( node ) => {
+    if ( node.id ) 
+        return `all/${node.id}`;
+}
+```
+
+In this case each time a node has an id attribute, then Yupee will be loaded inside a "all" directory. If a null value is returned, then no component
+will be loaded.
+
 ### Explicit loading
 
 If you want to skip the **data-yup** attribute, you can use explicit loading here

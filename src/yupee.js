@@ -802,7 +802,7 @@ const $$ = ( ( $$ ) =>  {
      * This is the main function of Yupee
      * It is called both for loading Yup components and for managing each one
      */
-    const starter = (...args) => {
+    const boot = (...args) => {
         ready = document.body ? true : false;
 
         init = () => {
@@ -852,9 +852,18 @@ const $$ = ( ( $$ ) =>  {
         function process_data_yup() {
             const nodes = document.querySelectorAll( "*" );
             for ( node of nodes ) {
-                if ( node.hasAttribute( "data-yup" ) && node.id ) {
-                    $$.load( "yups/" + resolve_yup_path( node ), { "_into" : node } );
+                let path = null;
+                // Try a delegate function
+                if ( $$.pathResolver )
+                    path = $$.pathResolver( node );
+                // Try the data-yup attribute value
+                path = !path && node.dataset.yup;
+                // Use the node id as a name for the yup component for empty data-yup attribute
+                if ( !path && node.hasAttribute( "data-yup" ) && node.id ) {
+                    path = "yups/" + resolve_yup_path( node );
                 }
+                if ( path )
+                    $$.load( path, { "_into" : node } );
             }
         }
 
@@ -862,10 +871,6 @@ const $$ = ( ( $$ ) =>  {
             process_data_yup();
         } );
     } )();
-
-    // shortcuts
-
-    $$.starter = starter;
 
     /**
      * This required when starting a Yup component.
@@ -885,10 +890,17 @@ const $$ = ( ( $$ ) =>  {
      * @returns $$
      */
     $$.load = ( yupcomponent, params ) => {
-        starter( { "load" : yupcomponent, "params" : params } );
+        boot( { "load" : yupcomponent, "params" : params } );
         _trace( "load", yupcomponent, params );
         return $$;
     };
+
+    /**
+     * You can update the path using a delegate function.
+     * This function has a DOM node as a parameter and return a path
+     * to the Yup component
+     */
+    $$.pathResolver = null;
 
     /**
      * Listen for a Yup component event, this is for the user application usage
