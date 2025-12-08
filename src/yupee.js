@@ -362,6 +362,9 @@ const $$ = ( ( $$ ) =>  {
                 model && this.model( model );
                 renderer && this.renderer( renderer );
             }
+
+            // Use the application model by default
+            !this.#model && $$.application.model && this.model( $$.application.model );
         }
 
         // Children by name
@@ -391,6 +394,7 @@ const $$ = ( ( $$ ) =>  {
          * addChild( { yupid:..., html: "<div></div>" });
          * addChild( { yupid:..., node: mynode });
          * addChild( { yupid:..., selector : "div.button#v1" });
+         * addChild( { yupid:..., html:"<div></div>", click:()=>{}} )
          * 
          * If no yupid is present, then the id of the child container is used, if no present a counter is used
          * 
@@ -427,6 +431,9 @@ const $$ = ( ( $$ ) =>  {
             !yupid && ( yupid = this.#generate_newid() );
 
             const yup = new Yup( yupid, yupcontainer );
+
+            content.click && yup.click( content.click );
+            
             return this.#setchild( yupid, yup );
         }
 
@@ -605,16 +612,19 @@ const $$ = ( ( $$ ) =>  {
          */
         paint( html ) {
 
-            // No Yup children, then clean and repaint all
-
-            this.clean();
 
             if ( typeof html == "undefined" ) {                
                 // Paint the model using the modelRenderer
-                if ( this.#modelRenderer ) {
-                    this.#modelRenderer( this.model(), this.container() );
-                } else {
-                    $$.defaultRenderer && $$.defaultRenderer( this.model(), this.container() );
+                if ( this.#model ) {
+                    if ( this.#modelRenderer ) {
+                        this.clean();
+                        this.#modelRenderer( this.model(), this.container() );
+                    } else {
+                        if ( $$.defaultRenderer ) {
+                            this.clean();
+                            $$.defaultRenderer( this.model(), this.container() );
+                        }
+                    }
                 }
             } else {
                 // Paint a content without using a model
@@ -670,7 +680,7 @@ const $$ = ( ( $$ ) =>  {
                 if ( typeof childname == "string" ) {
                     let child = this.child( childname );
                     if ( child == null ) {
-                        if ( childname == "auto" ) {
+                        if ( childname == $$.KEYS.AUTO_HANDLER ) {
                             child = this;
                             handler = $$.KEYS.AUTO_HANDLER;
                         } else {
@@ -949,20 +959,24 @@ const $$ = ( ( $$ ) =>  {
     }
 
     /**
-     * You can start your Yup component with this model, thus
-     * several Yup components can share the same model.
-     * @param content Optional initial content for the data model
-     * @returns a shared model for the whole application
+     * This is a shared object. 
+     * By calling the init method, you may inizialized a model with a specific content.
+     * @returns an object for all the yup components
      */
-    $$.applicationModel = ( content ) => Yupees.instance().applicationModel( content );
+    $$.application = {
+        init : ( content ) => {
+            $$.application.model = Yupees.instance().applicationModel( content );
+            return $$.application;
+        }
+    }
 
     // Specific key usage
     $$.KEYS = Object.freeze( {
         DEBUG_CONSOLE : 0,  // console trace output
-        DEBUG_BODY : 1,     // page body trace output
+        DEBUG_BODY : 1, // page body trace output
         EVENT_YUPID : "event/yupid", // key for producing a yup id value
         EVENT_READY : "event/ready", // event for all the Yup components are loaded
-        AUTO_HANDLER : "handler/auto" // Manager for a click firing an event
+        AUTO_HANDLER : "handler/auto" // manager for a click firing an event
     } );
 
     /**
