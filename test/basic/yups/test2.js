@@ -19,7 +19,6 @@
 
     setInterval( 
         () => {
-			yup.clean();
             yup.paint( `<div>${count}</div>` );
             count++;
         }, 1000 

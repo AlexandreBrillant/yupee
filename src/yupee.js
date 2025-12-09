@@ -611,8 +611,6 @@ const $$ = ( ( $$ ) =>  {
          * @param html optional HTML string or HTML DOM node if you didn't use a model/renderer
          */
         paint( html ) {
-
-
             if ( typeof html == "undefined" ) {                
                 // Paint the model using the modelRenderer
                 if ( this.#model ) {
@@ -628,10 +626,12 @@ const $$ = ( ( $$ ) =>  {
                 }
             } else {
                 // Paint a content without using a model
-                if ( html instanceof Node ) {    
+                if ( html instanceof Node ) {   
+                    this.clean(); 
                     this.#container.appendChild( html );
                 } else {
                     if ( typeof html == "string" ) {
+                        this.clean();
                         // Use a buffer for the document fragment usage
                         ( !this.#buffer && ( this.#buffer = document.createElement( "DIV" ) ) );
                         this.#buffer.innerHTML = html;
