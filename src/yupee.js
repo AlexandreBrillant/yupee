@@ -364,7 +364,7 @@ const $$ = ( ( $$ ) =>  {
             }
 
             // Use the application model by default
-            !this.#model && $$.application.model && this.model( $$.application.model );
+            !this.#model && $$.application.model() && this.model( $$.application.model() );
         }
 
         // Children by name
@@ -959,14 +959,14 @@ const $$ = ( ( $$ ) =>  {
     }
 
     /**
-     * This is a shared object. 
-     * By calling the init method, you may inizialized a model with a specific content.
+     * This is a shared object for all the application. Any Yup component can use it.
      * @returns an object for all the yup components
      */
     $$.application = {
-        init : ( content ) => {
-            $$.application.model = Yupees.instance().applicationModel( content );
-            return $$.application;
+        model : ( content ) => {
+            if ( !$$.application._model )
+                $$.application._model = Yupees.instance().applicationModel( content );
+            return $$.application._model;
         }
     }
 
