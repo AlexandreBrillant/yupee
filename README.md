@@ -327,10 +327,10 @@ a literal object containing the required data.
 
 ### Explicit usage
 
-In the following example, we declare an **hello** template.
+In the following example, we declare an **hello** template. It has a **name** parameter.
 
 ```javascript
-const template1 = "<div>Hello ${name}</div>";
+const template1 = "<div>Hello {name}</div>";
 $$.application.templates[ "hello"] = template1;
 ```
 
@@ -352,7 +352,7 @@ In implicit usage, the template name is specified using either the **data-templa
         <script src="yupee.js"></script>
         <script>
             // Declare a global template to the application
-            const template1 = "<div>Hello ${name}</div>";
+            const template1 = "<div>Hello {name}</div>";
             $$.application.templates[ "hello"] = template1;
         </script>
     </head>

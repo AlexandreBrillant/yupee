@@ -634,7 +634,7 @@ const $$ = ( ( $$ ) =>  {
         }
 
         #resolveTemplate( content, values ) {
-            return content.replace( /\${(\w+)}/g,
+            return content.replace( /{(\w+)}/g,
                 ( match, param ) => values[ param ] || "" );
         }
 
