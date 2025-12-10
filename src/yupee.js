@@ -39,6 +39,7 @@
  * - Yupee can be used for very complex MVC applications
  * 
  * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
+ * @version 0.9
  */
 
 const $$ = ( ( $$ ) =>  {    
@@ -263,38 +264,48 @@ const $$ = ( ( $$ ) =>  {
          * Add data for an array of the current model. A key is required
          * @param {*} key The key for the datamodel
          * @param {*} data The data to be pushed
-         * @param {*} repaintMode "true" by default for asking each Yup component to repaint if required
+         * @param {*} update "false" by default to update all the Yup components using this model
          */
-        pushData( key, data, repaintMode = true ) {
+        pushData( key, data, update = false ) {
             this.#content[key] = this.#content[key] ?? [];
             this.#content[key].push( data );
-            if ( repaintMode ) {
+            if ( update ) {
                 this.update();
             }
         }
 
-        /** Notify to all the Yup component using this model to repaint */
-        update() {
+        /** Notify to all the Yup component using this model to repaint 
+         *  @param includeSubModel "false" by default, if true then the update contains also the sub models
+         */
+        update( includeSubModel = false ) {
             this.#yups.forEach( yup => yup.paint() );
+            if ( includeSubModel && this.#submodels ) {
+                for ( const key in this.#submodels ) {
+                    this.#submodels[ key ].update();
+                }
+            }
         }
 
         /**
          * Read or Write a data inside this current model. By default it will ask to all the concerned yup components to repaint
          * @param {*} key A key for this data
          * @param {*} value Optional value to write
-         * @param {*} repaintMode By default true for repainting all the Yup component
+         * @param {*} update "false" By default to update all the Yup component using this model
          * @returns a data value
          */
-        data( key, value, repaintMode = true ) {
+        data( key, value, update = false ) {
             if ( !value ) {
                 return this.#content[ key ];
             }
             this.#content[ key ] = value;
-            if ( repaintMode )
+            if ( update )
                 this.update();
             return value;
         }
 
+        /**
+         * Trace to the console the content of this model
+         */
         dump() {
             console.log( "*** Start Dump Model ***")
             console.log( this.#content );
@@ -335,13 +346,14 @@ const $$ = ( ( $$ ) =>  {
         constructor(yupid,params = null, config) {
             this.#yupid = yupid;
 
-            // Set a new container
-            if ( params instanceof Node ) {
-                this.#container = params;
-            } else 
-            if ( params && params._into ) {
-                this.#container = params._into;
-                delete params._into;
+            if ( params ) {
+                if ( params instanceof Node ) {
+                    this.#container = params;
+                } else
+                if ( params._into ) {
+                    this.#container = params._into;
+                    delete params._into;
+                }
             }
 
             // Force an empty container with an id
@@ -350,6 +362,7 @@ const $$ = ( ( $$ ) =>  {
                 yupid && ( this.#container.id = yupid );
             }
 
+            // Required a container so after
             if ( params ) {
                 for ( const key in params ) {
                     if ( typeof params[ key ] == "string" ) 
@@ -358,9 +371,10 @@ const $$ = ( ( $$ ) =>  {
             }
 
             if ( config ) {
-                const { model, renderer } = config;
+                const { model, renderer, template } = config;
                 model && this.model( model );
                 renderer && this.renderer( renderer );
+                template && ( this.#template = template );
             }
 
             // Use the application model by default
@@ -601,6 +615,29 @@ const $$ = ( ( $$ ) =>  {
             }
         }
 
+        #template = null;
+
+        /**
+         * A template is provided as a parameter name "data-template" or "template" to the HTML container.
+         * 
+         * @param Optional values is an object with a set of key/value, this is used for resolving the template parameter
+         * @return a template for this component
+         */
+        template( values ) {
+            let content = null;
+            const templateName = this.param( "data-template" ) || this.param( "template" ) || this.#template;
+            if ( templateName ) {
+                content = $$.application.templates[ templateName ];
+                content && ( content = this.#resolveTemplate( content, values ) );
+            }
+            return content;
+        }
+
+        #resolveTemplate( content, values ) {
+            return content.replace( /\${(\w+)}/g,
+                ( match, param ) => values[ param ] || "" );
+        }
+
         #buffer = null;
 
         /**
@@ -616,11 +653,11 @@ const $$ = ( ( $$ ) =>  {
                 if ( this.#model ) {
                     if ( this.#modelRenderer ) {
                         this.clean();
-                        this.#modelRenderer( this.model(), this.container() );
+                        this.#modelRenderer( this.model(), this.container(), this.template() );
                     } else {
-                        if ( $$.defaultRenderer ) {
+                        if ( $$.application.renderer ) {
                             this.clean();
-                            $$.defaultRenderer( this.model(), this.container() );
+                            $$.application.renderer( this.model(), this.container(), this.template() );
                         }
                     }
                 }
@@ -784,8 +821,8 @@ const $$ = ( ( $$ ) =>  {
         /**
          * Hide the current yup component by setting a display style to none to the container
          */
-        hide() {
-            this.style( { display : "none" } );
+        hide( displayMode = "none" ) {
+            this.style( { display : displayMode } );
         }
 
         value(content) {
@@ -963,10 +1000,13 @@ const $$ = ( ( $$ ) =>  {
      * @returns an object for all the yup components
      */
     $$.application = {
-        model : ( content ) => {
+        model : ( content ) => {    // Common model for the Yup components
             if ( !$$.application._model )
                 $$.application._model = Yupees.instance().applicationModel( content );
             return $$.application._model;
+        },
+        renderer : null,            // Default renderer for a Yup component
+        templates : {               // Common template for a Yup component
         }
     }
 

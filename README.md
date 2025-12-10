@@ -488,6 +488,55 @@ We get a sub component with the **screen** constant. For getting each button val
 } )();
 ```
 
+## Template
+
+A template can be defined within the **$$.application.templates** object by a unique name. A yup component can then use this template to render its content. To populate the template with dynamic values, you can provide
+a literal object containing the required data.
+
+### Explicit usage
+
+In the following example, we declare an "hello" template.
+
+```javascript
+const template1 = "<div>Hello ${name}</div>";
+$$.application.templates[ "hello"] = template1;
+
+
+const yup1 = $$.start( { template : "hello" });
+yup1.newContainer( document.body );
+yup1.paint( yup1.template( { name : "alex"} ) );
+```
+
+The **yup1** component is initialized using the **hello** template.
+
+### Implicit usage
+
+In implicit usage, the template name is specified using either the **data-template** or **template** attribute.
+
+```html
+<html>
+    <head>
+        <script src="../../src/yupee.js"></script>
+        <script>
+            // Declare a global template to the application
+            const template1 = "<div>Hello ${name}</div>";
+            $$.application.templates[ "hello"] = template1;
+        </script>
+    </head>
+    <body id="test9" data-yup data-template="hello">
+    </body>
+</html>
+```
+
+In this sample we declare a test9 yup component using the **hello** template. We just have to fill the template parameter and paint the component.
+
+```javascript
+( () => {
+    const yup = $$.start();
+    yup.paint( yup.template( { name : "alexandre"} ) );
+} )();
+```
+
 ## Creating MVC applications
 
 Each Yup component can have a data model. A data model can be shared among multiple Yup components. You can 
@@ -502,7 +551,7 @@ notes will be displayed in a section of the HTML page.
 
 ### The Model part
 
-Here the **actions** component. This component will prompt the user for a note. It will then "produce" a **note** value. Producing a note mean, generating a note to all Yup components that consume it.
+Here the **actions** component. This component will prompt the user for a note. It will then "produce" a **note** value. Producing a note mean, generating a note event to all Yup components that consume it.
 
 ```javascript
 ( () => {
@@ -544,10 +593,14 @@ all notes and a renderer function to display them.
     } );
 
     // Push a note inside the current model
-    yup.consume( "note", ( note ) => yup.model().pushData( "notes", note ) );
+    yup.consume( "note", ( note ) => yup.model().pushData( "notes", note, true ) );
 
 } )();
 ```
+
+Calling **pushData** will add a content in an array withing the model (key **notes**), the last argument is to update the model and notify all the Yup components using it (to repaint).
+
+When this yup component is repainted, it uses the provided renderer displaying all the notes.
 
 Note that when using **yup.model()**, it automatically creates an empty model.
 

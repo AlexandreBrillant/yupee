@@ -1,0 +1,30 @@
+<!--    Author : Alexandre Brillant
+        Using an explicit template for painting a Yup component
+-->
+
+<html>
+    <head>
+        <script src="../../src/yupee.js"></script>
+        <script>
+            function init() {
+
+                // Declare a global template to the application
+                const template1 = "<div>Hello ${name}</div>";
+                $$.application.templates[ "hello"] = template1;
+
+                // Declare a new Yup component using the "hello" template
+                const yup1 = $$.start( { template : "hello" });
+                
+                yup1.newContainer( document.body );
+
+                yup1.paint( yup1.template( { name : "alex"} ) );
+
+            }
+        </script>
+    </head>
+
+    <body onload="init()">
+
+    </body>
+
+</html>

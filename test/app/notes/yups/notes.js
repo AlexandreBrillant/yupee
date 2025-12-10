@@ -18,6 +18,6 @@
     } );
 
     // Push a note inside the current model
-    yup.consume( "note", ( note ) => yup.model().pushData( "notes", note ) );
+    yup.consume( "note", ( note ) => yup.model().pushData( "notes", note, true ) );
 
 } )();

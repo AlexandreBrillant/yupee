@@ -1,0 +1,16 @@
+<!--    Author : Alexandre Brillant
+        Using an implicitf template for painting a Yup component
+-->
+
+<html>
+    <head>
+        <script src="../../src/yupee.js"></script>
+        <script>
+            // Declare a global template to the application
+            const template1 = "<div>Hello ${name}</div>";
+            $$.application.templates[ "hello"] = template1;
+        </script>
+    </head>
+    <body id="test9" data-yup data-template="hello">
+    </body>
+</html>
