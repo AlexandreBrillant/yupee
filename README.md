@@ -327,19 +327,20 @@ a literal object containing the required data.
 
 ### Explicit usage
 
-In the following example, we declare an "hello" template.
+In the following example, we declare an **hello** template.
 
 ```javascript
 const template1 = "<div>Hello ${name}</div>";
 $$.application.templates[ "hello"] = template1;
+```
 
+The **yup1** component is initialized using the **hello** template.
 
+```javascript
 const yup1 = $$.start( { template : "hello" });
 yup1.newContainer( document.body );
 yup1.paint( yup1.template( { name : "alex"} ) );
 ```
-
-The **yup1** component is initialized using the **hello** template.
 
 ### Implicit usage
 
@@ -348,7 +349,7 @@ In implicit usage, the template name is specified using either the **data-templa
 ```html
 <html>
     <head>
-        <script src="../../src/yupee.js"></script>
+        <script src="yupee.js"></script>
         <script>
             // Declare a global template to the application
             const template1 = "<div>Hello ${name}</div>";
@@ -360,7 +361,7 @@ In implicit usage, the template name is specified using either the **data-templa
 </html>
 ```
 
-In this sample we declare a test9 yup component using the **hello** template. We just have to fill the template parameter and paint the component.
+In this sample, we declare a **test9** yup component using the **hello** template. We just have to fill the template parameter and paint the component.
 
 ```javascript
 ( () => {
