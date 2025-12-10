@@ -339,8 +339,10 @@ The **yup1** component is initialized using the **hello** template.
 ```javascript
 const yup1 = $$.start( { template : "hello" });
 yup1.newContainer( document.body );
-yup1.paint( yup1.template( { name : "alex"} ) );
+yup1.paint( { name : "alex"} );
 ```
+
+When rendering the component with the paint method, the template parameters are passed as arguments.
 
 ### Implicit usage
 
@@ -361,12 +363,12 @@ In implicit usage, the template name is specified using either the **data-templa
 </html>
 ```
 
-In this sample, we declare a **test9** yup component using the **hello** template. We just have to fill the template parameter and paint the component.
+In this sample, we declare a **test9** yup component using the **hello** template. We just have to provide the parameters to the paint method.
 
 ```javascript
 ( () => {
     const yup = $$.start();
-    yup.paint( yup.template( { name : "alexandre"} ) );
+    yup.paint( { name : "alexandre"} );
 } )();
 ```
 

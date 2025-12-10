@@ -408,6 +408,7 @@ const $$ = ( ( $$ ) =>  {
          * addChild( { yupid:..., html: "<div></div>" });
          * addChild( { yupid:..., node: mynode });
          * addChild( { yupid:..., selector : "div.button#v1" });
+         * addChild( { yupid:..., select : "div.button#v1" });
          * addChild( { yupid:..., html:"<div></div>", click:()=>{}} )
          * 
          * If no yupid is present, then the id of the child container is used, if no present a counter is used
@@ -430,7 +431,8 @@ const $$ = ( ( $$ ) =>  {
             if ( content.node || content instanceof Node ) {
                 yupcontainer = content.node || content;
             } else {
-                const { selector } = content;
+                let { selector } = content;
+                selector = selector || content.select;  // try select else
                 yupcontainer = this.container().querySelector( selector );
             }
 
@@ -662,21 +664,23 @@ const $$ = ( ( $$ ) =>  {
                     }
                 }
             } else {
+
                 // Paint a content without using a model
                 if ( html instanceof Node ) {   
                     this.clean(); 
                     this.#container.appendChild( html );
                 } else {
-                    if ( typeof html == "string" ) {
-                        this.clean();
-                        // Use a buffer for the document fragment usage
-                        ( !this.#buffer && ( this.#buffer = document.createElement( "DIV" ) ) );
-                        this.#buffer.innerHTML = html;
-                        while ( this.#buffer.firstChild ) {
-                            this.#container.appendChild( this.#buffer.firstChild );
-                        }
-                    } else {
-                        this.trace( "Unkown paint argument [" + html + "]" );
+                    if ( typeof html == "object" )
+                        html = this.template( html );
+                }
+
+                if ( typeof html == "string" ) {
+                    this.clean();
+                    // Use a buffer for the document fragment usage
+                    ( !this.#buffer && ( this.#buffer = document.createElement( "DIV" ) ) );
+                    this.#buffer.innerHTML = html;
+                    while ( this.#buffer.firstChild ) {
+                        this.#container.appendChild( this.#buffer.firstChild );
                     }
                 }
             }
@@ -784,6 +788,9 @@ const $$ = ( ( $$ ) =>  {
                     this.childAt( 0 ).remove();
                 }
             }
+            // DOM cleaning too
+            while ( this.container().firstChild )
+                this.container().removeChild( this.container().firstChild );
             return this;
         }
 
