@@ -651,7 +651,7 @@ const $$ = ( ( $$ ) =>  {
          * @param html optional HTML string or HTML DOM node if you didn't use a model/renderer
          */
         paint( html ) {
-            if ( typeof html == "undefined" || html.flags ) {                
+            if ( typeof html == "undefined" || ( typeof html == "object" && "flags" in html ) ) {
                 // Paint the model using the modelRenderer
                 if ( this.#model ) {
                     if ( this.#modelRenderer ) {

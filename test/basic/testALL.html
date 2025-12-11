@@ -1,0 +1,22 @@
+<html>
+	<head>
+		<script>
+			function testAll() {
+				let max = 9;
+				for ( let i = 1; i <= max; i++ ) {
+					const dom1 = document.createElement( "H2" );
+					dom1.textContent = "Test " + i;
+					document.body.appendChild( dom1 );
+					const dom2 = document.createElement( "IFRAME" );
+					dom2.width = "100%";
+					dom2.height = "300px";
+					dom2.src = "test" + i + ".html";
+					document.body.appendChild( dom2 );
+				}
+			}
+		</script>
+	</head>
+	<body onload="testAll()">
+		<h1>Test all</h1>
+	</body>
+</html>
