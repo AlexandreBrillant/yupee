@@ -270,18 +270,19 @@ const $$ = ( ( $$ ) =>  {
             this.#content[key] = this.#content[key] ?? [];
             this.#content[key].push( data );
             if ( update ) {
-                this.update();
+                this.update( key );
             }
         }
 
         /** Notify to all the Yup component using this model to repaint 
+         *  @param flags optional for all the renderers, it can be used for optimization
          *  @param includeSubModel "false" by default, if true then the update contains also the sub models
          */
-        update( includeSubModel = false ) {
-            this.#yups.forEach( yup => yup.paint() );
+        update( flags, includeSubModel = false ) {
+            this.#yups.forEach( yup => yup.paint( { flags }) );
             if ( includeSubModel && this.#submodels ) {
                 for ( const key in this.#submodels ) {
-                    this.#submodels[ key ].update();
+                    this.#submodels[ key ].update( flags, includeSubModel );
                 }
             }
         }
@@ -299,7 +300,7 @@ const $$ = ( ( $$ ) =>  {
             }
             this.#content[ key ] = value;
             if ( update )
-                this.update();
+                this.update( key );
             return value;
         }
 
@@ -650,16 +651,16 @@ const $$ = ( ( $$ ) =>  {
          * @param html optional HTML string or HTML DOM node if you didn't use a model/renderer
          */
         paint( html ) {
-            if ( typeof html == "undefined" ) {                
+            if ( typeof html == "undefined" || html.flags ) {                
                 // Paint the model using the modelRenderer
                 if ( this.#model ) {
                     if ( this.#modelRenderer ) {
                         this.clean();
-                        this.#modelRenderer( this.model(), this.container(), this.template() );
+                        this.#modelRenderer( { model:this.model(), container:this.container(), template:this.template(), flags:html.flags} );
                     } else {
                         if ( $$.application.renderer ) {
                             this.clean();
-                            $$.application.renderer( this.model(), this.container(), this.template() );
+                            $$.application.renderer( { model:this.model(), container:this.container(), template:this.template(), flags:html.flags } );
                         }
                     }
                 }
@@ -1014,6 +1015,9 @@ const $$ = ( ( $$ ) =>  {
         },
         renderer : null,            // Default renderer for a Yup component
         templates : {               // Common template for a Yup component
+        },
+        update : ( flags ) => {     // Update the model
+            $$.application.model().update( flags );
         }
     }
 

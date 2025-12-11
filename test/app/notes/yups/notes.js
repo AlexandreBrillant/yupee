@@ -8,7 +8,7 @@
 
     // Set a renderer for the model of notes
     yup.renderer(
-        ( model, container ) => {
+        ( { model, container } ) => {
             const notes = model.data( "notes" );
             notes.forEach( note => {
                 const div = document.createElement( "DIV" );
