@@ -10,7 +10,8 @@
   },
   "homepage": "https://github.com/AlexandreBrillant/yupee",
   "scripts": {
-    "build" : "terser src\\yupee.js -o dist\\yupee.min.js"
+    "prebuild" : "node src/preprocessor.js -i src/modules/main.js -o dist\\yupee.js",
+    "build" : "terser dist\\yupee.js -o dist\\yupee.min.js"
   },
   "keywords": [
     "yupee",

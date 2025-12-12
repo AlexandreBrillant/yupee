@@ -19,6 +19,16 @@ It works with external **Yup component** files. A Yup component is a standard Ja
 - MVC architecture support.
 - Released under the MIT License for any usage.
 
+## Compiling all
+
+Yupee includes a preprocessor to assemble the final library from independent modules.
+
+```bash
+npm run build
+```
+
+Then you will have a **dist/yupee.js** (for development) or **dist/yupee.min.js** (for production)
+
 ## Hello World
 
 Here a very simple example (**helloworld.html**)
