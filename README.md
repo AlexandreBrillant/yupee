@@ -21,7 +21,7 @@ It works with external **Yup component** files. A Yup component is a standard Ja
 
 ## Compiling all
 
-Yupee includes a preprocessor to assemble the final library from independent modules.
+Yupee includes its own preprocessor to assemble the final library from independent javascript part.
 
 ```bash
 npm run build
