@@ -1,5 +1,6 @@
 /**
- * A Yup component is an external file with this kind of content :
+ * A Yup component is an instance of the Yup class. It can be stored as an external file using the data-yup attribute for the file location.
+ *
  * @example
  *  ( () => {
  *      const yup = $$.start();
@@ -51,10 +52,11 @@ class Yup {
         }
 
         if ( config ) {
-            const { model, renderer, template } = config;
+            const { model, renderer, template, container } = config;
             model && this.model( model );
             renderer && this.renderer( renderer );
             template && ( this.#template = template );
+            container && ( this.#container = container );
         }
 
         // Use the application model by default
@@ -112,8 +114,10 @@ class Yup {
             yupcontainer = content.node || content;
         } else {
             let { selector } = content;
-            selector = selector || content.select;  // try select else
-            yupcontainer = this.container().querySelector( selector );
+            selector = selector || content.select;  // try "select" attribute rather
+            if ( selector ) {
+                yupcontainer = this.container().querySelector( selector );
+            }
         }
 
         if (!yupcontainer) {
@@ -131,6 +135,20 @@ class Yup {
         content.click && yup.click( content.click );
         
         return this.#setchild( yupid, yup );
+    }
+
+    /**
+     * @param { selector, click } CSS selector for finding all the children nodes from the current container, click is optional for managing the click event
+     * @returns an array of the new yup component children
+     */
+    addChildren( { select, selector, click } ) {
+        const yups = [];
+        const lst = this.#container.querySelectorAll( select || selector );
+        lst && lst.forEach( 
+            ( node ) => {
+            yups.push( this.addChild( { node, click } ) );
+        } );
+        return yups;
     }
 
     // Clean all the reference to this child

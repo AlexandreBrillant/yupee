@@ -1,0 +1,25 @@
+<!--    Author : Alexandre Brillant
+        Adding children to a Yup component
+-->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="../../dist/yupee.js"></script>
+        <script>
+            const test10 = () => {
+                const yup = $$.start( { container:document.body } );
+                yup.addChildren( { select: "div" } ).forEach(
+                    ( yup ) => {
+                        yup.style( { "color" : yup.container().textContent } );
+                    }
+                );
+            }
+        </script>
+    </head>
+    <body onload="test10()">
+        <div>Red</div>
+        <div>Green</div>
+        <div>Blue</div>
+    </body>
+</html>
