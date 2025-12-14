@@ -11,7 +11,8 @@
   "homepage": "https://github.com/AlexandreBrillant/yupee",
   "scripts": {
     "prebuild" : "node src/preprocessor.js -i src/modules/main.js -o dist\\yupee.js",
-    "build" : "terser dist\\yupee.js -o dist\\yupee.min.js"
+    "build" : "terser dist\\yupee.js -o dist\\yupee.min.js",
+    "postbuild" : "node --check dist\\yupee.js"
   },
   "keywords": [
     "yupee",

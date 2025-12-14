@@ -48,29 +48,28 @@ const $$ = ( ( $$ ) =>  {
     let deepTrace = false;
     let traceMode = 0;
 
-    function _trace( actionId, ...params ) {
-        if ( debugMode ) {
-            const paramstr = params.join( "," );
-            const log = `** [${actionId}] ** ${paramstr}`
-            if ( traceMode == $$.KEYS.DEBUG_CONSOLE )
-                console.log( log );
-            else {
-                document.body.insertAdjacentHTML( "beforeend", `<div class='yuptrace'>${log}</div>` );
-            }
-            if ( deepTrace ) {
-                params.forEach( ( element ) => {
-                    if ( typeof element == "object" ) {
-                        if ( traceMode == $$.KEYS.DEBUG_CONSOLE )
-                            console.log( element );
-                        else {
-                            document.body.insertAdjacentHTML( "beforeend", `<div class='yuptrace'>${log}</div>` );
-                        }
+function _trace( actionId, ...params ) {
+    if ( debugMode ) {
+        const paramstr = params.join( "," );
+        const log = `** [${actionId}] ** ${paramstr}`
+        if ( traceMode == $$.KEYS.DEBUG_CONSOLE )
+            console.log( log );
+        else {
+            document.body.insertAdjacentHTML( "beforeend", `<div class='yuptrace'>${log}</div>` );
+        }
+        if ( deepTrace ) {
+            params.forEach( ( element ) => {
+                if ( typeof element == "object" ) {
+                    if ( traceMode == $$.KEYS.DEBUG_CONSOLE )
+                        console.log( element );
+                    else {
+                        document.body.insertAdjacentHTML( "beforeend", `<div class='yuptrace'>${log}</div>` );
                     }
-                } );
-            }
+                }
+            } );
         }
     }
-
+}
 /**
  * This class is the main part; it manages all the Yup components for loading and storing them.
  * it must be used as a singleton only with Yupees.instance()
@@ -216,7 +215,6 @@ class Yupees {
     }
 }
 
-
 /**
  * A Yup model manages data for a Yup component. A Yup component can only have one Yup model, but a 
  * yup model can be for multiple Yup component
@@ -314,7 +312,6 @@ class YupModel {
         console.log( "*** End Dump Model ***")
     }
 }
-
 
 /**
  * A Yup component is an instance of the Yup class. It can be stored as an external file using the data-yup attribute for the file location.
@@ -855,6 +852,75 @@ class Yup {
             this.container().value = content;
     }
 }
+/**
+ * This is the main function of Yupee
+ * It is called both for loading Yup components and for managing each one
+ */
+const boot = (...args) => {
+    ready = document.body ? true : false;
+
+    init = () => {
+            let usage = null;
+            if ( args.length ) 
+                usage = args[ 0 ];
+        
+            const yupees = Yupees.instance();
+
+            if ( typeof usage == "object" ) { 
+                const { load, params } = usage;
+                yupees.loadComponent( load, params );
+            }
+    };
+
+    if ( ready )    // Run now
+        init();
+    else {          // Wait until the html page is loaded
+        starting.push(init);
+        document.addEventListener( "DOMContentLoaded", () => {
+            ready = true;
+            _startingAll();
+        } );
+    }
+
+}
+// Resolve the data-yup attributes when the document is ready
+( () => {
+    // Check for data-yup attribute inside the current page
+    function resolve_yup_path( node ) {
+        const t = [];
+        while ( node ) {
+            if ( node.nodeType == Node.ELEMENT_NODE && node.hasAttribute( "data-yup" ) ) {
+                if ( node.id ) {
+                    t.unshift( node.id );
+                }
+            }
+            node = node.parentNode;
+        }
+        return t.join( "/" );
+    }
+    function process_data_yup() {
+        const nodes = document.querySelectorAll( "*" );
+        for ( node of nodes ) {
+            let path = null;
+            // Try a delegate function
+            if ( $$.pathResolver )
+                path = $$.pathResolver( node );
+            // Try the data-yup attribute value
+            path = !path && node.dataset.yup;
+            // Use the node id as a name for the yup component for empty data-yup attribute
+            if ( !path && node.hasAttribute( "data-yup" ) && node.id ) {
+                path = "yups/" + resolve_yup_path( node );
+            }
+            if ( path )
+                $$.load( path, { "_into" : node } );
+        }
+    }
+
+    document.addEventListener( "DOMContentLoaded", () => {
+        process_data_yup();
+    } );
+} )();
+
 
     function _startingAll() {
         if ( starting ) {
@@ -865,80 +931,6 @@ class Yup {
 
     let starting = [];
     let ready = false;
-
-    /**
-     * This is the main function of Yupee
-     * It is called both for loading Yup components and for managing each one
-     */
-    const boot = (...args) => {
-        ready = document.body ? true : false;
-
-        init = () => {
-                let usage = null;
-                if ( args.length ) 
-                    usage = args[ 0 ];
-            
-                const yupees = Yupees.instance();
-
-                if ( typeof usage == "object" ) { 
-                    const { load, params } = usage;
-                    yupees.loadComponent( load, params );
-                }
-        };
-
-        if ( ready )    // Run now
-            init();
-        else {          // Wait until the html page is loaded
-            starting.push(init);
-            document.addEventListener( "DOMContentLoaded", () => {
-                ready = true;
-                _startingAll();
-            } );
-        }
-
-    }
-
-    // Resolve the data-yup attributes when the document is ready
-
-    ( () => {
-
-        // Check for data-yup attribute inside the current page
-
-        function resolve_yup_path( node ) {
-            const t = [];
-            while ( node ) {
-                if ( node.nodeType == Node.ELEMENT_NODE && node.hasAttribute( "data-yup" ) ) {
-                    if ( node.id ) {
-                        t.unshift( node.id );
-                    }
-                }
-                node = node.parentNode;
-            }
-            return t.join( "/" );
-        }
-
-        function process_data_yup() {
-            const nodes = document.querySelectorAll( "*" );
-            for ( node of nodes ) {
-                let path = null;
-                // Try a delegate function
-                if ( $$.pathResolver )
-                    path = $$.pathResolver( node );
-                // Try the data-yup attribute value
-                path = !path && node.dataset.yup;
-                // Use the node id as a name for the yup component for empty data-yup attribute
-                if ( !path && node.hasAttribute( "data-yup" ) && node.id ) {
-                    path = "yups/" + resolve_yup_path( node );
-                }
-                if ( path )
-                    $$.load( path, { "_into" : node } );
-            }
-        }
-
-        document.addEventListener( "DOMContentLoaded", () => {
-            process_data_yup();
-        } );
-    } )();
 
     /**
      * This required when starting a Yup component.
