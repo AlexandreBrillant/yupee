@@ -1,5 +1,5 @@
 /**
- * This class is the main part; it manages all the Yup components for loading and storing them.
+ * This class manages all the Yup components for loading and storing them.
  * it must be used as a singleton only with Yupees.instance()
  * 
  * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
@@ -101,7 +101,7 @@ class Yupees {
     #currentParams = null;
     #currentYupId = null;
 
-    #yupid( location ) {
+    #yupidFromLocation( location ) {
         const pathSep = location.lastIndexOf( "/" );
         if ( pathSep > -1 )
             return location.substring( pathSep + 1 );
@@ -113,7 +113,7 @@ class Yupees {
         const component = this.#yupeesStack.shift();
         if ( typeof component != "undefined" ) {
             let { location, params } = component;
-            this.#currentYupId = this.#yupid( location );
+            this.#currentYupId = this.#yupidFromLocation( location );
             if ( !location.includes( "." ) )
                 location += ".js";
             const scriptNode = document.createElement( "script" );
@@ -137,8 +137,12 @@ class Yupees {
      * @returns The current running component
      */
     start( config ) {
-        const currentComponent = new Yup(this.#currentYupId, this.#currentParams, config );
+        config = config || {};
+        config.yupid = this.#currentYupId;
+        config.params = this.#currentParams;
+        const currentComponent = new Yup( config );
         _trace( "start", this.#currentYupId );
         return currentComponent;
     }
 }
+

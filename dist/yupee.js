@@ -48,6 +48,11 @@ const $$ = ( ( $$ ) =>  {
     let deepTrace = false;
     let traceMode = 0;
 
+/**
+ * Inner function for tracing the main action
+ * @param {*} actionId an actionId key
+ * @param  {...any} params a set of values to trace
+ */
 function _trace( actionId, ...params ) {
     if ( debugMode ) {
         const paramstr = params.join( "," );
@@ -71,7 +76,7 @@ function _trace( actionId, ...params ) {
     }
 }
 /**
- * This class is the main part; it manages all the Yup components for loading and storing them.
+ * This class manages all the Yup components for loading and storing them.
  * it must be used as a singleton only with Yupees.instance()
  * 
  * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
@@ -173,7 +178,7 @@ class Yupees {
     #currentParams = null;
     #currentYupId = null;
 
-    #yupid( location ) {
+    #yupidFromLocation( location ) {
         const pathSep = location.lastIndexOf( "/" );
         if ( pathSep > -1 )
             return location.substring( pathSep + 1 );
@@ -185,7 +190,7 @@ class Yupees {
         const component = this.#yupeesStack.shift();
         if ( typeof component != "undefined" ) {
             let { location, params } = component;
-            this.#currentYupId = this.#yupid( location );
+            this.#currentYupId = this.#yupidFromLocation( location );
             if ( !location.includes( "." ) )
                 location += ".js";
             const scriptNode = document.createElement( "script" );
@@ -209,11 +214,15 @@ class Yupees {
      * @returns The current running component
      */
     start( config ) {
-        const currentComponent = new Yup(this.#currentYupId, this.#currentParams, config );
+        config = config || {};
+        config.yupid = this.#currentYupId;
+        config.params = this.#currentParams;
+        const currentComponent = new Yup( config );
         _trace( "start", this.#currentYupId );
         return currentComponent;
     }
 }
+
 
 /**
  * A Yup model manages data for a Yup component. A Yup component can only have one Yup model, but a 
@@ -339,7 +348,7 @@ class Yup {
     #childid = 1;
     #parent = null;
 
-    constructor(yupid,params = null, config) {
+    constructor( { yupid, model, renderer, template, container, params } ) {
         this.#yupid = yupid;
 
         if ( params ) {
@@ -366,13 +375,10 @@ class Yup {
             } 
         }
 
-        if ( config ) {
-            const { model, renderer, template, container } = config;
-            model && this.model( model );
-            renderer && this.renderer( renderer );
-            template && ( this.#template = template );
-            container && ( this.#container = container );
-        }
+        model && this.model( model );
+        renderer && this.renderer( renderer );
+        template && ( this.#template = template );
+        container && ( this.#container = container );
 
         // Use the application model by default
         !this.#model && $$.application.model() && this.model( $$.application.model() );
@@ -415,7 +421,7 @@ class Yup {
      */
     addChild( content ) {
         let yupid;
-        let yupcontainer;
+        let container;
 
         if ( content instanceof Yup ) {
             yupid = content.yupid();
@@ -423,29 +429,29 @@ class Yup {
         } else            
         if ( typeof content == "string" || content.html ) {
             this.container().insertAdjacentHTML( "beforeend", content.html || content );
-            yupcontainer = this.container().lastChild;
+            container = this.container().lastChild;
         } else
         if ( content.node || content instanceof Node ) {
-            yupcontainer = content.node || content;
+            container = content.node || content;
         } else {
             let { selector } = content;
             selector = selector || content.select;  // try "select" attribute rather
             if ( selector ) {
-                yupcontainer = this.container().querySelector( selector );
+                container = this.container().querySelector( selector );
             }
         }
 
-        if (!yupcontainer) {
+        if (!container) {
             this.trace( "Invalid addChild parameter no container ?" );
             this.trace( content );
             return null;
         }
 
         !yupid && ( yupid = content.yupid );    // Specific id provided by the content
-        !yupid && ( yupid = yupcontainer.id );   // Use the id per default
+        !yupid && ( yupid = container.id );   // Use the id per default
         !yupid && ( yupid = this.#generate_newid() );
 
-        const yup = new Yup( yupid, yupcontainer );
+        const yup = new Yup( { yupid, container } );
 
         content.click && yup.click( content.click );
         
@@ -855,6 +861,7 @@ class Yup {
 /**
  * This is the main function of Yupee
  * It is called both for loading Yup components and for managing each one
+ * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
  */
 const boot = (...args) => {
     ready = document.body ? true : false;
@@ -883,7 +890,10 @@ const boot = (...args) => {
     }
 
 }
-// Resolve the data-yup attributes when the document is ready
+/**
+ * Resolve the data-yup attributes when the document is ready
+ * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
+ */
 ( () => {
     // Check for data-yup attribute inside the current page
     function resolve_yup_path( node ) {

@@ -1,6 +1,7 @@
 /**
  * This is the main function of Yupee
  * It is called both for loading Yup components and for managing each one
+ * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
  */
 const boot = (...args) => {
     ready = document.body ? true : false;

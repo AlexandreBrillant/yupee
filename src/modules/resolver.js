@@ -1,4 +1,7 @@
-// Resolve the data-yup attributes when the document is ready
+/**
+ * Resolve the data-yup attributes when the document is ready
+ * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
+ */
 ( () => {
     // Check for data-yup attribute inside the current page
     function resolve_yup_path( node ) {

@@ -1,3 +1,8 @@
+/**
+ * Inner function for tracing the main action
+ * @param {*} actionId an actionId key
+ * @param  {...any} params a set of values to trace
+ */
 function _trace( actionId, ...params ) {
     if ( debugMode ) {
         const paramstr = params.join( "," );
