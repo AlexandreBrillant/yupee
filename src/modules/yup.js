@@ -298,9 +298,8 @@ class Yup {
      */
     param( paramKey, defaultValue ) {
         if ( typeof paramKey == "string" ) {
-            if ( this.container().hasAttribute( paramKey ) )
-                return this.container().getAttribute( paramKey );
-            return defaultValue;
+            const attValue = this.container().dataset[ paramKey ] || this.container().getAttribute( paramKey );
+            return attValue || defaultValue;
         } else {
             const { name, value } = paramKey;
             if ( name && value ) {

@@ -645,9 +645,8 @@ class Yup {
      */
     param( paramKey, defaultValue ) {
         if ( typeof paramKey == "string" ) {
-            if ( this.container().hasAttribute( paramKey ) )
-                return this.container().getAttribute( paramKey );
-            return defaultValue;
+            const attValue = this.container().dataset[ paramKey ] || this.container().getAttribute( paramKey );
+            return attValue || defaultValue;
         } else {
             const { name, value } = paramKey;
             if ( name && value ) {
@@ -953,29 +952,29 @@ const boot = (...args) => {
     } );
 } )();
 
+class Pages {
+    static #singleton = null;
+    static #singletonController = true;
 
-    class Pages {
-        static #singleton = null;
-        static #singletonController = true;
-
-        static instance() {
-            if ( Pages.#singleton == null ) {
-                Pages.#singletonController = false;
-                Pages.#singleton = new Pages();
-                Pages.#singletonController = true;
-            }
-            return Pages.#singleton;
+    static instance() {
+        if ( Pages.#singleton == null ) {
+            Pages.#singletonController = false;
+            Pages.#singleton = new Pages();
+            Pages.#singletonController = true;
         }
-
-        constructor() {
-            if ( Pages.#singletonController )
-                throw new "Illegal usage for the Pages, use Pages.instance()";
-        }
-
-        loadpage( page, newContext = true ) {
-            window.location.url = page + "/main.html";
-        }
+        return Pages.#singleton;
     }
+
+    constructor() {
+        if ( Pages.#singletonController )
+            throw new "Illegal usage for the Pages, use Pages.instance()";
+    }
+
+    loadpage( page, newContext = true ) {
+        window.location.href = page + "/main.html";
+    }
+}
+
 
     function _startingAll() {
         if ( starting ) {
