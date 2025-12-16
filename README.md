@@ -51,6 +51,8 @@ When a **data-yup** attribute is found, yupee will load a Yup component related 
 
 In this example, a yup component will be loaded inside the **yups/test1.js** file. The HTML part containing the **data-yup** attribute is a container for the Yup component.
 
+Sometimes you can't use an id attribute for the component's filename. However you can choose your component id using either the **data-yupid** or the **yupid** attribute.
+
 ### Explicit loading
 
 If you want to skip the data-yup attribute, the **$$.load** method is available for loading a Yup component

@@ -8,9 +8,8 @@
         const t = [];
         while ( node ) {
             if ( node.nodeType == Node.ELEMENT_NODE && node.hasAttribute( "data-yup" ) ) {
-                if ( node.id ) {
-                    t.unshift( node.id );
-                }
+                const yupid = node.dataset.yupid || node.getAttribute( "yupid" ) || node.id;
+                yupid && t.unshift( yupid );
             }
             node = node.parentNode;
         }

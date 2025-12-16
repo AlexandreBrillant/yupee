@@ -114,7 +114,7 @@ class Yupees {
         if ( typeof component != "undefined" ) {
             let { location, params } = component;
             this.#currentYupId = this.#yupidFromLocation( location );
-            if ( !location.includes( "." ) )
+            if ( !location.match( /\.js$/ ) )
                 location += ".js";
             const scriptNode = document.createElement( "script" );
             scriptNode.addEventListener( "load", () => {
@@ -122,6 +122,8 @@ class Yupees {
             } );
             scriptNode.addEventListener( "error", () => {
                 _trace( "load", "Can't load " + location + " ?" );
+                _criticalError( "load yup", location );
+                $$.exit( 1 );
             } );
             scriptNode.src = location;
             this.#currentParams = params;
@@ -143,6 +145,15 @@ class Yupees {
         const currentComponent = new Yup( config );
         _trace( "start", this.#currentYupId );
         return currentComponent;
+    }
+
+    /**
+     * Stop loading Yup components
+     * @param {*} exitCode 
+     */
+    exit( exitCode ) {
+        this.#yupeesStack = [];
+        this.#startLoading = false;
     }
 }
 

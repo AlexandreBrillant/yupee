@@ -25,3 +25,15 @@ function _trace( actionId, ...params ) {
         }
     }
 }
+
+/**
+ * Inner function for critial action, the application must stopped
+ * @param {*} actionId 
+ * @param  {...any} params 
+ */
+function _criticalError( actionId, ...params ) {
+    const paramstr = params.join( "," );
+    const log = `Critical Error [${actionId}] ** ${paramstr}`;
+    alert( log );
+    console.log( log );
+}

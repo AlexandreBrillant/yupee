@@ -75,6 +75,18 @@ function _trace( actionId, ...params ) {
         }
     }
 }
+
+/**
+ * Inner function for critial action, the application must stopped
+ * @param {*} actionId 
+ * @param  {...any} params 
+ */
+function _criticalError( actionId, ...params ) {
+    const paramstr = params.join( "," );
+    const log = `Critical Error [${actionId}] ** ${paramstr}`;
+    alert( log );
+    console.log( log );
+}
 /**
  * This class manages all the Yup components for loading and storing them.
  * it must be used as a singleton only with Yupees.instance()
@@ -191,7 +203,7 @@ class Yupees {
         if ( typeof component != "undefined" ) {
             let { location, params } = component;
             this.#currentYupId = this.#yupidFromLocation( location );
-            if ( !location.includes( "." ) )
+            if ( !location.match( /\.js$/ ) )
                 location += ".js";
             const scriptNode = document.createElement( "script" );
             scriptNode.addEventListener( "load", () => {
@@ -199,6 +211,8 @@ class Yupees {
             } );
             scriptNode.addEventListener( "error", () => {
                 _trace( "load", "Can't load " + location + " ?" );
+                _criticalError( "load yup", location );
+                $$.exit( 1 );
             } );
             scriptNode.src = location;
             this.#currentParams = params;
@@ -220,6 +234,15 @@ class Yupees {
         const currentComponent = new Yup( config );
         _trace( "start", this.#currentYupId );
         return currentComponent;
+    }
+
+    /**
+     * Stop loading Yup components
+     * @param {*} exitCode 
+     */
+    exit( exitCode ) {
+        this.#yupeesStack = [];
+        this.#startLoading = false;
     }
 }
 
@@ -900,9 +923,8 @@ const boot = (...args) => {
         const t = [];
         while ( node ) {
             if ( node.nodeType == Node.ELEMENT_NODE && node.hasAttribute( "data-yup" ) ) {
-                if ( node.id ) {
-                    t.unshift( node.id );
-                }
+                const yupid = node.dataset.yupid || node.getAttribute( "yupid" ) || node.id;
+                yupid && t.unshift( yupid );
             }
             node = node.parentNode;
         }
@@ -931,6 +953,29 @@ const boot = (...args) => {
     } );
 } )();
 
+
+    class Pages {
+        static #singleton = null;
+        static #singletonController = true;
+
+        static instance() {
+            if ( Pages.#singleton == null ) {
+                Pages.#singletonController = false;
+                Pages.#singleton = new Pages();
+                Pages.#singletonController = true;
+            }
+            return Pages.#singleton;
+        }
+
+        constructor() {
+            if ( Pages.#singletonController )
+                throw new "Illegal usage for the Pages, use Pages.instance()";
+        }
+
+        loadpage( page, newContext = true ) {
+            window.location.url = page + "/main.html";
+        }
+    }
 
     function _startingAll() {
         if ( starting ) {
@@ -963,6 +1008,15 @@ const boot = (...args) => {
         boot( { "load" : yupcomponent, "params" : params } );
         _trace( "load", yupcomponent, params );
         return $$;
+    };
+
+    /**
+     * Load a new page with new yup component
+     * @param {*} page URL, this is a folder with a main.html page and a set of Yup components
+     * @param {*} keepContext by default true for keeping the current application model
+     */
+    $$.loadPage = ( page, keepContext = true ) => {
+        Pages.instance().loadpage( page, keepContext );
     };
 
     /**
@@ -1031,9 +1085,17 @@ const boot = (...args) => {
         renderer : null,            // Default renderer for a Yup component
         templates : {               // Common template for a Yup component
         },
-        update : ( flags ) => {     // Update the model
+        update : ( flags ) => {     // Notification to update the model
             $$.application.model().update( flags );
         }
+    }
+
+    /**
+     * This is a simple way to stop the Yup component loading and leave the application
+     * @param exitCode : 0 for OK, > 0 for error
+     */
+    $$.exit = ( exitCode ) => {
+        Yupees.instance().exit( exitCode );
     }
 
     // Specific key usage

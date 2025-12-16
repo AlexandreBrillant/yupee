@@ -55,6 +55,29 @@ const $$ = ( ( $$ ) =>  {
 //#include "boot.js"
 //#include "resolver.js"
 
+    class Pages {
+        static #singleton = null;
+        static #singletonController = true;
+
+        static instance() {
+            if ( Pages.#singleton == null ) {
+                Pages.#singletonController = false;
+                Pages.#singleton = new Pages();
+                Pages.#singletonController = true;
+            }
+            return Pages.#singleton;
+        }
+
+        constructor() {
+            if ( Pages.#singletonController )
+                throw new "Illegal usage for the Pages, use Pages.instance()";
+        }
+
+        loadpage( page, newContext = true ) {
+            window.location.url = page + "/main.html";
+        }
+    }
+
     function _startingAll() {
         if ( starting ) {
             starting.forEach( ( starting ) => starting() );
@@ -86,6 +109,15 @@ const $$ = ( ( $$ ) =>  {
         boot( { "load" : yupcomponent, "params" : params } );
         _trace( "load", yupcomponent, params );
         return $$;
+    };
+
+    /**
+     * Load a new page with new yup component
+     * @param {*} page URL, this is a folder with a main.html page and a set of Yup components
+     * @param {*} keepContext by default true for keeping the current application model
+     */
+    $$.loadPage = ( page, keepContext = true ) => {
+        Pages.instance().loadpage( page, keepContext );
     };
 
     /**
@@ -154,9 +186,17 @@ const $$ = ( ( $$ ) =>  {
         renderer : null,            // Default renderer for a Yup component
         templates : {               // Common template for a Yup component
         },
-        update : ( flags ) => {     // Update the model
+        update : ( flags ) => {     // Notification to update the model
             $$.application.model().update( flags );
         }
+    }
+
+    /**
+     * This is a simple way to stop the Yup component loading and leave the application
+     * @param exitCode : 0 for OK, > 0 for error
+     */
+    $$.exit = ( exitCode ) => {
+        Yupees.instance().exit( exitCode );
     }
 
     // Specific key usage

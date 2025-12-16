@@ -2,6 +2,7 @@
 <!-- Usage of three external components for part1,part2,part3 using a data-yup attribute -->
 <!-- Implicit loading -->
 
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -14,9 +15,13 @@
 
         <div id="part1" color="red" data-yup></div>
 
-        <div id="part2" color="blue" data-yup></div>
+        <!-- User another Yupid with the data-yupid attribute -->
 
-        <div id="part3" color="green" data-yup></div>
+        <div id="part2b" data-yupid="part2" color="blue" data-yup></div>
+
+        <!-- User another Yupid with the yupid attribute -->
+
+        <div id="part3b" yupid="part3" color="green" data-yup></div>
 
         <div>Stopping zones</div>
 
