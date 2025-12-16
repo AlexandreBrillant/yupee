@@ -116,18 +116,15 @@ class Yupees {
             this.#currentYupId = this.#yupidFromLocation( location );
             if ( !location.match( /\.js$/ ) )
                 location += ".js";
-            const scriptNode = document.createElement( "script" );
-            scriptNode.addEventListener( "load", () => {
+
+            this.#currentParams = params;
+            Provider.instance().loadYup( location ).then( () => {
                 Yupees.#singleton.loadNextComponent();
-            } );
-            scriptNode.addEventListener( "error", () => {
-                _trace( "load", "Can't load " + location + " ?" );
+            }).catch( ( error ) => {
+                _trace( "load", error );
                 _criticalError( "load yup", location );
                 $$.exit( 1 );
             } );
-            scriptNode.src = location;
-            this.#currentParams = params;
-            document.head.appendChild( scriptNode );
         } else {
             this.fire( $$.KEYS.EVENT_READY );   // Ready event
         }

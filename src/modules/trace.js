@@ -27,13 +27,18 @@ function _trace( actionId, ...params ) {
 }
 
 /**
- * Inner function for critial action, the application must stopped
+ * Inner function for critial action, the application must stopped.
+ * For sample a component cannot be loaded, the application's behavior becomes
+ * undetermined.
+ * 
+ * It may use an alert popup calling the $$.alert method. User can update it
+ * 
  * @param {*} actionId 
  * @param  {...any} params 
  */
 function _criticalError( actionId, ...params ) {
     const paramstr = params.join( "," );
     const log = `Critical Error [${actionId}] ** ${paramstr}`;
-    alert( log );
+    $$.alert && $$.alert( log );
     console.log( log );
 }

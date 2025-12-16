@@ -6,6 +6,8 @@
     <head>
         <script src="../../dist/yupee.js"></script>
         <script>
+            // Avoiding a popup
+            $$.alert = ( msg ) => console.log( msg );
             $$.debugMode( $$.KEYS.DEBUG_BODY );
         </script>
     </head>

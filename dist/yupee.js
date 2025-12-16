@@ -77,16 +77,22 @@ function _trace( actionId, ...params ) {
 }
 
 /**
- * Inner function for critial action, the application must stopped
+ * Inner function for critial action, the application must stopped.
+ * For sample a component cannot be loaded, the application's behavior becomes
+ * undetermined.
+ * 
+ * It may use an alert popup calling the $$.alert method. User can update it
+ * 
  * @param {*} actionId 
  * @param  {...any} params 
  */
 function _criticalError( actionId, ...params ) {
     const paramstr = params.join( "," );
     const log = `Critical Error [${actionId}] ** ${paramstr}`;
-    alert( log );
+    $$.alert && $$.alert( log );
     console.log( log );
 }
+
 /**
  * This class manages all the Yup components for loading and storing them.
  * it must be used as a singleton only with Yupees.instance()
@@ -205,18 +211,15 @@ class Yupees {
             this.#currentYupId = this.#yupidFromLocation( location );
             if ( !location.match( /\.js$/ ) )
                 location += ".js";
-            const scriptNode = document.createElement( "script" );
-            scriptNode.addEventListener( "load", () => {
+
+            this.#currentParams = params;
+            Provider.instance().loadYup( location ).then( () => {
                 Yupees.#singleton.loadNextComponent();
-            } );
-            scriptNode.addEventListener( "error", () => {
-                _trace( "load", "Can't load " + location + " ?" );
+            }).catch( ( error ) => {
+                _trace( "load", error );
                 _criticalError( "load yup", location );
                 $$.exit( 1 );
             } );
-            scriptNode.src = location;
-            this.#currentParams = params;
-            document.head.appendChild( scriptNode );
         } else {
             this.fire( $$.KEYS.EVENT_READY );   // Ready event
         }
@@ -952,6 +955,10 @@ const boot = (...args) => {
     } );
 } )();
 
+/**
+ * Class for switching between several pages keeping the current context
+ * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
+ */
 class Pages {
     static #singleton = null;
     static #singletonController = true;
@@ -970,11 +977,135 @@ class Pages {
             throw new "Illegal usage for the Pages, use Pages.instance()";
     }
 
-    loadpage( page, newContext = true ) {
-        window.location.href = page + "/main.html";
+    #currentPage() {
+        const current = window.location.pathname.split('/').pop();
+        const page = current.split( "." )[ 0 ]; // Only the prefix
+        return document.body.dataset.page || document.body.getAttribute( "page" ) || page;
+    }
+
+    loadpage( page, keepContext = true ) {
+        if ( keepContext ) {
+            // Store the application model
+            const wholeModel = $$.application.model();
+            if ( wholeModel ) {
+                const jsonModel = JSON.stringify( wholeModel );
+                Provider.instance().writeData( this.#currentPage(), jsonModel );
+            }
+        }
+        Provider.instance().loadPage( page + "/main.html" );
+    }
+
+    /**
+     * Call when all the yup component has been loaded for
+     * restoring the state of the page
+     */
+    init() {
+        Provider.instance().readData( this.#currentPage() ).then( 
+            ( value ) => {
+                const wholeModelData = JSON.parse( value );
+                $$.application.model( wholeModelData ).update();
+            } );
     }
 }
 
+
+/**
+ * A provider is here for critical ressource access like :
+ * - loading a Yup component file
+ * - loading a new page
+ * - reading/writting value
+ * 
+ * A provider works with a driver. A driver can be plugged depending on your
+ * usage. For sample for using inside Node.js you may change the way the
+ * ressources are loaded, then you just have to create a driver and plugin
+ * into this provider.
+ *  
+ * For creating a driver you must provide an object at $$.driver
+ * 
+ * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
+ */
+class Provider {
+    static #singleton = null;
+    static #singletonController = true;
+
+    static instance() {
+        if ( Provider.#singleton == null ) {
+            Provider.#singletonController = false;
+            Provider.#singleton = new Provider();
+            Provider.#singletonController = true;
+        }
+        return Provider.#singleton;
+    }
+
+    constructor() {
+        if ( Provider.#singletonController )
+            throw new "Illegal usage for the Provider, use Provider.instance()";
+    }
+
+    /**
+     * Load a Yup component file
+     * @param {*} location 
+     */
+    async loadYup( location ) {
+        return ( $$.driver || this.#defaultDriver ).loadYup( location );
+    }
+
+    /**
+     * Load a new HTML page
+     * @param {*} location 
+     */
+    async loadPage( location ) {
+        return ( $$.driver || this.#defaultDriver ).loadPage( location );
+    }
+
+    /**
+     * Read a value for a key
+     * @param {*} key 
+     */
+    async readData( key ) {
+        return ( $$.driver || this.#defaultDriver ).readData( key );
+    }
+
+    /**
+     * Write a value for a key
+     * @param {*} key 
+     */
+    async writeData( key, value ) {
+        return ( $$.driver || this.#defaultDriver ).writeData( key, value );
+    }
+
+    // Default driver
+    #defaultDriver= {
+        loadYup:async ( location ) =>
+            new Promise(
+                (resolve,reject) => {
+                    const scriptNode = document.createElement( "script" );
+                    scriptNode.addEventListener( "load", () => resolve(true) );
+                    scriptNode.addEventListener( "error", () => reject( "can't load " + location) );
+                    scriptNode.src = location;
+                    document.head.appendChild( scriptNode );
+                } ),
+        loadPage:async ( location ) => 
+            new Promise(
+                (resolve,reject) => {
+                    // Overwrite the current context
+                    window.location.href = location;
+                } ),
+        readData:async ( key ) => 
+            new Promise(
+                (resolve,reject) => {
+                    resolve( localStorage.getItem( key ) );
+                } ),
+        writeData:async ( key,value ) => {
+            new Promise(
+                (resolve,reject) => {
+                    localStorage.setItem( key, value );
+                    resolve(true);
+                } );
+        }
+    };
+
+}
 
     function _startingAll() {
         if ( starting ) {
@@ -1042,6 +1173,7 @@ class Pages {
      * @param  {...any} actions functions for processing the event
      */
     $$.ready = ( ...actions ) => {
+        Pages.instance().init();    // restore the data model if required
         $$.listen( $$.KEYS.EVENT_READY, ...actions );
     }
 
@@ -1088,6 +1220,24 @@ class Pages {
             $$.application.model().update( flags );
         }
     }
+
+    /*
+     * This is a driver used by the Provider class. Thus user can plug here
+     * new system for managing external ressource like javascript file, html page, read/write content
+     * It MUST have the following asynchronous method :
+     * - loadYup( location ) : Load a Yup component file
+     * - loadPage( location ) : Load an html page
+     */
+    $$.driver = null;
+
+
+    /**
+     * This is a function for critical message.
+     * By default a popup is displayed. User can update this behevior.
+     * @param msg 
+     * @returns 
+     */
+    $$.alert = ( msg ) => alert( msg );
 
     /**
      * This is a simple way to stop the Yup component loading and leave the application

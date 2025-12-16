@@ -55,6 +55,7 @@ const $$ = ( ( $$ ) =>  {
 //#include "boot.js"
 //#include "resolver.js"
 //#include "pages.js"
+//#include "provider.js"
 
     function _startingAll() {
         if ( starting ) {
@@ -122,6 +123,7 @@ const $$ = ( ( $$ ) =>  {
      * @param  {...any} actions functions for processing the event
      */
     $$.ready = ( ...actions ) => {
+        Pages.instance().init();    // restore the data model if required
         $$.listen( $$.KEYS.EVENT_READY, ...actions );
     }
 
@@ -168,6 +170,24 @@ const $$ = ( ( $$ ) =>  {
             $$.application.model().update( flags );
         }
     }
+
+    /*
+     * This is a driver used by the Provider class. Thus user can plug here
+     * new system for managing external ressource like javascript file, html page, read/write content
+     * It MUST have the following asynchronous method :
+     * - loadYup( location ) : Load a Yup component file
+     * - loadPage( location ) : Load an html page
+     */
+    $$.driver = null;
+
+
+    /**
+     * This is a function for critical message.
+     * By default a popup is displayed. User can update this behevior.
+     * @param msg 
+     * @returns 
+     */
+    $$.alert = ( msg ) => alert( msg );
 
     /**
      * This is a simple way to stop the Yup component loading and leave the application
