@@ -346,6 +346,22 @@ class YupModel {
         
         console.log( "*** End Dump Model ***")
     }
+
+    /**
+     * Convert data model object to a JSON string
+     */
+    toJSON() {
+        return JSON.stringify( this.#content );
+    }
+
+    /**
+     * Update all the data of this model using a JSON String
+     * @param jsonStr 
+     */
+    fromJSON(jsonStr) {
+        this.#content = JSON.parse( jsonStr );
+    }
+
 }
 
 /**
@@ -988,7 +1004,7 @@ class Pages {
             // Store the application model
             const wholeModel = $$.application.model();
             if ( wholeModel ) {
-                const jsonModel = JSON.stringify( wholeModel );
+                const jsonModel = wholeModel.toJSON();
                 Provider.instance().writeData( this.#currentPage(), jsonModel );
             }
         }
@@ -1209,7 +1225,7 @@ class Provider {
      */
     $$.application = {
         model : ( content ) => {    // Common model for the Yup components
-            if ( !$$.application._model )
+            if ( !$$.application._model && content )
                 $$.application._model = Yupees.instance().applicationModel( content );
             return $$.application._model;
         },

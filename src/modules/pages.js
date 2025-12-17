@@ -31,7 +31,7 @@ class Pages {
             // Store the application model
             const wholeModel = $$.application.model();
             if ( wholeModel ) {
-                const jsonModel = JSON.stringify( wholeModel );
+                const jsonModel = wholeModel.toJSON();
                 Provider.instance().writeData( this.#currentPage(), jsonModel );
             }
         }

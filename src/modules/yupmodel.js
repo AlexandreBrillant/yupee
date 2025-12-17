@@ -94,4 +94,20 @@ class YupModel {
         
         console.log( "*** End Dump Model ***")
     }
+
+    /**
+     * Convert data model object to a JSON string
+     */
+    toJSON() {
+        return JSON.stringify( this.#content );
+    }
+
+    /**
+     * Update all the data of this model using a JSON String
+     * @param jsonStr 
+     */
+    fromJSON(jsonStr) {
+        this.#content = JSON.parse( jsonStr );
+    }
+
 }

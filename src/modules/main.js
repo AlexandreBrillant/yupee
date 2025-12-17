@@ -159,7 +159,7 @@ const $$ = ( ( $$ ) =>  {
      */
     $$.application = {
         model : ( content ) => {    // Common model for the Yup components
-            if ( !$$.application._model )
+            if ( !$$.application._model && content )
                 $$.application._model = Yupees.instance().applicationModel( content );
             return $$.application._model;
         },
