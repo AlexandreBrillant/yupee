@@ -27,7 +27,7 @@ class Pages {
     }
 
     loadpage( page, keepContext = true ) {
-        if ( keepContext ) {
+        if ( keepContext && $$.application.hasModel() ) {
             // Store the application model
             const wholeModel = $$.application.model();
             if ( wholeModel ) {
