@@ -7,8 +7,9 @@ function _trace( actionId, ...params ) {
     if ( debugMode ) {
         const paramstr = params.join( "," );
         const log = `** [${actionId}] ** ${paramstr}`
-        if ( traceMode == $$.KEYS.DEBUG_CONSOLE )
+        if ( traceMode == $$.KEYS.DEBUG_CONSOLE ) {
             console.log( log );
+        }
         else {
             document.body.insertAdjacentHTML( "beforeend", `<div class='yuptrace'>${log}</div>` );
         }
@@ -41,4 +42,5 @@ function _criticalError( actionId, ...params ) {
     const log = `Critical Error [${actionId}] ** ${paramstr}`;
     $$.alert && $$.alert( log );
     console.log( log );
+    console.log( new Error().stack );
 }

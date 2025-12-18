@@ -46,7 +46,7 @@ class Pages {
         Provider.instance().readData( this.#currentPage() ).then( 
             ( value ) => {
                 const wholeModelData = JSON.parse( value );
-                $$.application.model( wholeModelData ).update();
+                $$.application.initModel( wholeModelData ).update();
             } );
     }
 }

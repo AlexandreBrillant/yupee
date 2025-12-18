@@ -158,9 +158,16 @@ const $$ = ( ( $$ ) =>  {
      * @returns an object for all the yup components
      */
     $$.application = {
-        model : ( content ) => {    // Common model for the Yup components
-            if ( !$$.application._model && content )
+        initModel : ( content ) => {    // Use a new model
+            if ( !$$.application._model )
                 $$.application._model = Yupees.instance().applicationModel( content );
+            else
+                $$.application._model.reset( content );
+            return $$.application._model;
+        },
+        model : () => {    // Common model for the Yup components
+            if ( !$$.application._model )
+                throw new Error( "No initialized model, use the initModel method" );
             return $$.application._model;
         },
         renderer : null,            // Default renderer for a Yup component
@@ -168,6 +175,9 @@ const $$ = ( ( $$ ) =>  {
         },
         update : ( flags ) => {     // Notification to update the model
             $$.application.model().update( flags );
+        },
+        hasModel: () => {
+            return $$.application._model;
         }
     }
 

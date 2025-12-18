@@ -57,8 +57,9 @@ function _trace( actionId, ...params ) {
     if ( debugMode ) {
         const paramstr = params.join( "," );
         const log = `** [${actionId}] ** ${paramstr}`
-        if ( traceMode == $$.KEYS.DEBUG_CONSOLE )
+        if ( traceMode == $$.KEYS.DEBUG_CONSOLE ) {
             console.log( log );
+        }
         else {
             document.body.insertAdjacentHTML( "beforeend", `<div class='yuptrace'>${log}</div>` );
         }
@@ -91,6 +92,7 @@ function _criticalError( actionId, ...params ) {
     const log = `Critical Error [${actionId}] ** ${paramstr}`;
     $$.alert && $$.alert( log );
     console.log( log );
+    console.log( new Error().stack );
 }
 
 /**
@@ -216,7 +218,7 @@ class Yupees {
             Provider.instance().loadYup( location ).then( () => {
                 Yupees.#singleton.loadNextComponent();
             }).catch( ( error ) => {
-                _trace( "load", error );
+                _trace( "load", error, error.stack );
                 _criticalError( "load yup", location );
                 $$.exit( 1 );
             } );
@@ -260,6 +262,14 @@ class YupModel {
 
     constructor( content ) {
         content && ( this.#content = content );
+    }
+
+    /**
+     * Force a new model content
+     * @param newContent 
+     */
+    reset( newContent ) {
+        this.#content = newContent;
     }
 
     #submodels = {};
@@ -320,12 +330,14 @@ class YupModel {
 
     /**
      * Read or Write a data inside this current model. By default it will ask to all the concerned yup components to repaint
-     * @param {*} key A key for this data
+     * @param {*} key A key for this data, no key for gettong all the model content
      * @param {*} value Optional value to write
      * @param {*} update "false" By default to update all the Yup component using this model
      * @returns a data value
      */
     data( key, value, update = false ) {
+        if ( typeof key == "undefined" )
+            return this.#content;
         if ( !value ) {
             return this.#content[ key ];
         }
@@ -423,7 +435,7 @@ class Yup {
         container && ( this.#container = container );
 
         // Use the application model by default
-        !this.#model && $$.application.model() && this.model( $$.application.model() );
+        !this.#model && $$.application.hasModel() && this.model( $$.application.model() );
     }
 
     // Children by name
@@ -1019,7 +1031,7 @@ class Pages {
         Provider.instance().readData( this.#currentPage() ).then( 
             ( value ) => {
                 const wholeModelData = JSON.parse( value );
-                $$.application.model( wholeModelData ).update();
+                $$.application.initModel( wholeModelData ).update();
             } );
     }
 }
@@ -1224,9 +1236,16 @@ class Provider {
      * @returns an object for all the yup components
      */
     $$.application = {
-        model : ( content ) => {    // Common model for the Yup components
-            if ( !$$.application._model && content )
+        initModel : ( content ) => {    // Use a new model
+            if ( !$$.application._model )
                 $$.application._model = Yupees.instance().applicationModel( content );
+            else
+                $$.application._model.reset( content );
+            return $$.application._model;
+        },
+        model : () => {    // Common model for the Yup components
+            if ( !$$.application._model )
+                throw new Error( "No initialized model, use the initModel method" );
             return $$.application._model;
         },
         renderer : null,            // Default renderer for a Yup component
@@ -1234,6 +1253,9 @@ class Provider {
         },
         update : ( flags ) => {     // Notification to update the model
             $$.application.model().update( flags );
+        },
+        hasModel: () => {
+            return $$.application._model;
         }
     }
 

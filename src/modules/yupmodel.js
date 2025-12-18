@@ -10,6 +10,14 @@ class YupModel {
         content && ( this.#content = content );
     }
 
+    /**
+     * Force a new model content
+     * @param newContent 
+     */
+    reset( newContent ) {
+        this.#content = newContent;
+    }
+
     #submodels = {};
 
     /**
@@ -68,12 +76,14 @@ class YupModel {
 
     /**
      * Read or Write a data inside this current model. By default it will ask to all the concerned yup components to repaint
-     * @param {*} key A key for this data
+     * @param {*} key A key for this data, no key for gettong all the model content
      * @param {*} value Optional value to write
      * @param {*} update "false" By default to update all the Yup component using this model
      * @returns a data value
      */
     data( key, value, update = false ) {
+        if ( typeof key == "undefined" )
+            return this.#content;
         if ( !value ) {
             return this.#content[ key ];
         }

@@ -57,7 +57,7 @@ class Yup {
         container && ( this.#container = container );
 
         // Use the application model by default
-        !this.#model && $$.application.model() && this.model( $$.application.model() );
+        !this.#model && $$.application.hasModel() && this.model( $$.application.model() );
     }
 
     // Children by name

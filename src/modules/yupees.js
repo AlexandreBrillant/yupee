@@ -121,7 +121,7 @@ class Yupees {
             Provider.instance().loadYup( location ).then( () => {
                 Yupees.#singleton.loadNextComponent();
             }).catch( ( error ) => {
-                _trace( "load", error );
+                _trace( "load", error, error.stack );
                 _criticalError( "load yup", location );
                 $$.exit( 1 );
             } );
