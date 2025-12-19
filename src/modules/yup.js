@@ -18,7 +18,7 @@
  * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
  */
 class Yup {
-    #container
+    #$
     #yupid
     #model;
     #childid = 1;
@@ -29,32 +29,32 @@ class Yup {
 
         if ( params ) {
             if ( params instanceof Node ) {
-                this.#container = params;
+                this.#$ = new YupContainer( params );
             } else
             if ( params._into ) {
-                this.#container = params._into;
+                this.#$ = new YupContainer( params._into );
                 delete params._into;
             }
         }
 
         // Force an empty container with an id
-        if ( !this.#container ) {
-            this.#container = document.createElement( "DIV" );
-            yupid && ( this.#container.id = yupid );
+        if ( !this.#$ ) {
+            this.#$ = new YupContainer( document.createElement( "DIV" ) );
+            yupid && ( this.#$.id( yupid ) );
         }
 
         // Required a container so after
         if ( params ) {
             for ( const key in params ) {
                 if ( typeof params[ key ] == "string" ) 
-                    this.#container.setAttribute( key, params[ key ] );
+                    this.#$.setAttribute( key, params[ key ] );
             } 
         }
 
         model && this.model( model );
         renderer && this.renderer( renderer );
         template && ( this.#template = template );
-        container && ( this.#container = container );
+        container && ( this.#$ = new YupContainer( container ) );
 
         // Use the application model by default
         !this.#model && $$.application.hasModel() && this.model( $$.application.model() );
@@ -75,7 +75,7 @@ class Yup {
         this.#children[ name ] = yup;
         this.#childrenLst.push( yup );
         // Connect the DOM here for no parent only
-        !yup.container().parentNode && this.container().appendChild( yup.container() );  
+        !yup.container().parentNode() && this.container().appendChild( yup.container() );  
         return yup;
     }
 
@@ -104,8 +104,8 @@ class Yup {
             return this.#setchild( yupid, content );
         } else            
         if ( typeof content == "string" || content.html ) {
-            this.container().insertAdjacentHTML( "beforeend", content.html || content );
-            container = this.container().lastChild;
+            this.container().appendChild( content.html || content );
+            container = this.container().lastChild();
         } else
         if ( content.node || content instanceof Node ) {
             container = content.node || content;
@@ -140,7 +140,7 @@ class Yup {
      */
     addChildren( { select, selector, click } ) {
         const yups = [];
-        const lst = this.#container.querySelectorAll( select || selector );
+        const lst = this.#$.querySelectorAll( select || selector );
         lst && lst.forEach( 
             ( node ) => {
             yups.push( this.addChild( { node, click } ) );
@@ -165,14 +165,14 @@ class Yup {
         parent.#removeChildReference( this );
 
         // DOM update
-        if ( this.container() instanceof DocumentFragment ) {
-            const fragment = this.container();
+        if ( this.container().node() instanceof DocumentFragment ) {
+            const fragment = this.container().node();
             while ( fragment.firstChild ) {
                 parent.container().removeChild( fragment.firstChild );
             }
         } else {
             // Check for a valid parent
-            if ( this.container().parentNode == parent.container() )
+            if ( this.container().isParent( parent.container() ) )
                 parent.container().removeChild( this.container() );
         }
     }
@@ -298,7 +298,7 @@ class Yup {
      */
     param( paramKey, defaultValue ) {
         if ( typeof paramKey == "string" ) {
-            const attValue = this.container().dataset[ paramKey ] || this.container().getAttribute( paramKey );
+            const attValue = this.container().getAttribute( paramKey );
             return attValue || defaultValue;
         } else {
             const { name, value } = paramKey;
@@ -349,11 +349,11 @@ class Yup {
             if ( this.#model ) {
                 if ( this.#modelRenderer ) {
                     this.clean();
-                    this.#modelRenderer( { model:this.model(), container:this.container(), template:this.template(), flags:html.flags} );
+                    this.#modelRenderer( { model:this.model(), container:this.container().node(), template:this.template(), flags:html.flags} );
                 } else {
                     if ( $$.application.renderer ) {
                         this.clean();
-                        $$.application.renderer( { model:this.model(), container:this.container(), template:this.template(), flags:html.flags } );
+                        $$.application.renderer( { model:this.model(), container:this.container().node(), template:this.template(), flags:html.flags } );
                     }
                 }
             }
@@ -362,7 +362,7 @@ class Yup {
             // Paint a content without using a model
             if ( html instanceof Node ) {   
                 this.clean(); 
-                this.#container.appendChild( html );
+                this.#$.appendChild( html );
             } else {
                 if ( typeof html == "object" )
                     html = this.template( html );
@@ -374,7 +374,7 @@ class Yup {
                 ( !this.#buffer && ( this.#buffer = document.createElement( "DIV" ) ) );
                 this.#buffer.innerHTML = html;
                 while ( this.#buffer.firstChild ) {
-                    this.#container.appendChild( this.#buffer.firstChild );
+                    this.#$.appendChild( this.#buffer.firstChild );
                 }
             }
         }
@@ -387,9 +387,7 @@ class Yup {
      * @param {*} values object with the css properties and values
      */
     style( values ) {
-        for ( let property in values ) {
-            this.#container.style[ property ] = values[ property ];
-        }
+        this.#$.style( values );
         return this;
     }
 
@@ -399,7 +397,7 @@ class Yup {
      * @param handler HTML handler
      */
     event( evt, handler ) {
-        this.#container.addEventListener( evt, this.#binder( handler ) );
+        this.#$.event( evt, this.#binder( handler ) );
         return this;
     }
 
@@ -445,9 +443,9 @@ class Yup {
             if ( node != null ) {
                 let oldattributes = null;
                 if ( keepparams ) {
-                    oldattributes = this.container().attributes;
+                    oldattributes = this.container().attributes();
                 }
-                this.#container = node;
+                this.#$.node( node );
                 if ( oldattributes ) {
                     for ( const att of oldattributes ) {
                         this.param( att );
@@ -456,16 +454,17 @@ class Yup {
             }
         } catch( error ) {
             this.trace( `Invalid selector [${cssselector} / ${error.message}] ? using document.body` );
-            this.#container = document.body;
+            this.#$.node( document.body );
         }
         return this;
     }
 
     /**
-     * @returns The visual container of this component, it can be an HTML part
+     * use container().node() for getting the DOM node
+     * @returns An object managing the container of this component.
      */
     container() {
-        return this.#container;
+        return this.#$;
     }
 
     /**
@@ -527,9 +526,6 @@ class Yup {
     }
 
     value(content) {
-        if ( typeof content == "undefined" )
-            return this.container().value;
-        else
-            this.container().value = content;
+        return this.container().value( content );
     }
 }

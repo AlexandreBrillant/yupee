@@ -26,8 +26,8 @@
                 function removeChild() {
                     setTimeout( () => {
                         const child = yup1.childAt( 0 );
-                        console.log( child.container() );
-                        console.log( child.container().parentNode );
+                        console.log( child.container().node() );
+                        console.log( child.container().parentNode() );
                         child.remove();
                         yup1.childCount() && removeChild();
                         !yup1.childCount() && end();

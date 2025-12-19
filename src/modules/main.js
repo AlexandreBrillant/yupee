@@ -51,6 +51,7 @@ const $$ = ( ( $$ ) =>  {
 //#include "trace.js"
 //#include "yupees.js"
 //#include "yupmodel.js"
+//#include "yupcontainer.js"
 //#include "yup.js"
 //#include "boot.js"
 //#include "resolver.js"
