@@ -56,6 +56,7 @@ const $$ = ( ( $$ ) =>  {
 //#include "boot.js"
 //#include "resolver.js"
 //#include "pages.js"
+//#include "driver.js"
 //#include "provider.js"
 
     function _startingAll() {
@@ -191,6 +192,11 @@ const $$ = ( ( $$ ) =>  {
      */
     $$.driver = null;
 
+    /**
+     * This is an abstract class you must implement for adding your own implementation. Look at the
+     * LocalDriver as a sample.
+     */
+    $$.DriverClass = Driver;
 
     /**
      * This is a function for critical message.

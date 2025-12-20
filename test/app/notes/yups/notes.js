@@ -11,13 +11,8 @@
         ( { model, container } ) => {
             const notes = model.data( "notes" );
             notes.forEach( note => {
-                const div = document.createElement( "DIV" );
-                div.textContent = note;
-                container.appendChild( div );
+                yup.addChild( "<div>" + note + " <button>-</button></div>" ).addChild( { "select" : "button" }).click( () => $$.application.removeNote( note ) );
             });
     } );
-
-    // Push a note inside the current model
-    yup.consume( "note", ( note ) => yup.model().pushData( "notes", note, true ) );
 
 } )();

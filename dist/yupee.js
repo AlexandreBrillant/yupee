@@ -1174,6 +1174,78 @@ class Pages {
 
 
 /**
+ * Abstract class for a Driver
+ * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
+ */
+class Driver {
+
+    constructor() {
+        if ( new.target == Driver ) {
+            throw new Error( "Invalid Driver class usage, you must use a descendant class" );
+        }
+    }
+
+    async loadYup( location ) {
+        throw new Error( "Invalid usage" );
+    }
+
+
+    async loadPage( location ) {
+        throw new Error( "Invalid usage");
+    }
+
+    async readData( key ) {
+        throw new Error( "Invalid usage");
+    }
+
+    async writeData( key, value ) {
+        throw new Error( "Invalid usage");
+    }
+
+}
+
+/**
+ * Local implementation
+ * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
+ */
+class LocalDriver extends Driver {
+
+        async loadYup( location ) {
+            return new Promise(
+                (resolve,reject) => {
+                    const scriptNode = document.createElement( "script" );
+                    scriptNode.addEventListener( "load", () => resolve(true) );
+                    scriptNode.addEventListener( "error", () => reject( "can't load " + location) );
+                    scriptNode.src = location;
+                    document.head.appendChild( scriptNode );
+                } );
+        }
+
+        async loadPage( location ) {
+            return new Promise(
+                (resolve,reject) => {
+                    // Overwrite the current context
+                    window.location.href = location;
+                } );
+        }
+
+        async readData( key ) {
+            return new Promise(
+                (resolve,reject) => {
+                    resolve( localStorage.getItem( key ) );
+                } );
+        }
+
+        async writeData( key,value ) {
+            return new Promise(
+                (resolve,reject) => {
+                    localStorage.setItem( key, value );
+                    resolve(true);
+                } );
+        }
+
+}
+/**
  * A provider is here for critical ressource access like :
  * - loading a Yup component file
  * - loading a new page
@@ -1239,35 +1311,7 @@ class Provider {
     }
 
     // Default driver
-    #defaultDriver= {
-        loadYup:async ( location ) =>
-            new Promise(
-                (resolve,reject) => {
-                    const scriptNode = document.createElement( "script" );
-                    scriptNode.addEventListener( "load", () => resolve(true) );
-                    scriptNode.addEventListener( "error", () => reject( "can't load " + location) );
-                    scriptNode.src = location;
-                    document.head.appendChild( scriptNode );
-                } ),
-        loadPage:async ( location ) => 
-            new Promise(
-                (resolve,reject) => {
-                    // Overwrite the current context
-                    window.location.href = location;
-                } ),
-        readData:async ( key ) => 
-            new Promise(
-                (resolve,reject) => {
-                    resolve( localStorage.getItem( key ) );
-                } ),
-        writeData:async ( key,value ) => {
-            new Promise(
-                (resolve,reject) => {
-                    localStorage.setItem( key, value );
-                    resolve(true);
-                } );
-        }
-    };
+    #defaultDriver = new LocalDriver();
 
 }
 
@@ -1404,6 +1448,11 @@ class Provider {
      */
     $$.driver = null;
 
+    /**
+     * This is an abstract class you must implement for adding your own implementation. Look at the
+     * LocalDriver as a sample.
+     */
+    $$.DriverClass = Driver;
 
     /**
      * This is a function for critical message.

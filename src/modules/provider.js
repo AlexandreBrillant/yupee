@@ -64,34 +64,6 @@ class Provider {
     }
 
     // Default driver
-    #defaultDriver= {
-        loadYup:async ( location ) =>
-            new Promise(
-                (resolve,reject) => {
-                    const scriptNode = document.createElement( "script" );
-                    scriptNode.addEventListener( "load", () => resolve(true) );
-                    scriptNode.addEventListener( "error", () => reject( "can't load " + location) );
-                    scriptNode.src = location;
-                    document.head.appendChild( scriptNode );
-                } ),
-        loadPage:async ( location ) => 
-            new Promise(
-                (resolve,reject) => {
-                    // Overwrite the current context
-                    window.location.href = location;
-                } ),
-        readData:async ( key ) => 
-            new Promise(
-                (resolve,reject) => {
-                    resolve( localStorage.getItem( key ) );
-                } ),
-        writeData:async ( key,value ) => {
-            new Promise(
-                (resolve,reject) => {
-                    localStorage.setItem( key, value );
-                    resolve(true);
-                } );
-        }
-    };
+    #defaultDriver = new LocalDriver();
 
 }

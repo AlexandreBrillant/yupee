@@ -552,44 +552,53 @@ We get a sub component with the **screen** constant. For getting each button val
 } )();
 ```
 
-## Creating MVC applications
+## Creating a complete Yup application
 
-Each Yup component can have a data model. A data model can be shared among multiple Yup components. You can 
-update a data model with any values, each time it will automatically repaint all Yup components using it. 
-
-To render a data model, a Yup component requires a renderer. A renderer is a delegate function that takes
-a model parameter and a container parameter. Its role is to display the model inside the Yup
-component. A renderer can be shared among multiple Yup components.
-
-In this example, we start with a very simple Notes application. A user can add new notes, and all the
-notes will be displayed in a section of the HTML page.
+First we need to build our application model. This is the model of data for your whole application.
 
 ### The Model part
 
-Here the **actions** component. This component will prompt the user for a note. It will then "produce" a **note** value. Producing a note mean, generating a note event to all Yup components that consume it.
+We build a main Yup component for defining the data model and all the method for modifying this model.
 
 ```javascript
 ( () => {
 
     const yup = $$.start();
+    $$.application.initModel( { notes: []} );   // Whole data
 
-    yup.event( "click",
-            () => {
-                let note = prompt( "Your note" );
-                if ( note ) {
-                    yup.produce( "note", note );
-                }
-    } );
+    $$.application.newNote = () => {            // Add a new note
+        const note = prompt( "Your note" );
+        if ( note ) {
+            $$.application.model().data( "notes" ).push( note );    // Modify the model
+            $$.application.model().update();    // Notify all the users
+        }
+    };
 
-    yup.paint( "<input type='button' value='Add a note' id='add'>" );
+    $$.application.removeNote = ( note ) => {   // Remove a note
+        const newNotes = $$.application.model().data( "notes" ).filter( n => n != note );
+        $$.application.model().data( "notes", newNotes );   // Modify the model
+        $$.application.model().update();    // Notify all the users
+    }
 
 } )();
 ```
 
+By calling the **initModel** to define your application model, we have here only one array of notes.
+
+We add a shared method **newNote** for adding a value inside your model. And another one **removeNote"** for remove one note. Each time
+the application model $$.application.model() is updated, we need to call the **update** method.
+
+Here a part of your HTML page, we decide to load explicitly a **yups/main** file.
+
+```html
+<body data-yup="yups/main">
+    ...
+</body>
+```
+
 ### The View part
 
-Here the **notes** component. It needs to consume a **note** value and render it. Therefore, we need a model to store
-all notes and a renderer function to display them. 
+Now we need to decide how to display our data model. We need another Yup component for the rendering.
 
 ```javascript
 ( () => {
@@ -598,26 +607,61 @@ all notes and a renderer function to display them.
 
     // Set a renderer for the model of notes
     yup.renderer(
-            ( { model, container } ) => {
-                const notes = model.data( "notes" );
-                notes.forEach( note => {
-                    const div = document.createElement( "DIV" );
-                    div.textContent = note;
-                    container.appendChild( div );
-                });
-        } );
-
-    // Push a note inside the current model
-    yup.consume( "note", ( note ) => yup.model().pushData( "notes", note, true ) );
+        ( { model, container } ) => {
+            const notes = model.data( "notes" );
+            notes.forEach( note => {
+                yup.addChild( "<div>" + note + " <button>-</button></div>" ).addChild( { "select" : "button" }).click( () => $$.application.removeNote( note ) );
+            });
+    } );
 
 } )();
 ```
 
-Calling **pushData** will add a content in an array withing the model (key **notes**), the last argument is to update the model and notify all the Yup components using it (to repaint).
+By default, our Yup component uses the application model. If you define a renderer method, you will receive the current model and the container as parameters
 
-When this yup component is repainted, it uses the provided renderer displaying all the notes.
+We then need to retrieve all the notes from your data model. Next, we iterate through the array, and for each note, we add a new Yup component as a child using **addChild**.
 
-Note that when using **yup.model()**, it automatically creates an empty model.
+We also include a button for removing a note. To detect when the button is pressed, we add another child component with { "select": "button" } to target the button as a sub-child. In the click action, we simply call the **removeNote** method from the application model."
+
+### The action part
+
+We build a last Yup component for adding a new note. It just call the **newNote** of our application. We use **event** it rather than **click** as an example.
+
+```javascript
+( () => {
+    const yup = $$.start();
+    yup.event( "click",
+            () => {
+                $$.application.newNote();
+            } );
+    yup.paint( "<input type='button' value='Add a note' id='add'>" );
+} )();
+```
+
+Here the final HTML 
+
+```html
+<html>
+    <head>
+        <title>Simple Notes</title>
+        <script src="yupee.js"></script>
+    </head>
+    <body data-yup="yups/main">
+        <h1>Simple Notes using Yupee</h1>
+        <hr>
+        <div id="notes" data-yup>
+        </div>
+        <hr>
+        <div id="actions" data-yup>
+        </div>
+    </body>
+</html>
+```
+
+We load these Yup components :
+- yups/main.js
+- yups/notes.js
+- yups/actions.js
 
 ## Conclusion
 
