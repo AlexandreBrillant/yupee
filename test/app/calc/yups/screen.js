@@ -37,6 +37,6 @@
     }
 
     // Listen for event from the buttons
-    yup.consume( "btn", handleEvent );
+    yup.consume( $$.KEYS.EVENT_YUPID, handleEvent );
 
 } )();

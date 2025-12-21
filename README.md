@@ -418,46 +418,47 @@ Yup components can communicate with each other using events. Thus the **buttons*
 Here the template of the HTML calculator page
 
 ```html
+<!DOCTYPE html>
 <html>
     <head>
-        <title>Simple Calculator using Yupee</title>
         <script src="yupee.js"></script>
     </head>
     <body>
         <h1>Simple calculator using Yupee</h1>
+        <hr>
         <div id="calc">
             <div id="screen" data-yup>
                 <input type="textfield" id="screenfield">
             </div>
             <div id="buttons" data-yup>
                 <div class="row">
-                    <div class="btn">C</div>
-                    <div class="btn">1/x</div>
-                    <div class="btn">x^2</div>
-                    <div class="btn">%</div>
+                    <div class="btn" yupid="C">C</div>
+                    <div class="btn" yupid="1/x">1/x</div>
+                    <div class="btn" yupid="x^2">x^2</div>
+                    <div class="btn" yupid="%">%</div>
                 </div>
                 <div class="row">
-                    <div class="btn">7</div>
-                    <div class="btn">8</div>
-                    <div class="btn">9</div>
-                    <div class="btn">*</div>
+                    <div class="btn" yupid="7">7</div>
+                    <div class="btn" yupid="8">8</div>
+                    <div class="btn" yupid="9">9</div>
+                    <div class="btn" yupid="*">*</div>
                 </div>
                 <div class="row">
-                    <div class="btn">4</div>
-                    <div class="btn">5</div>
-                    <div class="btn">6</div>
-                    <div class="btn">-</div>
+                    <div class="btn" yupid="4">4</div>
+                    <div class="btn" yupid="5">5</div>
+                    <div class="btn" yupid="6">6</div>
+                    <div class="btn" yupid="-">-</div>
                 </div>
                 <div class="row">
-                    <div class="btn">1</div>
-                    <div class="btn">2</div>
-                    <div class="btn">3</div>
-                    <div class="btn">+</div>
+                    <div class="btn" yupid="1">1</div>
+                    <div class="btn" yupid="2">2</div>
+                    <div class="btn" yupid="3">3</div>
+                    <div class="btn" yupid="+">+</div>
                 </div>
                 <div class="row">
-                    <div  class="btn">0</div>
-                    <div  class="btn">.</div>
-                    <div  class="btn">=</div>
+                    <div  class="btn" yupid="0">0</div>
+                    <div  class="btn" yupid=".">.</div>
+                    <div  class="btn" yupid="=">=</div>
                 </div>                
             </div>
         </div>
@@ -465,57 +466,38 @@ Here the template of the HTML calculator page
 </html>
 ```
 
+Note that we added a **yupid** attribute, we could also use "**data-yupid**". It will be used for adding an ID for
+yup children.
+
+### Managing the buttons
+
 To manage the buttons, we will create a Yup component (**buttons**) getting all the buttons with the **div.btn** selector.
 
 ```javascript
 ( () => {
 
     const yup = $$.start();
-
-    // Generate event when clicking on a button with the button label for the screeen component
-    const handleBtn = function( event ) {
-        const action = event.target.textContent;
-        yup.produce( "btn", action );
-    }
-
-    yup.selectAll( "div.btn").forEach( btn => {
-        btn.addEventListener( "click", handleBtn );
-    });
+    yup.addChildren( { select : "div.btn", click : $$.KEYS.AUTO_HANDLER } );
 
 } )();
 ```
 
-### Creating a child Yup component
+Using **addChildren** we add new Yup children to the **buttons** Yup component. We add a CSS selector parameter and a **click** parameter.
+The **click** parameter has a **$$.KEYS.AUTO_HANDLER** which means "When clicking on a button, send an event using the ID of the component". In this sample, it means, send an event using the **yupid** attribute value.
 
-#### Using an existing child component
+Each time a button is clicked, it generated an event **$$.KEYS.AUTO_HANDLER** using the **produce** method. A button produces an event with by default its ID.
 
-The **addChildBySelector** method for a Yup component will search from the container a new container using a CSS selector. This new container will be used for building a new Yup component.
+### Displaying the result
 
-The parameter is a litteral object with two keys :
+We add another Yup component as the **screen** part. We get each button pressed event using the **$$.KEYS.EVENT_YUPID** event.
 
-- selector : A required key with the CSS selector for the child
-- yupid : An optional key for setting an id for this child, else the attribute id is used from the DOM node.
-
-#### Adding a new child
-
-The **addChild** method will add a new Yup component to the current one. The content is a parameter with an HTML string or a DOM node.
-You may have also an object with the yupid,html,node,selector attributes. A CSS selector is a way to used an existing node without adding a new one
-inside the HTML page.
-
-### Produce/Consume custom events
-
-A yup component can produce data with the **produce**" method with a name and a value. A yup component
-can consume data with the **consume** method with a name.
-
-Here the final screen component for our calculator.
-
-We get a sub component with the **screen** constant. For getting each button value, we use the **consume** method with a **btn** name. Then we process it inside the **handleEvent** function.
+We just have to **consume** a $$.KEYS.AUTO_HANDLER event for getting each button pressed an display the result inside the screen.
 
 ```javascript
 ( () => {
 
-    const yup = $$.start();
-    const screen = yup.addChild( { selector : "input[id=screenfield]" } );
+   const yup = $$.start();
+   const screen = yup.addChild( { yupid:"toto", selector : "input[id=screenfield]" } );
 
     console.log( "Loading screen" );
 
@@ -547,7 +529,7 @@ We get a sub component with the **screen** constant. For getting each button val
     }
 
     // Listen for event from the buttons
-    yup.consume( "btn", handleEvent );
+    yup.consume( $$.KEYS.EVENT_YUPID, handleEvent );
 
 } )();
 ```
