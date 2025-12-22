@@ -481,9 +481,8 @@ class Yup {
                 this.childAt( 0 ).remove();
             }
         }
-        // DOM cleaning too
-        while ( this.container().firstChild )
-            this.container().removeChild( this.container().firstChild );
+
+        this.container().clean();
         return this;
     }
 

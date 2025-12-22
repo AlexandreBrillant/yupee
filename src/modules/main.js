@@ -194,7 +194,7 @@ const $$ = ( ( $$ ) =>  {
 
     /**
      * This is an abstract class you must implement for adding your own implementation. Look at the
-     * LocalDriver as a sample.
+     * LocalDriver as a sample inside the driver.js module.
      */
     $$.DriverClass = Driver;
 

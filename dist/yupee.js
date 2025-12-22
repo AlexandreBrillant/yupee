@@ -999,9 +999,8 @@ class Yup {
                 this.childAt( 0 ).remove();
             }
         }
-        // DOM cleaning too
-        while ( this.container().firstChild )
-            this.container().removeChild( this.container().firstChild );
+
+        this.container().clean();
         return this;
     }
 
@@ -1450,7 +1449,7 @@ class Provider {
 
     /**
      * This is an abstract class you must implement for adding your own implementation. Look at the
-     * LocalDriver as a sample.
+     * LocalDriver as a sample inside the driver.js module.
      */
     $$.DriverClass = Driver;
 
