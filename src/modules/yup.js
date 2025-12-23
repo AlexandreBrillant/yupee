@@ -194,12 +194,14 @@ class Yup {
     }
 
     /* 
-        * @param index The index of the children
-        * @returns A yup component child
-        */
+    * @param index The index of the children
+    * @returns A yup component child
+    */
     childAt( index ) {
         return this.#childrenLst[ index ];
     }
+
+    
 
     /**
      * @returns A Yup parent or null for the root yup component

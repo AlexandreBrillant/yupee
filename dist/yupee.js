@@ -483,7 +483,13 @@ class YupContainer {
     }
 
     querySelectorAll( selector ) {
-        return this.#$.querySelectorAll( selector );
+        // Work for the whole document rathen than this container
+        let finalContainer = this.#$;
+        if ( selector.startsWith( "/" ) ) {
+            finalContainer = document;
+            selector = selector.substring( 1 );
+        }
+        return finalContainer.querySelectorAll( selector );
     }
 
     style( values ) {
@@ -506,6 +512,20 @@ class YupContainer {
             return this.#$.value;
         else
             this.#$.value = content;
+    }
+
+    hasClass( className ) {
+        return this.#$.classList.contains( className );
+    }
+
+    addClass( className ) {
+        !this.#$.classList.contains( className ) && this.#$.classList.add( className );
+        return this;
+    }
+
+    removeClass( className ) {
+        this.#$.classList.remove( className );
+        return this;
     }
 
     /**
