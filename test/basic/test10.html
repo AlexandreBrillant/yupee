@@ -14,6 +14,10 @@
                         yup.style( { "color" : yup.container().textContent() } );
                     }
                 );
+				yup.addChild( "<div>This is the end</div>" );
+				yup.addChild( { yupid : "end", html : "<div>-----------------</div>" } );
+				
+				yup.child( "end" ).style( { "color": "red" } );
             }
         </script>
     </head>

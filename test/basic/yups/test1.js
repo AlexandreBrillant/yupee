@@ -17,8 +17,7 @@
     );
 
     // Or with standard functions
-    yup.event(
-        "click",
+    yup.click(
         function() { 
             yup.style( { fontWeight : "bold" } );
         } 

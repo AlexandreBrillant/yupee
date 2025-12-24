@@ -732,12 +732,14 @@ class Yup {
     }
 
     /* 
-        * @param index The index of the children
-        * @returns A yup component child
-        */
+    * @param index The index of the children
+    * @returns A yup component child
+    */
     childAt( index ) {
         return this.#childrenLst[ index ];
     }
+
+    
 
     /**
      * @returns A Yup parent or null for the root yup component
@@ -1186,7 +1188,7 @@ class Pages {
         Provider.instance().readData( this.#currentPage() ).then( 
             ( value ) => {
                 const wholeModelData = JSON.parse( value );
-                $$.application.initModel( wholeModelData ).update();
+                wholeModelData && $$.application.initModel( wholeModelData ).update();
             } );
     }
 }
@@ -1436,6 +1438,7 @@ class Provider {
      */
     $$.application = {
         initModel : ( content ) => {    // Use a new model
+            $$.initModelHandler && $$.initModelHandler( content );
             if ( !$$.application._model )
                 $$.application._model = Yupees.instance().applicationModel( content );
             else
@@ -1455,6 +1458,9 @@ class Provider {
         },
         hasModel: () => {
             return $$.application._model;
+        },
+        initModelHandler: ( handler ) => {  // Handler for being notified when the model is initialized, this is for multiple pages usage
+            $$.initModelHandler = handler;
         }
     }
 

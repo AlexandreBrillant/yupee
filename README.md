@@ -269,7 +269,7 @@ In the Yup component, the **param** method is used for getting each parameter va
 
 Yup components can catch DOM events using the **event** method.
 
-This Yup component will catch the **click** event using the **event** method. For accessing to the container of the Yup component, calling **container()** is required. Otherwise you may use specific functions like **style** for applying a style to your container.
+This Yup component will catch the **click** event using the **event** method. For accessing to the container of the Yup component, calling **container()** is required.
 
 ```javascript
 ( () => {
@@ -277,7 +277,7 @@ This Yup component will catch the **click** event using the **event** method. Fo
     // Start the yup component and get a reference to the yup component
     const yup = $$.start();
 
-    // With arrow functions
+    // With arrow functions : Note no "this" usage.
     yup.event(
         "click",
         () => { 
@@ -285,9 +285,8 @@ This Yup component will catch the **click** event using the **event** method. Fo
         }        
     );
 
-    // Or with standard functions
-    yup.event(
-        "click",
+    // Or with standard functions : Note the "this" usage
+    yup.click(
         function() { 
             yup.style( { fontWeight : "bold" } );
         } 
@@ -301,7 +300,7 @@ This Yup component will catch the **click** event using the **event** method. Fo
 
 With this Yup component, when the user will click on the black message "Click here for Bold and Red", the message will be rendered in **bold** with a **red** color.
 
-## Using DOM node and repainting a Yup component
+## Using a DOM node and repainting a Yup component
 
 In this sample, we add a content inside the Yup component using a DOM node and we alter after every 1 second the content with a counter.
 
@@ -331,6 +330,60 @@ In this sample, we add a content inside the Yup component using a DOM node and w
 ```
 
 When painting a component, the content is automatically cleared.
+
+## Adding a child
+
+ Yup component can also have child components. A child component can be either new content or existing content.
+
+If you add HTML content or a DOM node, it will be treated as new content. However, if you select part of the current container, it will be used as-is.
+
+You have two methods: **addChild** or **addChildren**. In both cases, you can provide an object with a **select** attribute to choose a set of nodes using a CSS selector.
+
+```html
+<html>
+    <head>
+        <script src="yupee.js"></script>
+        <script>
+            const test10 = () => {
+                const yup = $$.start( { container:document.body } );
+                yup.addChildren( { select: "div" } ).forEach(
+                    ( yup ) => {
+                        yup.style( { "color" : yup.container().textContent() } );
+                    }
+                );
+				yup.addChild( "<div>This is the end</div>" );
+            }
+        </script>
+    </head>
+    <body onload="test10()">
+        <div>Red</div>
+        <div>Green</div>
+        <div>Blue</div>
+    </body>
+</html>
+```
+
+In this example, we use a specific node container for the **start** method. To ensure the DOM content is available, so we use a simple **onload** attribute for to initialize our component (for demonstration purposes).
+
+Using **addChildren**, we select the **div** node from the **body** node. By default, the **select** attribute targets the current container (here document.body). This method returns an array with all the new Yup component children, which can then be used  to update a child's color using the text content.
+
+In the last example, we add a new Yup child containing the message "This is the end".
+
+You can also target a child anywhere in the document by starting the CSS Selector with "/".
+
+Note :
+
+If no **yupid** is specified, the library will automatically detect a yupid using a yupid/data-yupid or id attribute. However you can manually set a yupid including a **yupid** attribute inside the **addChild** parameters.
+
+```javascript
+yup.addChild( { yupid : "end", html : "<div>-----------------</div>" } );
+```
+
+Thus you can get this component with the **child** method and the right yupid.
+
+```javascript
+yup.child( "end" ).style( { "color": "red" } );
+```
 
 ## Template
 

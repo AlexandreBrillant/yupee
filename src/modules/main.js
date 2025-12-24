@@ -161,6 +161,7 @@ const $$ = ( ( $$ ) =>  {
      */
     $$.application = {
         initModel : ( content ) => {    // Use a new model
+            $$.initModelHandler && $$.initModelHandler( content );
             if ( !$$.application._model )
                 $$.application._model = Yupees.instance().applicationModel( content );
             else
@@ -180,6 +181,9 @@ const $$ = ( ( $$ ) =>  {
         },
         hasModel: () => {
             return $$.application._model;
+        },
+        initModelHandler: ( handler ) => {  // Handler for being notified when the model is initialized, this is for multiple pages usage
+            $$.initModelHandler = handler;
         }
     }
 
