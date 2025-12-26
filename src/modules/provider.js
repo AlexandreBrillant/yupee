@@ -22,6 +22,8 @@ class Provider {
             Provider.#singletonController = false;
             Provider.#singleton = new Provider();
             Provider.#singletonController = true;
+
+            $$.driver = Factory.instance().newDriver( {} );
         }
         return Provider.#singleton;
     }

@@ -53,6 +53,7 @@ const $$ = ( ( $$ ) =>  {
 //#include "yupmodel.js"
 //#include "yupcontainer.js"
 //#include "yup.js"
+//#include "factory.js"
 //#include "boot.js"
 //#include "resolver.js"
 //#include "pages.js"
@@ -188,19 +189,36 @@ const $$ = ( ( $$ ) =>  {
     }
 
     /*
-     * This is a driver used by the Provider class. Thus user can plug here
-     * new system for managing external ressource like javascript file, html page, read/write content
-     * It MUST have the following asynchronous method :
-     * - loadYup( location ) : Load a Yup component file
-     * - loadPage( location ) : Load an html page
-     */
-    $$.driver = null;
+    * Override the default Driver class for pages management. You must
+    * extends your class using $$.classes.Driver
+    */
+    $$.driverClass = null;
 
     /**
-     * This is an abstract class you must implement for adding your own implementation. Look at the
-     * LocalDriver as a sample inside the driver.js module.
+     * Override the default Yup class by this one. You must extend your class
+     * using $$.classes.Yup.
      */
-    $$.DriverClass = Driver;
+    $$.yupClass = null;
+
+    /**
+     * Override the default Yup model class by this one. You must extend your class
+     * using $$.classes.YupModel.
+     */
+    $$.yupModelClass = null;
+
+    /**
+     * Here a way to use your own classes for your Driver, Yup component or Yup model.
+     * You just have to exends one Class like
+     * @example
+     * class MyYupComponent extends $$.classes.Yup {
+     *  ...
+     * }
+     */
+    $$.classes = {       
+        Driver : Driver,
+        Yup : Yup,
+        YupModel : YupModel
+    }
 
     /**
      * This is a function for critical message.

@@ -139,7 +139,7 @@ class Yupees {
         config = config || {};
         config.yupid = this.#currentYupId;
         config.params = this.#currentParams;
-        const currentComponent = new Yup( config );
+        const currentComponent = Factory.instance().newYup( config );
         _trace( "start", this.#currentYupId );
         return currentComponent;
     }

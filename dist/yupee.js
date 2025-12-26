@@ -236,7 +236,7 @@ class Yupees {
         config = config || {};
         config.yupid = this.#currentYupId;
         config.params = this.#currentParams;
-        const currentComponent = new Yup( config );
+        const currentComponent = Factory.instance().newYup( config );
         _trace( "start", this.#currentYupId );
         return currentComponent;
     }
@@ -665,7 +665,7 @@ class Yup {
         !yupid && ( yupid = ( container.id || container.dataset.yupid || container.getAttribute( "yupid" ) ) );   // Use the id per default   // Use the id per default
         !yupid && ( yupid = this.#generate_newid() );
 
-        const yup = new Yup( { yupid, container } );
+        const yup = Factory.instance().newYup( { yupid, container } );
 
         content.click && yup.click( content.click );
         
@@ -1069,6 +1069,48 @@ class Yup {
     }
 }
 /**
+ * This is a factory for building new instances of various classes like :
+ * - Yup for a Yup component
+ * - Yup model for a Yup data model
+ * - Driver for loading new pages and ressource.
+ * 
+ * Thus a user can change a class using this factory easily.
+ * 
+ * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
+ */
+class Factory {
+    static #singleton = null;
+    static #singletonController = true;
+
+    static instance() {
+        if ( Factory.#singleton == null ) {
+            Factory.#singletonController = false;
+            Factory.#singleton = new Factory();
+            Factory.#singletonController = true;
+        }
+        return Factory.#singleton;
+    }
+
+    constructor() {
+        if ( Factory.#singletonController )
+            throw new "Illegal usage for the Factory, use Factory.instance()";
+    }
+
+    newYup( config = {} ) {
+        return new ( config.class || $$.yupClass || Yup )( config );
+    }
+
+    newModel( config = {} ) {
+        return new ( config.class || $$.yupModelClass || YupModel )( config );
+    }
+
+    newDriver( config = {} ) {
+        if ( config.class || $$.driverClass )    
+            return new ( config.class || $$.driverClass );
+        return $$.driver;
+    }
+}
+/**
  * This is the main function of Yupee
  * It is called both for loading Yup components and for managing each one
  * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
@@ -1290,6 +1332,8 @@ class Provider {
             Provider.#singletonController = false;
             Provider.#singleton = new Provider();
             Provider.#singletonController = true;
+
+            $$.driver = Factory.instance().newDriver( {} );
         }
         return Provider.#singleton;
     }
@@ -1465,19 +1509,36 @@ class Provider {
     }
 
     /*
-     * This is a driver used by the Provider class. Thus user can plug here
-     * new system for managing external ressource like javascript file, html page, read/write content
-     * It MUST have the following asynchronous method :
-     * - loadYup( location ) : Load a Yup component file
-     * - loadPage( location ) : Load an html page
-     */
-    $$.driver = null;
+    * Override the default Driver class for pages management. You must
+    * extends your class using $$.classes.Driver
+    */
+    $$.driverClass = null;
 
     /**
-     * This is an abstract class you must implement for adding your own implementation. Look at the
-     * LocalDriver as a sample inside the driver.js module.
+     * Override the default Yup class by this one. You must extend your class
+     * using $$.classes.Yup.
      */
-    $$.DriverClass = Driver;
+    $$.yupClass = null;
+
+    /**
+     * Override the default Yup model class by this one. You must extend your class
+     * using $$.classes.YupModel.
+     */
+    $$.yupModelClass = null;
+
+    /**
+     * Here a way to use your own classes for your Driver, Yup component or Yup model.
+     * You just have to exends one Class like
+     * @example
+     * class MyYupComponent extends $$.classes.Yup {
+     *  ...
+     * }
+     */
+    $$.classes = {       
+        Driver : Driver,
+        Yup : Yup,
+        YupModel : YupModel
+    }
 
     /**
      * This is a function for critical message.

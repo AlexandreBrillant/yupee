@@ -363,7 +363,7 @@ You have two methods: **addChild** or **addChildren**. In both cases, you can pr
 </html>
 ```
 
-In this example, we use a specific node container for the **start** method. To ensure the DOM content is available, so we use a simple **onload** attribute for to initialize our component (for demonstration purposes).
+In this example, we use a specific node container for the **start** method. To ensure the DOM content is available, so we use a simple **onload** attribute to initialize our component (for demonstration purposes).
 
 Using **addChildren**, we select the **div** node from the **body** node. By default, the **select** attribute targets the current container (here document.body). This method returns an array with all the new Yup component children, which can then be used  to update a child's color using the text content.
 
