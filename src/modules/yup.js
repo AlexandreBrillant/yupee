@@ -405,32 +405,18 @@ class Yup {
 
     /**
      * Manage a click for this yup component or a click for a yup child. It avoids to use the event method.
-     * @param {*} childname Optional for applying this click event only on a child by this name
+     * If using $$.KEYS.AUTO_HANDLER, it will generate a default handler producing an event $$.KEYS.EVENT_YUPID with
+     * the current id. Thus you can catch using the consume method.
+     * 
      * @param {*} handler Function for managing a click or "auto" for producing a data with the yupid value
      */
-    click( childname, handler ) {
-        if ( typeof childname == "function" ) {
-            this.event( "click", childname );
-        } else {
-            if ( typeof childname == "string" ) {
-                let child = this.child( childname );
-                if ( child == null ) {
-                    if ( childname == $$.KEYS.AUTO_HANDLER ) {
-                        child = this;
-                        handler = $$.KEYS.AUTO_HANDLER;
-                    } else {
-                        this.trace( "click : Unknown child " + childname );
-                        return;
-                    }
-                }
-                if ( handler == $$.KEYS.AUTO_HANDLER ) {
-                    child.event( "click", () => {
-                        child.produce( $$.KEYS.EVENT_YUPID, child.yupid() );
-                    } );
-                } else
-                    child.event( "click", handler );
-            }
+    click( handler ) {
+        if ( handler == $$.KEYS.AUTO_HANDLER ) {
+            handler = this.#binder( function() {
+                this.produce( $$.KEYS.EVENT_YUPID, this.yupid() );
+            } );
         }
+        this.event( "click", handler );
     }
 
     /** 
