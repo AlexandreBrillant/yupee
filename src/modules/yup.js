@@ -54,7 +54,7 @@ class Yup {
         model && this.model( model );
         renderer && this.renderer( renderer );
         template && ( this.#template = template );
-        container && ( this.#$ = new YupContainer( container ) );
+        container && ( this.#$ = Factory.instance().newYupContainer( container ) );
 
         // Use the application model by default
         !this.#model && $$.application.hasModel() && this.model( $$.application.model() );

@@ -30,6 +30,10 @@ class Factory {
         return new ( config.class || $$.yupClass || Yup )( config );
     }
 
+    newYupContainer( config ) {
+        return new ( $$.yupContainerClass || YupContainer )( config );
+    }
+
     newModel( config = {} ) {
         return new ( config.class || $$.yupModelClass || YupModel )( config );
     }

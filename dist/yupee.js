@@ -592,7 +592,7 @@ class Yup {
         model && this.model( model );
         renderer && this.renderer( renderer );
         template && ( this.#template = template );
-        container && ( this.#$ = new YupContainer( container ) );
+        container && ( this.#$ = Factory.instance().newYupContainer( container ) );
 
         // Use the application model by default
         !this.#model && $$.application.hasModel() && this.model( $$.application.model() );
@@ -1086,6 +1086,10 @@ class Factory {
         return new ( config.class || $$.yupClass || Yup )( config );
     }
 
+    newYupContainer( config ) {
+        return new ( $$.yupContainerClass || YupContainer )( config );
+    }
+
     newModel( config = {} ) {
         return new ( config.class || $$.yupModelClass || YupModel )( config );
     }
@@ -1507,6 +1511,12 @@ class Provider {
     $$.yupClass = null;
 
     /**
+     * Override the default Yup container class by this one. You must extend your class
+     * using $$.classes.YupContainer.
+     */
+    $$.yupContainerClass = null;
+
+    /**
      * Override the default Yup model class by this one. You must extend your class
      * using $$.classes.YupModel.
      */
@@ -1523,8 +1533,9 @@ class Provider {
     $$.classes = {       
         Driver : Driver,
         Yup : Yup,
+        YupContainer : YupContainer,
         YupModel : YupModel
-    }
+    };
 
     /**
      * This is a function for critical message.

@@ -201,6 +201,12 @@ const $$ = ( ( $$ ) =>  {
     $$.yupClass = null;
 
     /**
+     * Override the default Yup container class by this one. You must extend your class
+     * using $$.classes.YupContainer.
+     */
+    $$.yupContainerClass = null;
+
+    /**
      * Override the default Yup model class by this one. You must extend your class
      * using $$.classes.YupModel.
      */
@@ -217,8 +223,9 @@ const $$ = ( ( $$ ) =>  {
     $$.classes = {       
         Driver : Driver,
         Yup : Yup,
+        YupContainer : YupContainer,
         YupModel : YupModel
-    }
+    };
 
     /**
      * This is a function for critical message.
