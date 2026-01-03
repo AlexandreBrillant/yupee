@@ -698,6 +698,72 @@ We load these Yup components :
 - yups/notes.js
 - yups/actions.js
 
+## Using your own classes
+
+By default, Yupee uses the following classes to build each part:
+
+- **Yup** : The main class for a Yup component, each time you call **$$.start**, it creates a new **Yup** instance.
+- **YupContainer** : An inner class of a Yup component, it manages the DOM container (the location of a Yup component) and provides tools for updating CSS, etc.
+- **YupModel** : The data model for either the whole application or a specific Yup component when using a renderer to paint a Yup component.
+- **Driver** : A class for managing pages when switching between them. It can read and store the application context.
+
+You can extend any class using the following keys :
+
+```javascript
+$$.classes = {       
+    Driver : Driver,
+    Yup : Yup,
+    YupContainer : YupContainer,
+    YupModel : YupModel
+};
+```
+
+When using your own class, you can refererence it with :
+
+```javascript
+$$.yupClass = YOUR_CLASS;
+$$.yupContainerClass = YOUR_CLASS;
+$$.yupModelClass = YOUR_CLASS
+$$.driverClass = YOUR_CLASS;
+```
+
+Note: This must be set before loading your Yup component.
+
+Another option is to set your own class when starting your Yup component. In the following example, a new Yup component class is created. Each time a Yup component is painted, it will apply a green color to both the text and the border:
+
+```javascript
+class MyYupComponent extends $$.classes.Yup {
+    constructor( config ) {
+        super( config );
+    }
+
+    paint( config ) {
+        this.container().style( { color : "green", borderColor:"green" }, );
+        super.paint( config );
+    }
+}       
+```
+
+Here’s how to load your class when starting your Yup component:
+
+```javascript
+const yup = $$.start( { class:MyYupComponent } );
+yup2.paint( "My new component" );
+```
+
+In this another example, a YupContainer class is extended for all yup components.
+
+```javascript
+$$.yupContainerClass = class MyYupContainer extends $$.classes.YupContainer {
+    constructor( container ) {
+        super( container );
+        this.style( { border : "2px solid red"} );
+    }
+};
+```
+
+Thus, every time a Yup component is built, it will use this **MyYupContainer** class for internal DOM usage, and every Yup component will have a red border.
+
 ## Conclusion
 
 Yupee is a lightweight library for creating complex and modular web applications with ease. It is designed to be simple, flexible, and easy to use.

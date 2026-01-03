@@ -1,0 +1,49 @@
+<!--    Author : Alexandre Brillant
+        In this example I use my own classes for using Yup components
+-->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="../../dist/yupee.js"></script>
+        <script>
+
+            // My yup container adding a red border
+            $$.yupContainerClass = class MyYupContainer extends $$.classes.YupContainer {
+                constructor( container ) {
+                    super( container );
+                    this.style( { border : "2px solid red"} );
+                }
+            };
+
+            // My yup component adding a green color for the content
+            class MyYupComponent extends $$.classes.Yup {
+                constructor( config ) {
+                    super( config );
+                }
+
+                paint( config ) {
+                    this.container().style( { color : "green", borderColor:"green" }, );
+                    super.paint( config );
+                }
+            }            
+
+            const test11 = () => {
+                const yup = $$.start( { container:document.querySelector( "#yup1") } );
+                yup.paint( "My new container with a border line red" );
+
+                const yup2 = $$.start( { container:document.querySelector( "#yup2" ), class:MyYupComponent } );
+                yup2.paint( "My new component" );
+            }
+
+        </script>
+    </head>
+    <body onload="test11()">
+        <div id="yup1">
+
+        </div>
+        <div id="yup2">
+
+        </div>
+    </body>
+</html>

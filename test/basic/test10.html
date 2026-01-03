@@ -8,6 +8,7 @@
         <script src="../../dist/yupee.js"></script>
         <script>
             const test10 = () => {
+                // We force a container here because we create ourself a Yup component
                 const yup = $$.start( { container:document.body } );
                 yup.addChildren( { select: "div" } ).forEach(
                     ( yup ) => {
@@ -16,7 +17,6 @@
                 );
 				yup.addChild( "<div>This is the end</div>" );
 				yup.addChild( { yupid : "end", html : "<div>-----------------</div>" } );
-				
 				yup.child( "end" ).style( { "color": "red" } );
             }
         </script>
