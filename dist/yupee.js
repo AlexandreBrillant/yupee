@@ -887,14 +887,10 @@ class Yup {
         if ( typeof html == "undefined" || ( typeof html == "object" && "flags" in html ) ) {
             // Paint the model using the modelRenderer
             if ( this.#model ) {
-                if ( this.#modelRenderer ) {
+                const renderer = this.#modelRenderer || $$.application.renderer;
+                if ( renderer ) {
                     this.clean();
                     this.#modelRenderer( { model:this.model(), container:this.container().node(), template:this.template(), flags:html.flags} );
-                } else {
-                    if ( $$.application.renderer ) {
-                        this.clean();
-                        $$.application.renderer( { model:this.model(), container:this.container().node(), template:this.template(), flags:html.flags } );
-                    }
                 }
             }
         } else {
