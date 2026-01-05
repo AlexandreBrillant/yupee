@@ -223,7 +223,7 @@ class Yupees {
                 $$.exit( 1 );
             } );
         } else {
-            this.fire( $$.KEYS.EVENT_READY );   // Ready event
+            this.fire( $$.KEYS.EVENT_READY );   // Ready event for all the yup components
         }
     }
 
@@ -1436,7 +1436,7 @@ class Provider {
      * @param  {...any} actions functions for processing the event
      */
     $$.ready = ( ...actions ) => {
-        Pages.instance().init();    // restore the data model if required
+           // restore the data model if required
         $$.listen( $$.KEYS.EVENT_READY, ...actions );
     }
 
@@ -1495,6 +1495,9 @@ class Provider {
         },
         initModelHandler: ( handler ) => {  // Handler for being notified when the model is initialized, this is for multiple pages usage
             $$.initModelHandler = handler;
+        },
+        ready : () => {
+            $$.application._model && $$.application._model.update();
         }
     }
 
@@ -1571,6 +1574,12 @@ class Provider {
         traceMode = mode ?? $$.KEYS.DEBUG_CONSOLE;
         debugMode = !debugMode;
     }
+
+    // Prepare the application model when all Yup components has been loaded
+    $$.listen( $$.KEYS.EVENT_READY, () => {
+        Pages.instance().init(); 
+        $$.application.ready();
+    });
 
     return $$;
 

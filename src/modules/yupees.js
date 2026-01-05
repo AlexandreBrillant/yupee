@@ -126,7 +126,7 @@ class Yupees {
                 $$.exit( 1 );
             } );
         } else {
-            this.fire( $$.KEYS.EVENT_READY );   // Ready event
+            this.fire( $$.KEYS.EVENT_READY );   // Ready event for all the yup components
         }
     }
 
