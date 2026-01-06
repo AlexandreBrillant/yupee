@@ -326,6 +326,39 @@ class YupModel {
                 this.#submodels[ key ].update( flags, includeSubModel );
             }
         }
+        this.fireUpdate();
+    }
+
+    #listeners = null;
+
+    /**
+     * Reference a Callback listener each time the model is updated
+     * @param {*} listener 
+     */
+    addListener( listener ) {
+        !this.#listeners && ( this.#listeners = [] );
+        this.#listeners.push( listener );
+    }
+
+    /**
+     * Remove a Callback listener
+     * @param {*} listener 
+     */
+    removeListener( listener ) {
+        this.#listeners && (
+            this.#listeners = this.#listeners.filter( (item) => item != listener )
+        );
+    }
+
+    /**
+     * Notify to all the listener the model is updated. This is independant of the Yup components
+     */
+    fireUpdate() {
+        this.#listeners &&
+            this.#listeners.forEach( 
+                function( listener ) {
+                    listener( this );
+                } );
     }
 
     /**

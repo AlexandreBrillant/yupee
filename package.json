@@ -1,7 +1,7 @@
 {
   "name": "yupee",
   "productName" : "Yupee",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "description": "A simple JavaScript library for building complex and modular web application without React",
   "main": "yupee.js",
   "author": {
