@@ -39,7 +39,7 @@
  * - Yupee can be used for very complex MVC applications
  * 
  * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
- * @version 0.9
+ * @version 1.0
  */
 
 const $$ = ( ( $$ ) =>  {    
@@ -231,12 +231,14 @@ const $$ = ( ( $$ ) =>  {
     };
 
     /**
-     * This is a function for critical message.
-     * By default a popup is displayed. User can update this behevior.
-     * @param msg 
-     * @returns 
-     */
-    $$.alert = ( msg ) => alert( msg );
+    * Simple shortcuts for dialogs of type alert/confirm/prompt, thus user can
+    * override this default usage
+    */
+    $$.dialogs = {
+        alert:( msg ) => window.alert( msg ),
+        confirm:( msg ) => window.confirm( msg ),
+        prompt:( msg ) => window.prompt( msg )
+    };
 
     /**
      * This is a simple way to stop the Yup component loading and leave the application

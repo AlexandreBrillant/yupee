@@ -17,13 +17,16 @@
     }
     function process_data_yup() {
         const nodes = document.querySelectorAll( "*" );
+        let yupbase = "";
         for ( node of nodes ) {
+            yupbase = node.getAttribute( "yupbase" ) || node.dataset.yupbase;
             let path = null;
             // Try a delegate function
             if ( $$.pathResolver )
                 path = $$.pathResolver( node );
             // Try the data-yup attribute value
-            path = !path && node.dataset.yup;
+            path = !path && ( yupbase + node.dataset.yup );
+
             // Use the node id as a name for the yup component for empty data-yup attribute
             if ( !path && node.hasAttribute( "data-yup" ) && node.id ) {
                 path = "yups/" + resolve_yup_path( node );
