@@ -96,7 +96,7 @@ In this example, we load 3 yup components (**test3a**, **test3b** and **test3c**
 
 ### Implicit loading
 
-You can load multiple components for the same page using using a **data-yup** attribute, then it will use the html attribute **id** for loading automatically the yup component inside a **yups** subdirectory. If a yup component is inside another yup component then it will change the loading path, the parent yup component become a folder for this yup child.
+You can load multiple components for the same page using using a **data-yup** attribute, then it will use the html attribute **id** or **data-yupid** for loading automatically the yup component inside a **yups** subdirectory.
 
 Each Yup component will have a specific container depending the location of the **data-yup** attribute.
 
@@ -152,6 +152,22 @@ $$.pathResolver = ( node ) => {
 
 In this case each time a node has an id attribute, then Yupee will be loaded inside a "all" directory. If a null value is returned, then no component
 will be loaded.
+
+A **data-yupbase** attribute can be set for adding a default path to any descendants.
+
+```html
+    <body data-yup="yups/main" data-yupbase="actions">
+
+        <div id="notes" data-yup></div>
+
+        <div id="actions" data-yup></div>
+
+    </body>
+```
+
+Here an example with a **data-yupbase** located to the body tag.
+
+The **notes** component will be loaded from the **yups/actions/notes.js** file, the **actions** component will be loaded from the **yups/actions/actions.js** file.
 
 ### Explicit loading
 

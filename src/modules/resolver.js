@@ -11,7 +11,7 @@
         let parent = node.parentNode;
         let yupbase = "";
         while ( parent && ( parent != document ) ) {
-            const tmpbase = parent.getAttribute( "yupbase" ) || ( parent.nodeset && parent.nodeset.yupbase );
+            let tmpbase = parent.getAttribute( "yupbase" ) || ( parent.dataset && parent.dataset.yupbase );
             if ( tmpbase ) {
                 !tmpbase.endsWith( "/" ) && ( tmpbase += "/" );
                 yupbase = tmpbase + yupbase;
