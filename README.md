@@ -160,7 +160,7 @@ will be loaded.
 A **data-yupbase** attribute can be set for adding a default path to any descendants.
 
 ```html
-    <body data-yup="yups/main" data-yupbase="actions">
+    <body data-yup="main" data-yupbase="yups/actions">
 
         <div id="notes" data-yup></div>
 
@@ -169,9 +169,11 @@ A **data-yupbase** attribute can be set for adding a default path to any descend
     </body>
 ```
 
-Here an example with a **data-yupbase** located to the body tag.
+In the previous example a **data-yupbase** attribute is located to the body tag.
 
-The **notes** component will be loaded from the **yups/actions/notes.js** file, the **actions** component will be loaded from the **yups/actions/actions.js** file.
+The **main** component will be loaded from the **yups/actions/main.j** file
+The **notes** component will be loaded from the **yups/actions/notes.js** file, 
+The **actions** component will be loaded from the **yups/actions/actions.js** file.
 
 ### Explicit loading
 
