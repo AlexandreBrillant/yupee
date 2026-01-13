@@ -1,0 +1,35 @@
+<!-- Test usage for the binder module -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="binder.js"></script>
+        <script>
+            function test() {
+                const binder = Binder.instance();
+
+                const data = {
+                    label1 : "LABEL1",
+                    field1 : "FIELD1",
+                    field2 : "FIELD2",
+                    field3 : true
+                }
+
+                binder.bind( document.body, data );
+
+            }
+        </script>
+    </head>
+    <body onload="test()">
+
+        <label data-yupid="label1"></label>
+        <input type="text" data-yupid="field1">
+        <textarea data-yupid="field2">
+        </textarea>
+        <input type="checkbox" data-yupid="field3">
+        <select data-yupid="field4">
+            <option value="test1"></option>
+            <option value="test2" selected></option>
+        </select>
+
+    </body>
+</html>
