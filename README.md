@@ -139,6 +139,8 @@ Example
 
 In this case, the Yup component will be loaded from the test3b path.
 
+### Use your own rule
+
 You may also choose another rule for loading a Yup component from a DOM node using the $$.pathResolver attribute with a delegate function.
 
 Example
@@ -152,6 +154,8 @@ $$.pathResolver = ( node ) => {
 
 In this case each time a node has an id attribute, then Yupee will be loaded inside a "all" directory. If a null value is returned, then no component
 will be loaded.
+
+### yupbase
 
 A **data-yupbase** attribute can be set for adding a default path to any descendants.
 
