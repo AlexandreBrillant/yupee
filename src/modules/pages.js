@@ -35,7 +35,7 @@ class Pages {
                 Provider.instance().writeData( this.#currentPage(), jsonModel );
             }
         }
-        Provider.instance().loadPage( page + "/main.html" );
+        Provider.instance().loadPage( page );
     }
 
     /**

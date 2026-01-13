@@ -3,32 +3,35 @@
  * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
  */
 ( () => {
+
     // Check for data-yup attribute inside the current page
     function resolve_yup_path( node ) {
-        const t = [];
-        while ( node ) {
-            if ( node.nodeType == Node.ELEMENT_NODE && node.hasAttribute( "data-yup" ) ) {
-                const yupid = node.dataset.yupid || node.getAttribute( "yupid" ) || node.id;
-                yupid && t.unshift( yupid );
+        const yupid = node.dataset.yupid || node.getAttribute( "yupid" ) || node.id;
+        // check for yupbase ancestor
+        let parent = node.parentNode;
+        let yupbase = "";
+        while ( parent && ( parent != document ) ) {
+            const tmpbase = parent.getAttribute( "yupbase" ) || ( parent.nodeset && parent.nodeset.yupbase );
+            if ( tmpbase ) {
+                !tmpbase.endsWith( "/" ) && ( tmpbase += "/" );
+                yupbase = tmpbase + yupbase;
             }
-            node = node.parentNode;
+            parent = parent.parentNode;
         }
-        return t.join( "/" );
+        return yupbase + yupid;
     }
+
     function process_data_yup() {
         const nodes = document.querySelectorAll( "*" );
-        let yupbase = "";
         for ( node of nodes ) {
-            yupbase = node.getAttribute( "yupbase" ) || node.dataset.yupbase;
             let path = null;
             // Try a delegate function
             if ( $$.pathResolver )
                 path = $$.pathResolver( node );
             // Try the data-yup attribute value
-            path = !path && ( yupbase + node.dataset.yup );
-
+            path = !path && ( node.dataset.yup );
             // Use the node id as a name for the yup component for empty data-yup attribute
-            if ( !path && node.hasAttribute( "data-yup" ) && node.id ) {
+            if ( !path && node.hasAttribute( "data-yup" ) ) {
                 path = "yups/" + resolve_yup_path( node );
             }
             if ( path )

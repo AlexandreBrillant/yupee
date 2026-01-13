@@ -39,7 +39,7 @@
  * - Yupee can be used for very complex MVC applications
  * 
  * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
- * @version 0.9
+ * @version 1.0
  */
 
 const $$ = ( ( $$ ) =>  {    
@@ -1166,18 +1166,24 @@ const boot = (...args) => {
  * @author Alexandre Brillant (https://github.com/AlexandreBrillant/)
  */
 ( () => {
+
     // Check for data-yup attribute inside the current page
     function resolve_yup_path( node ) {
-        const t = [];
-        while ( node ) {
-            if ( node.nodeType == Node.ELEMENT_NODE && node.hasAttribute( "data-yup" ) ) {
-                const yupid = node.dataset.yupid || node.getAttribute( "yupid" ) || node.id;
-                yupid && t.unshift( yupid );
+        const yupid = node.dataset.yupid || node.getAttribute( "yupid" ) || node.id;
+        // check for yupbase ancestor
+        let parent = node.parentNode;
+        let yupbase = "";
+        while ( parent && ( parent != document ) ) {
+            const tmpbase = parent.getAttribute( "yupbase" ) || ( parent.nodeset && parent.nodeset.yupbase );
+            if ( tmpbase ) {
+                !tmpbase.endsWith( "/" ) && ( tmpbase += "/" );
+                yupbase = tmpbase + yupbase;
             }
-            node = node.parentNode;
+            parent = parent.parentNode;
         }
-        return t.join( "/" );
+        return yupbase + yupid;
     }
+
     function process_data_yup() {
         const nodes = document.querySelectorAll( "*" );
         for ( node of nodes ) {
@@ -1186,9 +1192,9 @@ const boot = (...args) => {
             if ( $$.pathResolver )
                 path = $$.pathResolver( node );
             // Try the data-yup attribute value
-            path = !path && node.dataset.yup;
+            path = !path && ( node.dataset.yup );
             // Use the node id as a name for the yup component for empty data-yup attribute
-            if ( !path && node.hasAttribute( "data-yup" ) && node.id ) {
+            if ( !path && node.hasAttribute( "data-yup" ) ) {
                 path = "yups/" + resolve_yup_path( node );
             }
             if ( path )
@@ -1238,7 +1244,7 @@ class Pages {
                 Provider.instance().writeData( this.#currentPage(), jsonModel );
             }
         }
-        Provider.instance().loadPage( page + "/main.html" );
+        Provider.instance().loadPage( page );
     }
 
     /**
@@ -1570,12 +1576,14 @@ class Provider {
     };
 
     /**
-     * This is a function for critical message.
-     * By default a popup is displayed. User can update this behevior.
-     * @param msg 
-     * @returns 
-     */
-    $$.alert = ( msg ) => alert( msg );
+    * Simple shortcuts for dialogs of type alert/confirm/prompt, thus user can
+    * override this default usage
+    */
+    $$.dialogs = {
+        alert:( msg ) => window.alert( msg ),
+        confirm:( msg ) => window.confirm( msg ),
+        prompt:( msg ) => window.prompt( msg )
+    };
 
     /**
      * This is a simple way to stop the Yup component loading and leave the application
