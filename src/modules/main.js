@@ -59,6 +59,7 @@ const $$ = ( ( $$ ) =>  {
 //#include "pages.js"
 //#include "driver.js"
 //#include "provider.js"
+//#include "binder.js"
 
     function _startingAll() {
         if ( starting ) {

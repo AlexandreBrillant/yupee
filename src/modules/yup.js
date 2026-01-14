@@ -201,8 +201,6 @@ class Yup {
         return this.#childrenLst[ index ];
     }
 
-    
-
     /**
      * @returns A Yup parent or null for the root yup component
      */
@@ -244,6 +242,17 @@ class Yup {
             return this.model( new YupModel() );
         }
         return this.#model;
+    }
+
+    /**
+     * It will used all the inner field of this component with a data-bind attribute
+     * for automatically bind the value to the data model.
+     * By default all the data are read/write inside the model of the component. You
+     * can override this data providing a source parameter.
+     * @param {*} source Optional object for reading/writing value from the fields
+     */
+    bind( source ) {
+        Binder.instance().bind( this.container(), source || this.model().root() );
     }
 
     /**

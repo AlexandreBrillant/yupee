@@ -21,6 +21,12 @@ class YupModel {
     #submodels = {};
 
     /**
+     * @returns The root objet used by this data model */
+    root() {
+        return this.#content;
+    }
+
+    /**
      * Create a sub model for this model. It means with the majorkey argument, all the
      * sub model will work only with this majorkey sub object. This is useful for avoiding
      * to share all the model, by only a subset to a Yup component.

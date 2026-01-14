@@ -788,6 +788,20 @@ $$.yupContainerClass = class MyYupContainer extends $$.classes.YupContainer {
 
 Thus, every time a Yup component is built, it will use this **MyYupContainer** class for internal DOM usage, and every Yup component will have a red border.
 
+## Page
+
+A page is any HTML page that uses Yup components. You can switch to another page using 
+**$$.loadPage** :
+- A first parameter is simply the path to the new HTML page of your 
+application.
+- A second parameter (by default to true) decide to save the context of the
+application.
+
+Saving a context means storing the application model data before changing pages.
+
+When a new page loads, the application model data is automatically restored. If you
+use MVC for all your components, then the application state will be preserved.
+
 ## Conclusion
 
 Yupee is a lightweight library for creating complex and modular web applications with ease. It is designed to be simple, flexible, and easy to use.
