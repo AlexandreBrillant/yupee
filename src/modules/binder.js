@@ -44,15 +44,25 @@ class Binder {
                     } );
                 } else
                 if ( node.type == "checkbox" ) {
+                    targetData[ dataid ] && ( node.checked = targetData[ dataid ] );
                     node.addEventListener( "change", (e) => {
                         targetData[ dataid ] = e.target.checked;
+                        that.#log( targetData );
                     } );
                 }
+                break;
+            case "SELECT" :
+                ( targetData[ dataid ] ) && ( node.value = targetData[ dataid ] );
+                node.addEventListener( "change", (e) => {
+                    targetData[ dataid ] = e.target.value;
+                    that.#log( targetData );
+                } );
+                break;
         }
     }
 
     bind( container, targetData ) {
-        const nodeset = container.querySelectorAll( "*" );
+        const nodeset = container.querySelectorAll( "*[data-bind]" );
         nodeset && nodeset.forEach( 
             ( node ) => {
                 if ( node.dataset.yupid ) {

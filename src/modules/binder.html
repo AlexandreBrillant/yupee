@@ -6,29 +6,28 @@
         <script>
             function test() {
                 const binder = Binder.instance();
-
                 const data = {
                     label1 : "LABEL1",
                     field1 : "FIELD1",
                     field2 : "FIELD2",
-                    field3 : true
+                    field3 : true,
+                    field4 : "option1"
                 }
 
                 binder.bind( document.body, data );
-
             }
         </script>
     </head>
     <body onload="test()">
 
-        <label data-yupid="label1"></label>
-        <input type="text" data-yupid="field1">
-        <textarea data-yupid="field2">
+        <label data-yupid="label1" data-bind></label>
+        <input type="text" data-yupid="field1" data-bind>
+        <textarea data-yupid="field2" data-bind>
         </textarea>
-        <input type="checkbox" data-yupid="field3">
-        <select data-yupid="field4">
-            <option value="test1"></option>
-            <option value="test2" selected></option>
+        <input type="checkbox" data-yupid="field3" data-bind>
+        <select data-yupid="field4" data-bind>
+            <option value="option1">OPTION 1</option>
+            <option value="option2" selected>OPTION 2</option>
         </select>
 
     </body>
