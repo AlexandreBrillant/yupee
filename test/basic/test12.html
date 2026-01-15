@@ -1,0 +1,41 @@
+<!--    Author : Alexandre Brillant
+        Usage of the binding
+-->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="../../dist/yupee.js"></script>
+        <script>
+            const test12 = () => {
+
+                const source = {
+                    field1:"Your name",
+                    name:"Alexandre"
+                }
+
+                const yup = $$.start( { container:document.body, model:new $$.classes.YupModel( source ) } );
+
+                const handler = ( res ) => {
+                    document.querySelector( "#output" ).textContent = JSON.stringify( yup.model().root() );
+                };
+                yup.bind( { handler } );
+            }
+
+        </script>
+    </head>
+    <body onload="test12()">
+
+        <form>
+            <label data-yupid="field1" data-bind></label>
+            <input type="text" data-yupid="name" data-bind>
+        </form>
+
+        <hr>
+
+        <div id="output">
+
+        </div>
+
+    </body>
+</html>

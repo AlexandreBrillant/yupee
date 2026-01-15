@@ -21,11 +21,7 @@ class Binder {
             throw new "Illegal usage for the Binder, use Binder.instance()";
     }
 
-    #log( targetData ) {
-        console.log( targetData );
-    }
-
-    #bindNode( node, targetData ) {
+    #bindNode( node, targetData, handler ) {
         const dataid = node.dataset.yupid;
         const name = node.nodeName;
         const that = this;
@@ -40,14 +36,14 @@ class Binder {
                     targetData[ dataid ] && ( node.value = targetData[ dataid ] );
                     node.addEventListener( "input", ( e ) => {
                         targetData[ dataid ] = e.target.value;
-                        that.#log( targetData );
+                        handler && handler( targetData );
                     } );
                 } else
                 if ( node.type == "checkbox" ) {
                     targetData[ dataid ] && ( node.checked = targetData[ dataid ] );
                     node.addEventListener( "change", (e) => {
                         targetData[ dataid ] = e.target.checked;
-                        that.#log( targetData );
+                        handler && handler( targetData );
                     } );
                 }
                 break;
@@ -55,18 +51,18 @@ class Binder {
                 ( targetData[ dataid ] ) && ( node.value = targetData[ dataid ] );
                 node.addEventListener( "change", (e) => {
                     targetData[ dataid ] = e.target.value;
-                    that.#log( targetData );
+                    handler && handler( targetData );
                 } );
                 break;
         }
     }
 
-    bind( container, targetData ) {
+    bind( container, targetData, handler ) {
         const nodeset = container.querySelectorAll( "*[data-bind]" );
         nodeset && nodeset.forEach( 
             ( node ) => {
                 if ( node.dataset.yupid ) {
-                    this.#bindNode( node, targetData );
+                    this.#bindNode( node, targetData, handler );
                 }
             }
         );

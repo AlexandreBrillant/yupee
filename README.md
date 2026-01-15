@@ -802,6 +802,47 @@ Saving a context means storing the application model data before changing pages.
 When a new page loads, the application model data is automatically restored. If you
 use MVC for all your components, then the application state will be preserved.
 
+## Binder
+
+A Yup component can be bound to a set of fields. Thus, any update on a field will be automatically be reflected in the component's data model.
+
+To bind a Yup component to a set of fields, simply use the **bind** method. You can pass your own
+data object or, by default the component's data model. An optional second parameter **handler**, lets you
+receive updates callback whenever the model changes.
+
+Here is a simple component. It uses its own data model, specified in the start method. The container is the **body** tag of your HTML page.
+
+```javascript
+const source = {
+    field1:"Your name",
+    name:"Alexandre"
+}
+
+const yup = $$.start( { container:document.body, model:new $$.classes.YupModel( source ) } );
+
+const handler = ( res ) => {
+    document.querySelector( "#output" ).textContent = JSON.stringify( yup.model().root() );
+};
+yup.bind( { handler } );
+```
+
+Here an HTML part. To bind a field you must add the "data-bind" attribute. The data-yupid value is used to
+map the data to the field value.
+
+```html
+<body>
+    <form>
+        <label data-yupid="field1" data-bind></label>
+        <input type="text" data-yupid="name" data-bind>
+    </form>
+
+    <div id="output">
+    </div>
+</body>
+```
+
+In this example, you will see in the outuput field : the object of the data model ( each time the field name is updated ).
+
 ## Conclusion
 
 Yupee is a lightweight library for creating complex and modular web applications with ease. It is designed to be simple, flexible, and easy to use.

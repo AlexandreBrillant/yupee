@@ -250,9 +250,10 @@ class Yup {
      * By default all the data are read/write inside the model of the component. You
      * can override this data providing a source parameter.
      * @param {*} source Optional object for reading/writing value from the fields
+     * @param {*} handler Optional handler for receiving notification for each updating
      */
-    bind( source ) {
-        Binder.instance().bind( this.container(), source || this.model().root() );
+    bind( { source, handler } ) {
+        Binder.instance().bind( this.container(), source || this.model().root(), handler );
     }
 
     /**
@@ -365,7 +366,12 @@ class Yup {
                 }
             }
         } else {
-
+            
+            // Try to paint a content with an array of node or string
+            if ( Array.isArray( html ) ) {
+                this.clean();
+                html.forEach( ( item ) => this.#$.appendChild( item ) );
+            } else
             // Paint a content without using a model
             if ( html instanceof Node ) {   
                 this.clean(); 

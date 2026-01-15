@@ -827,9 +827,10 @@ class Yup {
      * By default all the data are read/write inside the model of the component. You
      * can override this data providing a source parameter.
      * @param {*} source Optional object for reading/writing value from the fields
+     * @param {*} handler Optional handler for receiving notification for each updating
      */
-    bind( source ) {
-        Binder.instance().bind( this.container(), source || this.model().root() );
+    bind( { source, handler } ) {
+        Binder.instance().bind( this.container(), source || this.model().root(), handler );
     }
 
     /**
@@ -942,7 +943,12 @@ class Yup {
                 }
             }
         } else {
-
+            
+            // Try to paint a content with an array of node or string
+            if ( Array.isArray( html ) ) {
+                this.clean();
+                html.forEach( ( item ) => this.#$.appendChild( item ) );
+            } else
             // Paint a content without using a model
             if ( html instanceof Node ) {   
                 this.clean(); 
@@ -1449,11 +1455,7 @@ class Binder {
             throw new "Illegal usage for the Binder, use Binder.instance()";
     }
 
-    #log( targetData ) {
-        console.log( targetData );
-    }
-
-    #bindNode( node, targetData ) {
+    #bindNode( node, targetData, handler ) {
         const dataid = node.dataset.yupid;
         const name = node.nodeName;
         const that = this;
@@ -1468,14 +1470,14 @@ class Binder {
                     targetData[ dataid ] && ( node.value = targetData[ dataid ] );
                     node.addEventListener( "input", ( e ) => {
                         targetData[ dataid ] = e.target.value;
-                        that.#log( targetData );
+                        handler && handler( targetData );
                     } );
                 } else
                 if ( node.type == "checkbox" ) {
                     targetData[ dataid ] && ( node.checked = targetData[ dataid ] );
                     node.addEventListener( "change", (e) => {
                         targetData[ dataid ] = e.target.checked;
-                        that.#log( targetData );
+                        handler && handler( targetData );
                     } );
                 }
                 break;
@@ -1483,18 +1485,18 @@ class Binder {
                 ( targetData[ dataid ] ) && ( node.value = targetData[ dataid ] );
                 node.addEventListener( "change", (e) => {
                     targetData[ dataid ] = e.target.value;
-                    that.#log( targetData );
+                    handler && handler( targetData );
                 } );
                 break;
         }
     }
 
-    bind( container, targetData ) {
+    bind( container, targetData, handler ) {
         const nodeset = container.querySelectorAll( "*[data-bind]" );
         nodeset && nodeset.forEach( 
             ( node ) => {
                 if ( node.dataset.yupid ) {
-                    this.#bindNode( node, targetData );
+                    this.#bindNode( node, targetData, handler );
                 }
             }
         );
