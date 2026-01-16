@@ -1,8 +1,8 @@
 {
   "name": "yupee",
   "productName": "Yupee",
-  "version": "1.0.1",
-  "description": "A simple JavaScript library for building complex and modular web application without React",
+  "version": "1.1",
+  "description": "Lightweight application framework for Javascript",
   "main": "yupee.js",
   "author": {
     "name": "Alexandre Brillant",
