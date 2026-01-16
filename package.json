@@ -9,24 +9,27 @@
     "url": "https://www.alexandrebrillant.com"
   },
   "homepage": "https://github.com/AlexandreBrillant/yupee",
-  "scripts": {
-    "prebuild": "node src/preprocessor.js -i src/modules/main.js -o dist/yupee.js",
-    "build": "terser dist/yupee.js -o dist/yupee.min.js",
-    "postbuild": "node --check dist/yupee.js"
-  },
   "keywords": [
     "yupee",
+    "application framework",
     "html component",
     "modular application",
     "modular web",
     "javascript component",
-    "angularjs",
-    "react",
     "alternative to react",
     "javascript"
   ],
+  "repository": {
+    "type": "git",
+    "url" : "https://github.com/AlexandreBrillant/yupee.git"
+  },
   "license": "MIT",
   "dependencies": {
     "terser": "^5.44.1"
+  },
+  "scripts": {
+    "prebuild": "node src/preprocessor.js -i src/modules/main.js -o dist/yupee.js",
+    "build": "terser dist/yupee.js -o dist/yupee.min.js",
+    "postbuild": "node --check dist/yupee.js"
   }
 }
