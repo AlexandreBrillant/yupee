@@ -38,6 +38,13 @@ class Pages {
         Provider.instance().loadPage( page );
     }
 
+    /*
+     *   Read 
+     */
+    async loadPageData( pageName ) {
+        return Provider.instance().readData( pageName );
+    }
+
     /**
      * Call when all the yup component has been loaded for
      * restoring the state of the page

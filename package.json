@@ -1,22 +1,26 @@
 {
   "name": "yupee",
-  "productName": "Yupee",
-  "version": "1.1",
+  "version": "1.1.0",
   "description": "Lightweight application framework for Javascript",
-  "main": "yupee.js",
+  "main": "./dist/yupee.min.js",
+  "files": ["dist"],
   "author": {
     "name": "Alexandre Brillant",
     "url": "https://www.alexandrebrillant.com"
   },
+  "browser" : "./dist/yupee.min.js",
   "homepage": "https://github.com/AlexandreBrillant/yupee",
   "keywords": [
     "yupee",
     "application framework",
+    "framework javascript léger",
+    "framework applicatif",
     "html component",
     "modular application",
     "modular web",
     "javascript component",
     "alternative to react",
+    "alternative à react",
     "javascript"
   ],
   "repository": {
@@ -24,7 +28,7 @@
     "url" : "https://github.com/AlexandreBrillant/yupee.git"
   },
   "license": "MIT",
-  "dependencies": {
+  "devDependencies": {
     "terser": "^5.44.1"
   },
   "scripts": {

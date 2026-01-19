@@ -1275,6 +1275,13 @@ class Pages {
         Provider.instance().loadPage( page );
     }
 
+    /*
+     *   Read 
+     */
+    async loadPageData( pageName ) {
+        return Provider.instance().readData( pageName );
+    }
+
     /**
      * Call when all the yup component has been loaded for
      * restoring the state of the page
@@ -1545,6 +1552,13 @@ class Binder {
     $$.loadPage = ( page, keepContext = true ) => {
         Pages.instance().loadpage( page, keepContext );
     };
+
+    /**
+     * It will returns the data provided by a page, this is way for sharing data between pages
+     * @param {*} pageName A name of a page
+     * @returns an object data
+     */
+    $$.loadPageData = async ( pageName ) => Pages.instance().loadPageData( pageName );
 
     /**
      * You can update the path using a delegate function.
