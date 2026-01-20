@@ -34,7 +34,7 @@ Then you will have a **dist/yupee.js** (for development) or **dist/yupee.min.js*
 ## Install with NPM
 
 ```bash
-npm -i yupee
+npm i yupee
 ```
 
 You can check the current stable version using
