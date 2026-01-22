@@ -84,9 +84,17 @@ class YupContainer {
             newChild = newChild.node();
         }
         if ( typeof newChild == "string" ) {
-            this.#$.insertAdjacentHTML( "beforeend", newChild );
+            this.appendHTML( newChild );
         } else
         this.#$.appendChild( newChild );
+    }
+
+    /**
+     * Put inside at the end of this container the HTML code
+     * @param {*} html HTML code
+     */
+    appendHTML( html) {
+        this.#$.insertAdjacentHTML( 'beforeend', html );
     }
 
     /**
@@ -98,6 +106,15 @@ class YupContainer {
             child = child.node();
         }
         this.#$.removeChild( child );
+    }
+
+    /**
+     * Swap a child by another one
+     * @param {*} oldChild old DOM node
+     * @param {*} newChild new DOM node
+     */
+    replaceChild( newChild, oldChild ) {
+        this.#$.replaceChild( newChild, oldChild );
     }
 
     querySelector( selector ) {

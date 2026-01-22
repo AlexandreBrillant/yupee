@@ -106,6 +106,12 @@ class Yup {
         if ( typeof content == "string" || content.html ) {
             this.container().appendChild( content.html || content );
             container = this.container().lastChild();
+            if ( container && container.nodeType == Node.TEXT_NODE ) {
+                // Create a wrapper for a text usage
+                const wrapper = document.createElement( "DIV" );
+                this.container().replaceChild( wrapper, container );
+                container = wrapper;
+            }
         } else
         if ( content.node || content instanceof Node ) {
             container = content.node || content;

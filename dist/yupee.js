@@ -501,9 +501,17 @@ class YupContainer {
             newChild = newChild.node();
         }
         if ( typeof newChild == "string" ) {
-            this.#$.insertAdjacentHTML( "beforeend", newChild );
+            this.appendHTML( newChild );
         } else
         this.#$.appendChild( newChild );
+    }
+
+    /**
+     * Put inside at the end of this container the HTML code
+     * @param {*} html HTML code
+     */
+    appendHTML( html) {
+        this.#$.insertAdjacentHTML( 'beforeend', html );
     }
 
     /**
@@ -515,6 +523,15 @@ class YupContainer {
             child = child.node();
         }
         this.#$.removeChild( child );
+    }
+
+    /**
+     * Swap a child by another one
+     * @param {*} oldChild old DOM node
+     * @param {*} newChild new DOM node
+     */
+    replaceChild( newChild, oldChild ) {
+        this.#$.replaceChild( newChild, oldChild );
     }
 
     querySelector( selector ) {
@@ -683,6 +700,12 @@ class Yup {
         if ( typeof content == "string" || content.html ) {
             this.container().appendChild( content.html || content );
             container = this.container().lastChild();
+            if ( container && container.nodeType == Node.TEXT_NODE ) {
+                // Create a wrapper for a text usage
+                const wrapper = document.createElement( "DIV" );
+                this.container().replaceChild( wrapper, container );
+                container = wrapper;
+            }
         } else
         if ( content.node || content instanceof Node ) {
             container = content.node || content;
