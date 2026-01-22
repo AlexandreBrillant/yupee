@@ -701,7 +701,7 @@ class Yup {
         }
 
         !yupid && ( yupid = content.yupid );    // Specific id provided by the content
-        !yupid && ( yupid = ( container.id || container.dataset.yupid || container.getAttribute( "yupid" ) ) );   // Use the id per default   // Use the id per default
+        !yupid && ( yupid = ( container.id || container.getAttribute( "yupid" ) || ( container.dataset && container.dataset.yupid ) ) );   // Use the id per default   // Use the id per default
         !yupid && ( yupid = this.#generate_newid() );
 
         const yup = Factory.instance().newYup( { yupid, container } );
