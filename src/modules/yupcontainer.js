@@ -79,7 +79,12 @@ class YupContainer {
         return this.#$.lastChild;
     }
 
-    appendChild( newChild ) {
+    /**
+     * Add a new DOM child for this container
+     * @param {*} newChild can be a yupcontainer, a string or a dom node
+     * @param {*} autoscroll false by default, else scroll to the end
+     */
+    appendChild( newChild, autoscroll = false ) {
         if ( newChild instanceof YupContainer ) {
             newChild = newChild.node();
         }
@@ -87,14 +92,24 @@ class YupContainer {
             this.appendHTML( newChild );
         } else
         this.#$.appendChild( newChild );
+        autoscroll && this.scrollToEnd();
     }
 
     /**
      * Put inside at the end of this container the HTML code
      * @param {*} html HTML code
+     * @param autoscroll force a scrolling if required to the end of the container
      */
-    appendHTML( html) {
+    appendHTML( html, autoscroll = false ) {
         this.#$.insertAdjacentHTML( 'beforeend', html );
+        autoscroll && this.scrollToEnd();
+    }
+
+    /**
+     * Scroll to the end of the container
+     */
+    scrollToEnd() {
+        this.#$.scrollTop = this.#$.scrollHeight;        
     }
 
     /**
