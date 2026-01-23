@@ -632,9 +632,20 @@ class Yup {
     #model;
     #childid = 1;
     #parent = null;
+    #scrollMode;
 
-    constructor( { yupid, model, renderer, template, container, params } ) {
+    /**
+     * @param {*} param0 object with the following parameters
+     * - yupid unique id for this component,
+     * - model : update the default model by this one,
+     * - renderer : use the following renderer when updating the model,
+     * - container : use this DOM container for the component,
+     * - params : use this parameters for initializing the component (like a color...),
+     * - scrollmode : "end" to scroll automatically to the end after rendering/painting.
+     */
+    constructor( { yupid, model, renderer, template, container, params, scrollmode } ) {
         this.#yupid = yupid;
+        this.#scrollMode = scrollmode;
 
         if ( params ) {
             if ( params instanceof Node ) {
@@ -1006,6 +1017,8 @@ class Yup {
                 }
             }
         }
+
+        ( this.#scrollMode == "end" ) && this.container().scrollToEnd();
 
         return this;
     }
