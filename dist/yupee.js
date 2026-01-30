@@ -1740,14 +1740,15 @@ class Binder {
     };
 
     /**
-    * Simple shortcuts for dialogs of type alert/confirm/prompt, thus user can
-    * override this default usage
+    * Simple shortcuts for asynchronous dialogs of type alert/confirm/prompt, thus user can
+    * override this default usage. Asynchronous usage is for compatibiliy with electron usage.
     */
     $$.dialogs = {
-        alert:( msg ) => window.alert( msg ),
-        confirm:( msg ) => window.confirm( msg ),
-        prompt:( msg ) => window.prompt( msg )
+        alert: async ( msg ) => new Promise( (resolve, reject) => window.alert( msg ) && resolve( true ) ),
+        confirm: async ( msg ) => new Promise( ( resolve,reject ) => resolve( window.confirm( msg ) ) ),
+        prompt: async ( msg ) => new Promise( ( resolve, reject ) => resolve( window.prompt( msg ) ) )
     };
+
 
     /**
      * This is a simple way to stop the Yup component loading and leave the application
