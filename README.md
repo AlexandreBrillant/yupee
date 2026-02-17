@@ -859,7 +859,7 @@ In this example, you will see in the outuput field : the object of the data mode
 
 You may use the :
 
-- [Yupee dialogs framework](https://github.com/AlexandreBrillant/yupee-dialogs) : This is a framework for using inner dialogs with Yupee, this is very usefule for electron usage.
+- [Yupee dialogs framework](https://github.com/AlexandreBrillant/yupee-dialogs) : This is a framework for using inner dialogs with Yupee, this is very useful for electron usage.
 
 ## Conclusion
 
