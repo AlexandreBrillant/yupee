@@ -1459,7 +1459,7 @@ class Provider {
      * @param {*} location 
      */
     async loadYup( location ) {
-        return ( $$.driver || this.#defaultDriver ).loadYup( location );
+        return ( $$.yupDriver || $$.driver || this.#defaultDriver ).loadYup( location );
     }
 
     /**
@@ -1467,7 +1467,7 @@ class Provider {
      * @param {*} location 
      */
     async loadPage( location ) {
-        return ( $$.driver || this.#defaultDriver ).loadPage( location );
+        return ( $$.pageDriver || $$.driver || this.#defaultDriver ).loadPage( location );
     }
 
     /**
@@ -1475,7 +1475,7 @@ class Provider {
      * @param {*} key 
      */
     async readData( key ) {
-        return ( $$.driver || this.#defaultDriver ).readData( key );
+        return ( $$.dataDriver || $$.driver || this.#defaultDriver ).readData( key );
     }
 
     /**
@@ -1483,7 +1483,7 @@ class Provider {
      * @param {*} key 
      */
     async writeData( key, value ) {
-        return ( $$.driver || this.#defaultDriver ).writeData( key, value );
+        return ( $$.dataDriver || $$.driver || this.#defaultDriver ).writeData( key, value );
     }
 
     // Default driver

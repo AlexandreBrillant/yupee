@@ -855,6 +855,12 @@ map the data to the field value.
 
 In this example, you will see in the outuput field : the object of the data model ( each time the field name is updated ).
 
+## Additional features
+
+You may use the :
+
+- [Yupee dialogs framework](https://github.com/AlexandreBrillant/yupee-dialogs) : This is a framework for using inner dialogs with Yupee, this is very usefule for electron usage.
+
 ## Conclusion
 
 Yupee is a lightweight library for creating complex and modular web applications with ease. It is designed to be simple, flexible, and easy to use.
