@@ -530,6 +530,13 @@ class YupContainer {
     }
 
     /**
+     * Scroll to the start of the container
+     */
+    scrollToStart() {
+        this.#$.scrollIntoView({ behavior: "auto", block: "start" });        
+    }
+
+    /**
      * Remove a child
      * @param {*} child can be a DOM node or a YupContainer
      */
