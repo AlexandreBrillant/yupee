@@ -35,8 +35,9 @@ class Yup {
      * - container : use this DOM container for the component,
      * - params : use this parameters for initializing the component (like a color...),
      * - scrollmode : "end" to scroll automatically to the end after rendering/painting.
+     * - global : if true the yup reference is stored inside the $$.application object using the yupid as a key
      */
-    constructor( { yupid, model, renderer, afterRendering, template, container, params, scrollmode } ) {
+    constructor( { yupid, model, renderer, afterRendering, template, container, params, scrollmode, global } ) {
         this.#yupid = yupid;
         this.#scrollMode = scrollmode;
         this.#afterRendering = afterRendering;
@@ -72,6 +73,11 @@ class Yup {
 
         // Use the application model by default
         !this.#model && $$.application.hasModel() && this.model( $$.application.model() );
+
+        // Store this reference inside the global application
+        if ( global && yupid ) {
+            $$.application[ yupid ] = this;
+        }
     }
 
     // Children by name
@@ -147,7 +153,10 @@ class Yup {
         !yupid && ( yupid = ( container.id || container.getAttribute( "yupid" ) || ( container.dataset && container.dataset.yupid ) ) );   // Use the id per default   // Use the id per default
         !yupid && ( yupid = this.#generate_newid() );
 
-        const yup = Factory.instance().newYup( { yupid, container } );
+        // Check for a global child
+        const global = yupid && content.global;
+
+        const yup = Factory.instance().newYup( { yupid, container, global } );
 
         content.click && yup.click( content.click );
         
