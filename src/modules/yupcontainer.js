@@ -184,6 +184,14 @@ class YupContainer {
         return this;
     }
 
+    classes() {
+        return this.#$.classList;
+    }
+
+    firstClass() {
+        return this.#$.classList.length > 0 ? this.#$.classList[0] : "";
+    }
+
     removeClass( className ) {
         this.#$.classList.remove( className );
         return this;
