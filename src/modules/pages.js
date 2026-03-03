@@ -26,23 +26,35 @@ class Pages {
         return document.body.dataset.page || document.body.getAttribute( "page" ) || page;
     }
 
+    // Load a new page, save the current context before
     loadpage( page, keepContext = true ) {
-        if ( keepContext && $$.application.hasModel() ) {
-            // Store the application model
-            const wholeModel = $$.application.model();
-            if ( wholeModel ) {
-                const jsonModel = wholeModel.toJSON();
-                Provider.instance().writeData( this.#currentPage(), jsonModel );
-            }
-        }
+        if ( keepContext ) this.saveContext();            
         Provider.instance().loadPage( page );
     }
 
-    /*
-     *   Read 
-     */
-    async loadPageData( pageName ) {
-        return Provider.instance().readData( pageName );
+    saveContext() {
+        if ( $$.application.hasModel() ) {
+            const wholeModel = $$.application.model();
+            if ( wholeModel ) {
+                const jsonModel = wholeModel.toJSON();
+                this.savepage( null, jsonModel );
+            }
+        }
+    }
+
+    savepage( page, data ) {
+        page = page || this.#currentPage();
+        Provider.instance().writeData( page, data );
+    }
+
+    async loadPageData( page ) {
+        page = page || this.#currentPage();
+        return Provider.instance().readData( page );
+    }
+
+    async savePageData( page, data ) {
+        this.savepage( page, data );
+        return true;
     }
 
     /**

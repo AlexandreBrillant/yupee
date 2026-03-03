@@ -111,6 +111,19 @@ const $$ = ( ( $$ ) =>  {
     $$.loadPageData = async ( pageName ) => Pages.instance().loadPageData( pageName );
 
     /**
+     * Store a specific page data
+     * @param {*} pageName A name of a page or if null, the current one
+     * @param {*} data data to be stored
+     * @returns 
+     */
+    $$.savePageData = async( pageName, data ) => Pages.instance().savePageData( pageName, data );
+
+    /**
+     * Store the application model as JSON content
+     */
+    $$.saveContext = () => Pages.instance().saveContext();
+
+    /**
      * You can update the path using a delegate function.
      * This function has a DOM node as a parameter and return a path
      * to the Yup component
