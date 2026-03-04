@@ -295,6 +295,7 @@ const $$ = ( ( $$ ) =>  {
         $$.application.ready();
     });
 
+    window && ( window.$$ = $$ );
     return $$;
 
 } )( {} || $$ );

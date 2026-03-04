@@ -1660,7 +1660,7 @@ class Binder {
     $$.savePageData = async( pageName, data ) => Pages.instance().savePageData( pageName, data );
 
     /**
-     * Store the application model as json content
+     * Store the application model as JSON content
      */
     $$.saveContext = () => Pages.instance().saveContext();
 
@@ -1836,6 +1836,7 @@ class Binder {
         $$.application.ready();
     });
 
+    window && ( window.$$ = $$ );
     return $$;
 
 } )( {} || $$ );
