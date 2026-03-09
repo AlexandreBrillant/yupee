@@ -320,7 +320,7 @@ class YupModel {
             this.update( key );
         }
     }
-
+2
     /** Notify to all the Yup component using this model to repaint 
      *  @param flags optional for all the renderers, it can be used for optimization
      *  @param includeSubModel "false" by default, if true then the update contains also the sub models
@@ -377,13 +377,37 @@ class YupModel {
     data( key, value, update = false ) {
         if ( typeof key == "undefined" )
             return this.#content;
-        if ( !value ) {
+        if ( typeof value == "undefined" ) {
             return this.#content[ key ];
         }
         this.#content[ key ] = value;
         if ( update )
             this.update( key );
         return value;
+    }
+
+    #mappers = {};
+
+    /**
+     * Particular data read/write using a delegate function
+     * @param {*} key A data value to read/write
+     * @param {*} mapper An object having a read function. A write function is added automatically for writting inside the data model automatically => write( YourValue )
+     */
+    dataMapper( key, mapper ) {
+        if ( typeof mapper == "undefined" )
+            return this.#mappers[ key ] || {};
+
+        // Initialize the data
+        if ( typeof mapper.read == "function" ) {
+            const initValue = mapper.read();
+            this.data( key, initValue );
+        }
+        // Add a write function
+        const that = this;
+        mapper.write = ( value ) => {
+            that.data( key, value );
+        }
+        this.#mappers[ key ] = mapper;
     }
 
     /**
@@ -1344,12 +1368,14 @@ class Pages {
 
     // Load a new page, save the current context before
     loadpage( page, keepContext = true ) {
+        $$.fire( $$.KEYS.EVENT_LOAD_PAGE, page );        
         if ( keepContext ) this.saveContext();            
         Provider.instance().loadPage( page );
     }
 
     saveContext() {
         if ( $$.application.hasModel() ) {
+            $$.fire( $$.KEYS.EVENT_BEFORE_SAVING_CONTEXT, this.#currentPage() );
             const wholeModel = $$.application.model();
             if ( wholeModel ) {
                 const jsonModel = wholeModel.toJSON();
@@ -1382,6 +1408,7 @@ class Pages {
             ( value ) => {
                 const wholeModelData = JSON.parse( value );
                 wholeModelData && $$.application.initModel( wholeModelData ).update();
+                $$.fire( $$.KEYS.EVENT_INIT_PAGE, this.#currentPage() );
             } );
     }
 }
@@ -1817,7 +1844,10 @@ class Binder {
         DEBUG_BODY : 1, // page body trace output
         EVENT_YUPID : "event/yupid", // key for producing a yup id value
         EVENT_READY : "event/ready", // event for all the Yup components are loaded
-        AUTO_HANDLER : "handler/auto" // manager for a click firing an event
+        AUTO_HANDLER : "handler/auto", // manager for a click firing an event
+        EVENT_INIT_PAGE : "event/initPage", // Event called after a page has been initialized
+        EVENT_LOAD_PAGE : "event/loadPage", // Event before a new page is loaded
+        EVENT_BEFORE_SAVING_CONTEXT : "event/beforeSavePageContext" // Before each time the whole application context is saved, typically before changing of page
     } );
 
     /**

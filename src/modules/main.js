@@ -276,7 +276,10 @@ const $$ = ( ( $$ ) =>  {
         DEBUG_BODY : 1, // page body trace output
         EVENT_YUPID : "event/yupid", // key for producing a yup id value
         EVENT_READY : "event/ready", // event for all the Yup components are loaded
-        AUTO_HANDLER : "handler/auto" // manager for a click firing an event
+        AUTO_HANDLER : "handler/auto", // manager for a click firing an event
+        EVENT_INIT_PAGE : "event/initPage", // Event called after a page has been initialized
+        EVENT_LOAD_PAGE : "event/loadPage", // Event before a new page is loaded
+        EVENT_BEFORE_SAVING_CONTEXT : "event/beforeSavePageContext" // Before each time the whole application context is saved, typically before changing of page
     } );
 
     /**

@@ -28,12 +28,14 @@ class Pages {
 
     // Load a new page, save the current context before
     loadpage( page, keepContext = true ) {
+        $$.fire( $$.KEYS.EVENT_LOAD_PAGE, page );        
         if ( keepContext ) this.saveContext();            
         Provider.instance().loadPage( page );
     }
 
     saveContext() {
         if ( $$.application.hasModel() ) {
+            $$.fire( $$.KEYS.EVENT_BEFORE_SAVING_CONTEXT, this.#currentPage() );
             const wholeModel = $$.application.model();
             if ( wholeModel ) {
                 const jsonModel = wholeModel.toJSON();
@@ -66,6 +68,7 @@ class Pages {
             ( value ) => {
                 const wholeModelData = JSON.parse( value );
                 wholeModelData && $$.application.initModel( wholeModelData ).update();
+                $$.fire( $$.KEYS.EVENT_INIT_PAGE, this.#currentPage() );
             } );
     }
 }

@@ -66,7 +66,7 @@ class YupModel {
             this.update( key );
         }
     }
-
+2
     /** Notify to all the Yup component using this model to repaint 
      *  @param flags optional for all the renderers, it can be used for optimization
      *  @param includeSubModel "false" by default, if true then the update contains also the sub models
@@ -123,13 +123,37 @@ class YupModel {
     data( key, value, update = false ) {
         if ( typeof key == "undefined" )
             return this.#content;
-        if ( !value ) {
+        if ( typeof value == "undefined" ) {
             return this.#content[ key ];
         }
         this.#content[ key ] = value;
         if ( update )
             this.update( key );
         return value;
+    }
+
+    #mappers = {};
+
+    /**
+     * Particular data read/write using a delegate function
+     * @param {*} key A data value to read/write
+     * @param {*} mapper An object having a read function. A write function is added automatically for writting inside the data model automatically => write( YourValue )
+     */
+    dataMapper( key, mapper ) {
+        if ( typeof mapper == "undefined" )
+            return this.#mappers[ key ] || {};
+
+        // Initialize the data
+        if ( typeof mapper.read == "function" ) {
+            const initValue = mapper.read();
+            this.data( key, initValue );
+        }
+        // Add a write function
+        const that = this;
+        mapper.write = ( value ) => {
+            that.data( key, value );
+        }
+        this.#mappers[ key ] = mapper;
     }
 
     /**
