@@ -302,3 +302,8 @@ const $$ = ( ( $$ ) =>  {
     return $$;
 
 } )( {} || $$ );
+
+// Compatibility commonjs for exporting to esm
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = $$;
+}

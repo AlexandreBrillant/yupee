@@ -3,12 +3,15 @@
   "version": "1.1.0",
   "description": "Lightweight application framework for Javascript",
   "main": "./dist/yupee.min.js",
-  "files": ["dist"],
+  "module": "./dist/yupee.min.msj",
+  "files": [
+    "dist"
+  ],
   "author": {
     "name": "Alexandre Brillant",
     "url": "https://www.alexandrebrillant.com"
   },
-  "browser" : "./dist/yupee.min.js",
+  "browser": "./dist/yupee.min.js",
   "homepage": "https://github.com/AlexandreBrillant/yupee",
   "keywords": [
     "yupee",
@@ -25,15 +28,23 @@
   ],
   "repository": {
     "type": "git",
-    "url" : "https://github.com/AlexandreBrillant/yupee.git"
+    "url": "https://github.com/AlexandreBrillant/yupee.git"
   },
   "license": "MIT",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^29.0.2",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "rollup": "^4.59.0",
     "terser": "^5.44.1"
   },
   "scripts": {
-    "prebuild": "node src/preprocessor.js -i src/modules/main.js -o dist/yupee.js",
-    "build": "terser dist/yupee.js -o dist/yupee.min.js",
-    "postbuild": "node --check dist/yupee.js"
+    "build:clean": "rm -rf dist && mkdir dist",
+    "build:minify": "terser dist/yupee.js -o dist/yupee.min.js && terser dist/yupee.mjs -o dist/yupee.min.mjs",
+    "build:esm": "npx rollup -c",
+    "prebuild": "npm run build:clean",
+    "build": "npm run build:includeAll && npm run build:esm && npm run build:minify",
+    "build:includeAll": "node src/preprocessor.js -i src/modules/main.js -o dist/yupee.js",
+    "postbuild": "node --check dist/yupee.js",
+    "test": ". test/checkall.sh"
   }
 }
