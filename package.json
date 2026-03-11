@@ -39,7 +39,7 @@
   },
   "scripts": {
     "build:clean": "rm -rf dist && mkdir dist",
-    "build:minify": "terser dist/yupee.js -o dist/yupee.min.js && terser dist/yupee.mjs -o dist/yupee.min.mjs",
+    "build:minify": "terser dist/yupee.js -o dist/yupee.min.js && terser dist/yupee.mjs -o dist/yupee.min.mjs && terser dist/yupee.cjs -o dist/yupee.min.cjs",
     "build:esm": "npx rollup -c",
     "prebuild": "npm run build:clean",
     "build": "npm run build:includeAll && npm run build:esm && npm run build:minify",
