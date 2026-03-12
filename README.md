@@ -10,6 +10,7 @@ It works with external **Yup component** files. A Yup component is a standard Ja
 
 ## Current Version
 
+**This version** – In development (work in progress)
 **v1.1** – Stable and ready for use ! 
 
 ## Benefits of Using Yupee :
@@ -864,7 +865,7 @@ Yupee is compatible ESM, you just have to replace "yupee.js" by "yupee.mjs".
 <html>
     <head>
         <script type="module">
-            import * as $$ from "./lib/yupee.mjs";
+            import { $$ } from "./lib/yupee.mjs";
         </script>
     </head>
     <body id="test1" data-yup>

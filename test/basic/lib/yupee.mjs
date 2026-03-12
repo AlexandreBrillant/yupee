@@ -42,6 +42,8 @@
  * @version 1.0
  */
 
+"use strict";
+
 const $$ = ( ( $$ ) =>  {    
 
     let debugMode = false;
