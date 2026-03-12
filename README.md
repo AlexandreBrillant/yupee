@@ -10,8 +10,8 @@ It works with external **Yup component** files. A Yup component is a standard Ja
 
 ## Current Version
 
-**This version** – In development (work in progress)
-**v1.1** – Stable and ready for use ! 
+- **This version** : In development (work in progress)
+- **v1.1** : Stable and ready for use ! 
 
 ## Benefits of Using Yupee :
 
