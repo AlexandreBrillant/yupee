@@ -42,6 +42,8 @@
  * @version 1.0
  */
 
+"use strict";
+
 const $$ = ( ( $$ ) =>  {    
 
     let debugMode = false;
@@ -55,7 +57,6 @@ const $$ = ( ( $$ ) =>  {
 //#include "yup.js"
 //#include "factory.js"
 //#include "boot.js"
-//#include "resolver.js"
 //#include "pages.js"
 //#include "driver.js"
 //#include "provider.js"
@@ -297,6 +298,8 @@ const $$ = ( ( $$ ) =>  {
         Pages.instance().init(); 
         $$.application.ready();
     });
+
+    //#include "resolver.js"    
 
     window && ( window.$$ = $$ );
     return $$;

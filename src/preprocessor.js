@@ -10,20 +10,25 @@ const path = require('path');
 mainFile = "main.js";
 outputFile = "test.js"
 const argv = process.argv;
+let addit = "";
 
 for ( let i = 0; i < argv.length; i++ ) {
+    if ( argv[ i ] == "-a" || argv[ i ] == "--add" )
+        addit = argv[ i + 1 ];
     if ( argv[ i ] == "-i" || argv[ i ] == "--input" )
         mainFile = argv[ i + 1 ];
     if ( argv[ i ] == "-o" || argv[ i ] == "--output" )
         outputFile = argv[ i + 1 ];
     if ( argv[ i ] == "-h" || argv[ i ] == "--help" ) {
-        console.log( "node module.js -i inputfile -o outputfile" );
+        console.log( "node module.js -i inputfile -a addthis -o outputfile" );
         console.log( "or" );
-        console.log( "node module.js --input inputfile --output outputfile" );
+        console.log( "node module.js --input inputfile --add addthis --output outputfile" );
     }
 }
 
 console.log( `Processing ${mainFile}` );
+addit && ( addit = "\n" + addit );
+console.log( addit );
 
 const files = {};
 
@@ -61,9 +66,7 @@ processMain().then(
     () => {
         processMain(false).then(
             ( fileContent ) => {
-                writeMain( fileContent );
+                writeMain( fileContent + addit );
             } );
     }
 )
-
-

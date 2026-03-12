@@ -855,11 +855,29 @@ map the data to the field value.
 
 In this example, you will see in the outuput field : the object of the data model ( each time the field name is updated ).
 
+## Module ESM
+
+Yupee is compatible ESM, you just have to replace "yupee.js" by "yupee.mjs".
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="module">
+            import * as $$ from "./lib/yupee.mjs";
+        </script>
+    </head>
+    <body id="test1" data-yup>
+    </body>
+</html>
+```
+
 ## Additional features
 
 You may use the :
 
 - [Yupee dialogs framework](https://github.com/AlexandreBrillant/yupee-dialogs) : This is a framework for using inner dialogs with Yupee, this is very useful for electron usage.
+- [Yuppee binder framework](https://github.com/AlexandreBrillant/yupee-binder) : This is a framework for building easily form from a litteral objet and synchronize data automatically on-the-fly.
 
 ## Conclusion
 

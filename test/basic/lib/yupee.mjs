@@ -42,8 +42,6 @@
  * @version 1.0
  */
 
-"use strict";
-
 const $$ = ( ( $$ ) =>  {    
 
     let debugMode = false;
@@ -1883,3 +1881,5 @@ class Binder {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = $$;
 }
+
+export { $$ }

@@ -30,8 +30,9 @@
 
     function process_data_yup() {
         const nodes = document.querySelectorAll( "*" );
-        for ( node of nodes ) {
+        for ( let node of nodes ) {
             if ( node.hasAttribute( "data-yup" ) || node.hasAttribute( "yup" ) ) {
+                let path = null;
                 // Try a delegate function
                 if ( $$.pathResolver )
                     path = $$.pathResolver( node );
@@ -46,7 +47,11 @@
         }
     }
 
-    document.addEventListener( "DOMContentLoaded", () => {
+    // Can be processed now !, don't wait
+    if ( document.readyState == "complete" || document.readyState == "interactive" ) {
         process_data_yup();
+    } else
+    document.addEventListener( "DOMContentLoaded", () => {
+        process_data_yup();        
     } );
 } )();

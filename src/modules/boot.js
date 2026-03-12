@@ -6,7 +6,7 @@
 const boot = (...args) => {
     ready = document.body ? true : false;
 
-    init = () => {
+    const init = () => {
             let usage = null;
             if ( args.length ) 
                 usage = args[ 0 ];

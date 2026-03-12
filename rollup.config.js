@@ -1,5 +1,6 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import inject from '@rollup/plugin-inject';
 
 export default [
   // Version ESM
@@ -7,9 +8,14 @@ export default [
     input: 'dist/yupee.js',
     output: {
       file: 'dist/yupee.mjs',
-      format: 'esm'
+      format: 'esm',
+      exports: 'default'
     },
-    plugins: [nodeResolve(), commonjs()]
+    plugins: [
+      nodeResolve(), 
+      commonjs(),
+      inject( { $$: '$$' } )
+    ]
   },
   // Version CommonJS
   {
