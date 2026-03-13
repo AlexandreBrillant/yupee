@@ -284,9 +284,9 @@ const $$ = ( ( $$ ) =>  {
     $$.dialogs = {
         alert: async ( msg ) => new Promise( (resolve, reject) => window.alert( msg ) && resolve( true ) ),
         confirm: async ( msg ) => new Promise( ( resolve,reject ) => resolve( window.confirm( msg ) ) ),
-        prompt: async ( msg ) => new Promise( ( resolve, reject ) => resolve( window.prompt( msg ) ) )
+        prompt: async ( msg ) => new Promise( ( resolve, reject ) => resolve( window.prompt( msg ) ) ),
+        panel: async( container, config ) => new Promise( ( resolve, reject ) => reject( false ) )
     };
-
 
     /**
      * This is a simple way to stop the Yup component loading and leave the application
@@ -331,7 +331,7 @@ const $$ = ( ( $$ ) =>  {
 
 } )( {} || $$ );
 
-// Compatibility commonjs for exporting to esm
+// Compatibility commonjs
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = $$;
 }
