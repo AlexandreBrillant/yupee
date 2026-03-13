@@ -1,6 +1,6 @@
 # Yupee
 
-Yupee is an open-source JavaScript library for building complex and modular web applications. 
+Yupee is an open-source [library](https://github.com/AlexandreBrillant/yupee) for building complex and modular web applications. 
 
 Yupee helps developers organize their JavaScript applications into independent components. It automatically binds a component to a DOM node, reduces inter-component dependencies by using event-based communication, and supports a full MVC (Model-View-Controller) architecture for the entire application, including multi-page management.
 
@@ -11,6 +11,7 @@ It works with external **Yup component** files. A Yup component is a standard Ja
 ## Current Version
 
 - **This version** : In development (work in progress)
+- **v1.2** : Stable and ready for use ! 
 - **v1.1** : Stable and ready for use ! 
 
 ## Benefits of Using Yupee :
