@@ -130,7 +130,7 @@ const $$ = ( ( $$ ) =>  {
     };
 
     /**
-     * It will returns the data provided by a page, this is way for sharing data between pages
+     * It will returns the data provided by a page, this is a way for sharing data between pages
      * @param {*} pageName A name of a page
      * @returns an object data
      */

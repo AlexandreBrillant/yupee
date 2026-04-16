@@ -122,7 +122,7 @@ class Yupees {
                 Yupees.#singleton.loadNextComponent();
             }).catch( ( error ) => {
                 _trace( "load", error, error.stack );
-                _criticalError( "load yup", location );
+                _criticalError( "load yup", location, error );
                 $$.exit( 1 );
             } );
         } else {

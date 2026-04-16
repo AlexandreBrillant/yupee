@@ -246,7 +246,7 @@ class Yupees {
                 Yupees.#singleton.loadNextComponent();
             }).catch( ( error ) => {
                 _trace( "load", error, error.stack );
-                _criticalError( "load yup", location );
+                _criticalError( "load yup", location, error );
                 $$.exit( 1 );
             } );
         } else {
@@ -1363,6 +1363,12 @@ class Pages {
         Provider.instance().writeData( page, data );
     }
 
+    /**
+     * Load all the data for a page name. This is useful
+     * when you want to access data from another page
+     * @param {*} page page name
+     * @returns 
+     */
     async loadPageData( page ) {
         page = page || this.#currentPage();
         return Provider.instance().readData( page );
@@ -1385,6 +1391,7 @@ class Pages {
                 $$.fire( $$.KEYS.EVENT_INIT_PAGE, this.#currentPage() );
             } );
     }
+
 }
 
 
@@ -1513,7 +1520,7 @@ class Provider {
 
     /**
      * Read a value for a key
-     * @param {*} key 
+     * @param key 
      */
     async readData( key ) {
         return ( $$.dataDriver || $$.driver || this.#defaultDriver ).readData( key );
@@ -1646,7 +1653,7 @@ class Binder {
     };
 
     /**
-     * It will returns the data provided by a page, this is way for sharing data between pages
+     * It will returns the data provided by a page, this is a way for sharing data between pages
      * @param {*} pageName A name of a page
      * @returns an object data
      */

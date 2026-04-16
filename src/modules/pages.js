@@ -49,6 +49,12 @@ class Pages {
         Provider.instance().writeData( page, data );
     }
 
+    /**
+     * Load all the data for a page name. This is useful
+     * when you want to access data from another page
+     * @param {*} page page name
+     * @returns 
+     */
     async loadPageData( page ) {
         page = page || this.#currentPage();
         return Provider.instance().readData( page );
@@ -71,5 +77,6 @@ class Pages {
                 $$.fire( $$.KEYS.EVENT_INIT_PAGE, this.#currentPage() );
             } );
     }
+
 }
 

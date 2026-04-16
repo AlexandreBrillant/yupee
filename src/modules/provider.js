@@ -51,7 +51,7 @@ class Provider {
 
     /**
      * Read a value for a key
-     * @param {*} key 
+     * @param key 
      */
     async readData( key ) {
         return ( $$.dataDriver || $$.driver || this.#defaultDriver ).readData( key );
